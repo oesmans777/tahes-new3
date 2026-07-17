@@ -1,0 +1,2795 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badminton TaheSquad - Kas & Klasemen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    
+    <!-- Pustaka Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
+    <!-- Pustaka Konversi HTML ke Gambar (html2canvas) -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #1e5631;
+            --primary-dark: #12351e;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f1c40f;
+            --bg: #f8f9fa;
+            --sidebar-width: 270px;
+            
+            --dark-bg: #111111;
+            --dark-field: #1a1a1a;
+            --dark-hover: #252525;
+            --dark-text: #ffffff;
+            --dark-text-muted: #aaaaaa;
+            --accent-green: #2ecc71;
+            
+            --neon-cyan: #00f3ff;
+            --neon-blue: #0077ff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: #333;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 100;
+            height: 100%;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+            position: relative;
+            border-right: 1px solid #21262d;
+        }
+        .sidebar.closed { margin-left: calc(-1 * var(--sidebar-width)); }
+        
+        .sidebar-header {
+            padding: 24px 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(135deg, #161b22, #0a0a0a);
+            line-height: 1.4;
+        }
+        .sidebar-header span { 
+            display: block;
+            font-size: 22px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+        
+        .sidebar-menu { list-style: none; padding: 20px 12px; flex: 1; overflow-y: auto; overflow-x: hidden; }
+        .sidebar-menu li {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-text-muted);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            transition: all 0.2s ease;
+        }
+        .sidebar-menu li:hover { background-color: var(--dark-hover); color: var(--dark-text); }
+        .sidebar-menu li.active {
+            background-color: var(--dark-field);
+            color: var(--neon-cyan);
+            box-shadow: inset 4px 0 0 var(--neon-cyan);
+        }
+
+        .sidebar-watermark {
+            position: absolute;
+            bottom: 15px;
+            left: 20px;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.35);
+            letter-spacing: 0.8px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; position: relative; }
+        
+        .top-navbar {
+            background: white;
+            height: 65px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        
+        .navbar-left-zone { display: flex; align-items: center; gap: 15px; }
+        .toggle-btn { background: var(--dark-bg); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        .live-score-container-center { flex: 1; display: flex; justify-content: center; }
+        .live-score-panel { display: flex; align-items: center; gap: 24px; background: transparent; padding: 4px 0; }
+        .live-score-item { display: flex; align-items: center; gap: 8px; }
+        .live-score-label { color: #64748b; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .live-score-value { color: #0284c7; font-weight: 900; font-family: 'Courier New', Courier, monospace; font-size: 22px; letter-spacing: 1px; }
+
+        .floating-controls { display: flex; gap: 10px; align-items: center; }
+        
+        .dropdown-container { position: relative; display: inline-block; }
+        .btn-alat {
+            background-color: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; 
+            font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s;
+        }
+        .btn-alat:hover { background-color: #f8fafc; border-color: #94a3b8; }
+        .dropdown-menu {
+            display: none; position: absolute; right: 0; top: calc(100% + 8px); background-color: #ffffff; min-width: 210px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid #e2e8f0; z-index: 1000; overflow: hidden; animation: dropIn 0.2s ease-out;
+        }
+        .dropdown-menu.show { display: flex; flex-direction: column; }
+        .dropdown-item {
+            padding: 12px 16px; text-align: left; background: none; border: none; border-bottom: 1px solid #f1f5f9; width: 100%;
+            cursor: pointer; font-size: 13px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 10px; transition: background 0.2s;
+        }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background-color: #f8fafc; color: #1e293b; }
+        .dropdown-item.danger { color: #e74c3c; }
+        .dropdown-item.danger:hover { background-color: #fef2f2; }
+
+        .content-body { flex: 1; padding: 20px; overflow-y: auto; }
+        .page-panel {
+            display: none; max-width: 1050px; margin: 0 auto; background: white; padding: 24px;
+            border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        .page-panel.active { display: block; }
+
+        h2 { color: #2c3e50; margin-bottom: 25px; font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 8px;}
+        h3 { color: #34495e; margin-top: 30px; margin-bottom: 15px; font-size: 16px; font-weight: 700; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; }
+
+        .table-container { width: 100%; overflow-x: auto; border-radius: 8px; border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; background: white; }
+        th { background-color: #f8fafc; color: #64748b; font-weight: 700; padding: 10px 8px; font-size: 11px; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
+        td { padding: 8px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        
+        .pos-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; font-weight: 800; background: #f1f5f9; }
+        tr:nth-child(1) .pos-badge { background: #fef08a; color: #854d0e; }
+        tr:nth-child(2) .pos-badge { background: #e2e2e2; color: #475569; }
+        tr:nth-child(3) .pos-badge { background: #ffedd5; color: #9a3412; }
+
+        .absen-cell-wrapper { display: flex; align-items: center; justify-content: flex-start; gap: 6px; }
+        .btn-absen-toggle { border: none; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; background: #fee2e2; color: #ef4444; }
+        .btn-absen-toggle.is-present { background: #2ecc71; color: white; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #ef4444; display: inline-block; }
+        .btn-absen-toggle.is-present .status-dot { background: white; }
+        .time-arrival { font-size: 10px; color: #475569; font-weight: 700; font-family: monospace; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; }
+
+        .form-container { display: flex; gap: 3px; justify-content: center; }
+        .form-dot { width: 18px; height: 18px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; }
+        .form-dot.win { background: #2ecc71; }
+        .form-dot.lose { background: #e74c3c; }
+
+        .input-group { display: flex; gap: 8px; margin-bottom: 15px; }
+        .input-group input { flex: 1; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; }
+        .btn-add { background: #334155; color: white; border: none; padding: 0 22px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        .copas-section { background: #f0fdf4; border: 1px dashed #4ade80; padding: 16px; border-radius: 10px; margin-bottom: 15px; }
+        .nominal-setting { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; font-weight: bold; }
+        .nominal-setting input { width: 100px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; }
+        textarea { width: 100%; height: 110px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; resize: none; }
+        .btn-process { background: #16a34a; color: white; border: none; width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        .papan-skor-header-box { display: flex; align-items: center; gap: 12px; margin-top: 30px; margin-bottom: 15px; border-bottom: 2px solid #edf2f7; padding-bottom: 8px; }
+        .papan-skor-header-box h3 { margin: 0; border: none; padding: 0; }
+        .lapangan-mini-controls { display: flex; gap: 5px; }
+        .btn-ctrl-lap { border: none; width: 28px; height: 28px; border-radius: 6px; color: white; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-ctrl-lap.add { background-color: #2ecc71; }
+        .btn-ctrl-lap.rem { background-color: #e74c3c; }
+
+        .courts-container { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 20px; }
+        @media(min-width: 768px) { .courts-container.grid-layout { grid-template-columns: repeat(2, 1fr); } }
+
+        .score-board-container { background: white; border: 1.5px solid #007bff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,123,255,0.08); overflow: hidden; display: flex; flex-direction: column; }
+        .court-title-bar { padding: 12px 14px 4px 14px; text-align: center; }
+        .court-main-name { font-size: 15px; font-weight: 800; color: #0f3460; text-transform: uppercase; }
+        .court-status-sub { font-size: 12px; color: #6c757d; margin-top: 2px; font-weight: 600; }
+        
+        .court-body-form { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+        .team-row-box { display: flex; align-items: center; gap: 10px; width: 100%; }
+        .select-players-wrapper { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .select-players-wrapper select { width: 100%; padding: 7px; border-radius: 6px; border: 1px solid #ced4da; font-size: 13px; font-weight: 600; }
+        .score-input-box { width: 65px; }
+        .score-input-box input { width: 100%; font-size: 22px; font-weight: 800; text-align: center; padding: 4px 2px; border-radius: 6px; border: 1px solid #ced4da; background: #f8fafc; }
+        .vs-divider-center { text-align: center; font-weight: 800; font-size: 13px; color: #adb5bd; font-style: italic; }
+        
+        .court-action-footer { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 14px 14px 14px; }
+        .btn-court-footer { border: none; padding: 9px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; color: white; transition: background 0.2s;}
+        .btn-court-footer.start { background-color: #2ecc71; }
+        .btn-court-footer.start:hover { background-color: #27ae60; }
+        .btn-court-footer.auto { background-color: #8b5cf6; }
+        .btn-court-footer.auto:hover { background-color: #7c3aed; }
+        .btn-court-footer.suggest { background-color: #e67e22; }
+        .btn-court-footer.suggest:hover { background-color: #d35400; }
+        .btn-court-footer.save { background-color: #cbd5e1; color: #64748b; cursor: not-allowed; }
+        .btn-court-footer.save.active { background-color: #007bff; color: white; cursor: pointer; }
+        .btn-court-footer.save.active:hover { background-color: #0056b3; }
+
+        .member-court-view {
+            background: #1e5631; 
+            border: 4px solid #ffffff;
+            border-radius: 8px;
+            position: relative;
+            height: 140px;
+            margin: 10px 14px 20px 14px;
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .court-line-center {
+            position: absolute; top: 0; bottom: 0; left: 50%;
+            width: 4px; background: #ffffff; transform: translateX(-50%); z-index: 1;
+        }
+        .court-line-horizontal {
+            position: absolute; top: 50%; left: 0; right: 0;
+            height: 2px; background: rgba(255, 255, 255, 0.4); transform: translateY(-50%); z-index: 1;
+        }
+        .court-side {
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 2; position: relative;
+        }
+        .court-side.team-a { border-right: 2px dashed rgba(255,255,255,0.3); }
+
+        .court-timer-digital-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000000;
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.6);
+            border-radius: 6px;
+            padding: 3px 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            text-align: center;
+            z-index: 10;
+            min-width: 52px;
+            letter-spacing: 1px;
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 8px rgba(0, 243, 255, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.8); }
+        }
+
+        .court-score-display-small {
+            font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 900; color: #f1c40f;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            margin-bottom: 6px; line-height: 1;
+        }
+
+        .court-score-display {
+            font-family: 'Orbitron', sans-serif; font-size: 34px; font-weight: 900; color: #f1c40f;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px 1px 0 #000;
+            margin-bottom: 6px; line-height: 1;
+        }
+        .court-player-chip {
+            background: rgba(0, 0, 0, 0.7); color: #ffffff; padding: 4px 10px; border-radius: 12px;
+            font-size: 11px; font-weight: 700; margin: 2px 0; text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .court-empty-slot { color: rgba(255, 255, 255, 0.5); font-size: 11px; font-style: italic; margin: 2px 0; }
+
+        .summary-container { background: #eff6ff; padding: 18px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #bfdbfe; }
+        .summary-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 13px; font-weight: bold; text-align: center; border-bottom: 2px dashed #bfdbfe; padding-bottom: 14px; margin-bottom: 14px; }
+        .grand-total-box { text-align: center; font-weight: 800; font-size: 18px; color: #1e40af; }
+        .attendance-details { font-size: 12px; color: #475569; margin-top: 10px; display: flex; justify-content: space-around; gap: 8px; }
+        .summary-amount { font-size: 15px; display: block; margin-top: 5px; font-weight: 800; }
+        
+        .filter-rekap-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .filter-label-text { font-size: 13px; font-weight: 700; color: #475569; }
+        .dropdown-filter-kas { padding: 8px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-size: 13px; font-weight: 700; color: #1e293b; cursor: pointer; outline: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        
+        .member-list { list-style: none; }
+        .member-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 10px; border-bottom: 1px solid #f1f5f9; background: #fff; transition: background 0.2s; }
+        .member-item:hover { background: #f8fafc; }
+        .member-info-left { display: flex; align-items: center; gap: 12px; }
+        
+        .pay-avatar-icon { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; background: #e0e7ff; color: #4f46e5; border: 1px solid #c7d2fe; transition: all 0.2s; }
+        .member-item.is-paid-row .pay-avatar-icon { background: #dcfce7; color: #15803d; border-color: #bbf7d0; transform: scale(1.04); }
+        
+        .member-names-block { display: flex; flex-direction: column; }
+        .member-name-rekap { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px; color: #1e293b; }
+        .check-v { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; background: #2ecc71; color: white; border-radius: 50%; font-size: 10px; font-weight: 900; animation: bounceIn 0.3s ease; }
+        .member-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .rekap-action-links { display: flex; gap: 12px; margin-top: 4px; }
+        
+        .btn-rekap-link { background: none; border: none; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-rekap-link.edit { color: #d97706; padding: 2px 6px; border-radius: 4px; background-color: #fef3c7; font-size: 10px; transition: background-color 0.2s; }
+        .btn-rekap-link.edit:hover { background-color: #fde68a; }
+        .btn-rekap-link.delete { color: #e74c3c; padding: 2px 6px; border-radius: 4px; background-color: #fee2e2; font-size: 10px; transition: background-color 0.2s; }
+        .btn-rekap-link.delete:hover { background-color: #fecaca; }
+        
+        .rekap-pay-controls { display: flex; align-items: center; gap: 8px; }
+        .rekap-pay-controls select { padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; font-weight: 600; background: #fff; cursor: pointer; }
+        
+        .btn-bayar-toggle { border: none; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; min-width: 110px; text-align: center; transition: all 0.2s; }
+        .btn-bayar-toggle.lunas { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; box-shadow: 0 2px 4px rgba(22,163,74,0.1); }
+        .btn-bayar-toggle.belum { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .btn-bayar-toggle:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes slideInRight { 0% { transform: translateX(100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+        @keyframes blinker { 50% { opacity: 0; } }
+        @keyframes dropIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .badge-new {
+            background: #ef4444; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 800; 
+            animation: blinker 1s linear infinite; margin-left: 6px; vertical-align: middle; display: inline-block;
+        }
+
+        .history-list { list-style: none; }
+        .history-item { background: #f8fafc; padding: 12px 16px; border-left: 4px solid #3b82f6; margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; font-size: 13px; align-items: center; border: 1px solid #e2e8f0; border-left-width: 4px; }
+        .history-time { font-size: 11px; color: #64748b; margin-top: 4px; }
+        .history-right-side { display: flex; align-items: center; gap: 12px; }
+        .btn-edit-history { background: #f59e0b; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-box { background: white; padding: 24px; border-radius: 12px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: bounceIn 0.3s ease; }
+        .modal-box h3 { border: none; margin-top: 0; font-size: 20px; color: #1e293b; }
+        .modal-box p { font-size: 14px; color: #64748b; margin-bottom: 20px; line-height: 1.5; }
+        
+        .integrated-edit-form { text-align: left; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .integrated-edit-form label { font-size: 12px; font-weight: 700; color: #475569; }
+        .integrated-edit-form input { padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 14px; width: 100%; }
+
+        .modal-actions { display: flex; gap: 10px; justify-content: center; }
+        .btn-modal { border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
+        .btn-modal.confirm { background: #10b981; color: white; }
+        .btn-modal.confirm.blue { background: #2563eb; color: white; }
+        .btn-modal.confirm.red { background: #ef4444; color: white; }
+        .btn-modal.cancel { background: #e2e8f0; color: #475569; }
+        
+        .choice-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .btn-choice { background: #f8fafc; border: 2px solid #e2e8f0; padding: 14px; border-radius: 8px; text-align: left; cursor: pointer; transition: all 0.2s; }
+        .btn-choice:hover.choice-green { background: #f0fdf4; border-color: #2ecc71; }
+        .btn-choice:hover.choice-blue { background: #eff6ff; border-color: #3b82f6; }
+        .btn-choice:hover.choice-orange { background: #fff7ed; border-color: #f97316; }
+        .btn-choice:hover.choice-red { background: #fef2f2; border-color: #ef4444; }
+        .btn-choice h4 { font-size: 15px; color: #1e293b; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+        .btn-choice p { font-size: 12px; color: #64748b; margin-bottom: 0; text-align: left; line-height: 1.4; }
+
+        .loading-overlay {
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.7); z-index: 2000; flex-direction: column;
+            align-items: center; justify-content: center; color: white; font-weight: bold;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1); width: 42px; height: 42px; border-radius: 50%;
+            border-left-color: #2ecc71; animation: spin 1s linear infinite; margin-bottom: 12px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .balancing-assistant { margin-top: 8px; padding: 10px; border: 1.5px solid #fcd34d; background-color: #fef3c7; border-radius: 8px; font-size: 12px; color: #78350f; }
+        .balancing-assistant-title { font-weight: 800; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .btn-apply-balance { background-color: #d97706; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; transition: background 0.1s; margin-top: 6px; display: inline-block; }
+        .btn-apply-balance:hover { background-color: #b45309; }
+
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 99999; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: white; padding: 40px 30px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); max-width: 380px; width: 90%; text-align: center; }
+        .login-card h1 { font-family: 'Orbitron', sans-serif; font-size: 24px; color: #1e293b; margin-bottom: 8px; }
+        .login-card p { font-size: 13px; color: #64748b; margin-bottom: 30px; }
+        .btn-login { display: block; width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; transition: all 0.2s; margin-bottom: 12px; }
+        .btn-login.admin { background: #1e293b; color: white; }
+        .btn-login.admin:hover { background: #0f172a; }
+        .btn-login.member { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .btn-login.member:hover { background: #e2e8f0; }
+        
+        .role-member .admin-only { display: none !important; }
+        .role-member .btn-absen-toggle { pointer-events: none !important; cursor: default !important; opacity: 0.9; }
+
+        .grading-slider {
+            -webkit-appearance: none;
+            width: 100px;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+        .grading-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #2563eb;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+
+        .btn-set-grade {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-set-grade:hover {
+            background-color: #1d4ed8;
+        }
+
+        .edit-icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+
+        /* --- STYLING POSTER INFOGRAFIS SPORTY E-SPORT --- */
+        #print-poster-container {
+            display: none; position: absolute; left: -9999px; top: 0;
+            width: 1200px; padding: 50px 60px;
+            background: radial-gradient(circle at 50% 10%, #0d285a 0%, #02081f 70%, #000000 100%);
+            color: white; font-family: 'Inter', sans-serif;
+            border: 4px solid #0055ff; box-sizing: border-box;
+        }
+        
+        .poster-header { text-align: center; margin-bottom: 30px; position: relative; }
+        .poster-logo-text { font-family: 'Orbitron', sans-serif; font-size: 65px; font-weight: 900; color: #ffffff; text-shadow: 0 0 20px #00e5ff, 0 0 40px #0077ff; letter-spacing: 2px; margin-bottom: 5px; line-height: 1; }
+        .poster-sub-title { font-size: 26px; font-weight: 800; color: #e2e8f0; text-transform: uppercase; letter-spacing: 3px; }
+        .poster-session { display: inline-block; font-family: 'Orbitron', sans-serif; font-size: 36px; font-weight: 900; color: #00e5ff; text-shadow: 0 0 15px rgba(0, 229, 255, 0.6); margin-top: 5px; }
+        .poster-date-badge { display: inline-block; background: rgba(0, 85, 255, 0.3); border: 1px solid #00e5ff; padding: 6px 24px; border-radius: 30px; font-size: 16px; font-weight: 700; margin-top: 15px; color: #e2e8f0; box-shadow: inset 0 0 10px rgba(0,229,255,0.2); }
+
+        .podium-container { display: flex; justify-content: center; align-items: flex-end; margin-top: 40px; margin-bottom: 40px; height: 180px; gap: 15px; }
+        .podium-box { display: flex; flex-direction: column; align-items: center; width: 220px; box-shadow: 0 15px 30px rgba(0,0,0,0.8); position: relative; border-radius: 8px 8px 0 0; }
+        .podium-rank-badge { position: absolute; top: -35px; width: 50px; height: 50px; border-radius: 50%; background: #000; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; font-size: 28px; font-weight: 900; box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 3px solid; }
+        .podium-content { padding: 30px 10px 15px 10px; text-align: center; width: 100%; }
+        .pod-name { font-size: 22px; font-weight: 900; color: #ffffff; text-transform: uppercase; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pod-pts { font-size: 18px; font-weight: 800; color: #e2e8f0; margin-bottom: 3px; }
+        .pod-sp { font-size: 18px; font-weight: 900; color: #00e5ff; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5); }
+        
+        .p-1 { height: 160px; background: linear-gradient(to bottom, #ffd700, #b8860b); border-top: 2px solid #fffbea; z-index: 3; }
+        .p-1 .podium-rank-badge { border-color: #ffd700; color: #ffd700; }
+        .p-2 { height: 130px; background: linear-gradient(to bottom, #e2e8f0, #94a3b8); border-top: 2px solid #ffffff; z-index: 2; }
+        .p-2 .podium-rank-badge { border-color: #e2e8f0; color: #e2e8f0; }
+        .p-3 { height: 110px; background: linear-gradient(to bottom, #cd7f32, #8b4513); border-top: 2px solid #ffdab9; z-index: 1; }
+        .p-3 .podium-rank-badge { border-color: #cd7f32; color: #cd7f32; }
+
+        .stats-summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: rgba(0, 30, 80, 0.6); border: 1px solid #0055ff; padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .stat-icon { font-size: 30px; }
+        .stat-text div { font-size: 14px; color: #cbd5e1; font-weight: 600; text-transform: uppercase; }
+        .stat-text span { font-family: 'Orbitron'; font-size: 28px; font-weight: 900; color: #ffffff; line-height: 1.2; }
+
+        .poster-tables-wrapper { display: flex; gap: 20px; width: 100%; }
+        .poster-table-col { flex: 1; width: 50%; }
+        
+        .poster-table { width: 100%; border-collapse: collapse; background: rgba(0, 15, 40, 0.8); border: 1px solid #0044cc; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .poster-table th { background: #002266; color: #e2e8f0; font-size: 13px; font-weight: 800; padding: 10px 5px; text-transform: uppercase; border-bottom: 2px solid #0055ff; text-align: center; }
+        .poster-table td { padding: 8px 5px; font-size: 14px; font-weight: 700; border-bottom: 1px solid rgba(0, 85, 255, 0.2); text-align: center; }
+        .poster-table tr:nth-child(even) { background: rgba(0, 40, 100, 0.4); }
+        .poster-table td:nth-child(2) { text-align: left; text-transform: uppercase; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+        
+        .pt-pos { color: #e2e8f0; font-weight: 900; }
+        .pt-sp.plus { color: #00e5ff; }
+        .pt-sp.minus { color: #ff3366; }
+        .pt-poin { color: #ffffff; font-weight: 900; font-size: 16px; }
+
+        .poster-footer { margin-top: 30px; text-align: center; padding-top: 15px; border-top: 1px solid rgba(0, 229, 255, 0.3); font-size: 14px; font-weight: 600; color: #cbd5e1; }
+
+        .sync-status {
+            padding: 5px 14px; border-radius: 20px; font-size: 11.5px; font-weight: 700;
+            display: flex; align-items: center; gap: 6px; transition: all 0.3s ease;
+            user-select: none;
+        }
+        .sync-status.connected { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; box-shadow: 0 2px 4px rgba(21,128,61,0.1); }
+        .sync-status.syncing { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; box-shadow: 0 2px 4px rgba(180,83,9,0.1); }
+        .sync-status.error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; box-shadow: 0 2px 4px rgba(185,28,28,0.1); }
+        .sync-status.syncing .sync-icon { animation: spin-pulse 1.5s infinite; display: inline-block; }
+        @keyframes spin-pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-card">
+        <h1>TaheSquad</h1>
+        <p>Login</p>
+        <button class="btn-login admin" onclick="loginAdmin()">🔑 Masuk sebagai Admin</button>
+        <button class="btn-login member" onclick="loginMember()">👁️ Masuk sebagai Member</button>
+    </div>
+</div>
+
+<div class="loading-overlay" id="loading-image-process">
+    <div class="spinner"></div>
+    <div style="font-family:'Inter', sans-serif; font-size:14px; letter-spacing:0.5px;" id="loading-image-text">Memproses Gambar JPG...</div>
+</div>
+
+<div id="live-toast" style="display: none; position: fixed; bottom: 20px; right: 20px; background: #1e293b; color: white; padding: 12px 24px; border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); font-weight: 700; font-size: 13px; z-index: 9999; align-items: center; gap: 8px; border-left: 4px solid #10b981; animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+    <span id="toast-message">Pemberitahuan</span>
+</div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        Badminton <span>TaheSquad</span>
+    </div>
+    <ul class="sidebar-menu">
+        <li id="menu-input" class="active admin-only" onclick="gantiHalaman('page-input')">
+            <span class="menu-icon">📝</span> Registrasi Pemain
+        </li>
+        <li id="menu-match" onclick="gantiHalaman('page-match')">
+            <span class="menu-icon">🏆</span> Klasemen & Match
+        </li>
+        <li id="menu-rekap" class="admin-only" onclick="gantiHalaman('page-rekap')">
+            <span class="menu-icon">💰</span> Rekap Pembayaran
+        </li>
+        <li id="menu-allmatch" onclick="gantiHalaman('page-allmatch')">
+            <span class="menu-icon">📊</span> Klasemen All Kumulatif
+        </li>
+        <li id="menu-grading" class="admin-only" onclick="gantiHalaman('page-grading')">
+            <span class="menu-icon">⭐</span> Grading Database
+        </li>
+        <li style="margin-top: 25px; padding: 0; background: transparent !important; box-shadow: none !important; cursor: default;">
+            <button onclick="logout()" style="pointer-events: auto; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">🚪 Keluar (Logout)</button>
+        </li>
+    </ul>
+    <div class="sidebar-watermark">made by ~CT~</div>
+</div>
+
+<div class="main-wrapper">
+    <div class="top-navbar">
+        <div class="navbar-left-zone">
+            <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu</button>
+            <div id="cloud-sync-indicator" class="sync-status connected"><span class="sync-icon">☁️</span> <span id="sync-text">Cloud Terkoneksi</span></div>
+        </div>
+        
+        <div class="live-score-container-center">
+            <div class="live-score-panel" id="live-score-topbar">
+                <div class="live-score-item">
+                    <span class="live-score-label">Pemain (Hadir)</span>
+                    <span class="live-score-value" id="live-total-pemain">00</span>
+                </div>
+                <div class="live-score-item">
+                    <span class="live-score-label">Total Match</span>
+                    <span class="live-score-value" id="live-total-match">00</span>
+                </div>
+                <div class="live-score-item">
+                    <span class="live-score-label">Rata2 Durasi</span>
+                    <span class="live-score-value" id="live-avg-durasi">00:00</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="floating-controls admin-only" id="action-buttons">
+            <div class="dropdown-container">
+                <button class="btn-alat" onclick="toggleDropdownAlat(event)">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 4px;">
+                        <circle cx="50" cy="50" r="32" fill="none" stroke="#f97316" stroke-width="8"/>
+                        <path d="M44,6 L56,6 L58,18 L42,18 Z" fill="#f97316"/>
+                        <path d="M44,94 L56,95 L58,82 L42,82 Z" fill="#f97316"/>
+                        <path d="M6,44 L6,56 L18,58 L18,42 Z" fill="#f97316"/>
+                        <path d="M94,44 L94,56 L82,58 L82,42 Z" fill="#f97316"/>
+                        <g transform="rotate(45 50 50)">
+                            <path d="M44,6 L56,6 L58,18 L42,18 Z" fill="#f97316"/>
+                            <path d="M44,94 L56,95 L58,82 L42,82 Z" fill="#f97316"/>
+                            <path d="M6,44 L6,56 L18,58 L18,42 Z" fill="#f97316"/>
+                            <path d="M94,44 L94,56 L82,58 L82,42 Z" fill="#f97316"/>
+                        </g>
+                        <circle cx="50" cy="50" r="22" fill="#ffffff"/>
+                        <path d="M46,45 L54,45 L52,65 L48,65 Z" fill="#f97316"/>
+                        <path d="M50,33 C45,33 42,38 42,42 C42,45 44,47 46,47 C46,45 48,43 50,43 C52,43 54,45 54,47 C56,47 58,45 58,42 C58,38 55,33 50,33 Z" fill="#f97316"/>
+                        <circle cx="50" cy="69" r="4.5" fill="#f97316"/>
+                    </svg>
+                    Alat
+                </button>
+                <div class="dropdown-menu" id="dropdown-alat-menu">
+                    <button class="dropdown-item" onclick="bukaModalExportGambar()">🖼️ Unduh Klasemen (JPG)</button>
+                    <button class="dropdown-item" onclick="bukaModalExport()">📊 Unduh Laporan</button>
+                    <button class="dropdown-item" onclick="bukaModalImport()">📥 Impor Database</button>
+                    <div style="height: 1px; background: #e2e8f0; margin: 4px 0;"></div>
+                    <button class="dropdown-item" onclick="bukaModalSelesai()">🏁 Selesai Sesi Harian</button>
+                    <button class="dropdown-item danger" onclick="bukaModalReset()">🔄 Reset Sistem</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-body">
+        
+        <div id="page-input" class="page-panel active">
+            <h2>📝 Registrasi & Masukkan Nama Pemain</h2>
+            
+            <div class="copas-section">
+                <div class="nominal-setting">
+                    <span>Iuran Per Orang Default: Rp</span>
+                    <input type="number" id="iuran-pemain" value="25000">
+                </div>
+                <h4>📋 Tempel Teks (Bisa 1 atau banyak sekaligus)</h4>
+                <p style="font-size:12px; color:#64748b; margin-top:4px; margin-bottom:12px;">
+                    Anda dapat mengetikkan 1 nama langsung, atau menyalin daftar berangka dari WhatsApp dan menempelkannya di sini.
+                </p>
+                <textarea id="wa-text" placeholder="Masukkan 1 nama atau tempel daftar nama ke bawah disini...&#10;Contoh 1: BUDI&#10;Contoh banyak:&#10;1. BUDI&#10;2. ANDI"></textarea>
+                <button class="btn-process" onclick="prosesDaftarNama()">Proses & Masukkan Pemain</button>
+            </div>
+        </div>
+
+        <div id="page-match" class="page-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px;">
+                <h2 style="margin-bottom: 0;">🏆 Klasemen Liga & Pertandingan Hari Ini</h2>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 45px;">Pos</th>
+                            <th style="text-align: left; width: 140px;">Pemain</th>
+                            <th style="width: 140px; text-align: left;">Status Hadir</th>
+                            <th style="width: 45px;">Mp</th>
+                            <th style="width: 45px; color:#16a34a;">M</th>
+                            <th style="width: 45px; color:#dc2626;">K</th>
+                            <th style="width: 45px; color:#16a34a;" title="Poin Menang">PM</th>
+                            <th style="width: 45px; color:#dc2626;" title="Poin Kalah">PK</th>
+                            <th style="width: 50px; color:#8b5cf6;" title="Selisih Poin">SP</th>
+                            <th style="width: 65px; color:#2563eb;">Poin</th>
+                            <th style="width: 80px;" title="Rata-rata Waktu Main">Rata Waktu</th> 
+                            <th>5 Laga (Form)</th>
+                            <th style="width: 40px;" class="admin-only">Del</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-klasemen"></tbody>
+                </table>
+            </div>
+
+            <div class="papan-skor-header-box">
+                <h3>🎚️ Papan Skor Pertandingan</h3>
+                <div class="lapangan-mini-controls admin-only">
+                    <button class="btn-ctrl-lap add" onclick="tambahLapangan()">+</button>
+                    <button class="btn-ctrl-lap rem" onclick="kurangiLapangan()">-</button>
+                </div>
+            </div>
+
+            <div id="kontainer-lapangan" class="courts-container"></div>
+
+            <h3>📜 Riwayat Hasil Pertandingan Hari Ini</h3>
+            <ul class="history-list" id="log-riwayat"></ul>
+        </div>
+
+        <div id="page-rekap" class="page-panel">
+            <h2>💰 Rekapitulasi Kas</h2>
+            <div class="summary-container">
+                <div class="summary-box">
+                    <div><span style="color:#16a34a;">💵 Kas Tunai</span><span id="total-tunai" class="summary-amount">Rp 0</span><span id="count-tunai" style="font-size:11px; color:#475569; display:block; margin-top:2px;">(0 Orang)</span></div>
+                    <div><span style="color:#2563eb;">📱 QRIS / Transfer</span><span id="total-transfer" class="summary-amount">Rp 0</span><span id="count-transfer" style="font-size:11px; color:#475569; display:block; margin-top:2px;">(0 Orang)</span></div>
+                    <div><span style="color:#dc2626;">⏳ Belum Bayar</span><span id="total-belum" class="summary-amount">Rp 0</span><span id="count-belum" style="font-size:11px; color:#475569; display:block; margin-top:2px;">(0 Orang)</span></div>
+                </div>
+                <div class="grand-total-box">
+                    💰 Total Kas Bersih Masuk: <span id="total-keseluruhan">Rp 0</span>
+                </div>
+                <div class="attendance-details">
+                    <span>Total Member: <b id="lbl-total-m">0</b></span>
+                    <span>Hadir Mabar: <b id="lbl-hadir-m">0</b></span>
+                    <span>Sudah Bayar: <b id="lbl-lunas-m">0</b></span>
+                    <span>Sponsor/Free: <b id="lbl-sponsor-m">0</b></span>
+                </div>
+            </div>
+
+            <div class="filter-rekap-container">
+                <span class="filter-label-text">Tampilkan Data:</span>
+                <select class="dropdown-filter-kas" onchange="setFilterKas(this.value)">
+                    <option value="semua">📋 Semua Anggota Terdaftar</option>
+                    <option value="sudah">🟢 Sudah Bayar (Lunas/Sponsor)</option>
+                    <option value="belum">🔴 Belum Bayar</option>
+                    <option value="tunai">💵 Pembayaran Tunai</option>
+                    <option value="tf">📱 Pembayaran QRIS / Transfer</option>
+                    <option value="sponsor">🤝 Free / Sponsor</option>
+                </select>
+            </div>
+
+            <ul class="member-list" id="rekap-kas-list"></ul>
+        </div>
+
+        <div id="page-allmatch" class="page-panel">
+            <h2>📊 Klasemen All Kumulatif</h2>
+            <p style="font-size:12px; color:#64748b; margin-bottom:15px; margin-top:-15px;">
+                *Data ini memuat rangkuman kehadiran dan performa pemain yang diarsipkan secara permanen dari setiap sesi mabar selesai dilakukan.
+            </p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">Pos</th>
+                            <th style="width: 180px; text-align: left;">Pemain</th>
+                            <th style="width: 110px; text-align: left;">Hadir</th>
+                            <th style="width: 50px;">Mp</th>
+                            <th style="width: 50px; color:#16a34a;">M</th>
+                            <th style="width: 50px; color:#dc2626;">K</th>
+                            <th style="width: 55px; color:#16a34a;" title="Poin Menang">PM</th>
+                            <th style="width: 55px; color:#dc2626;" title="Poin Kalah">PK</th>
+                            <th style="width: 55px; color:#8b5cf6;" title="Selisih Poin">SP</th>
+                            <th style="width: 65px; color:#2563eb;">Poin</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-allmatch-kumulatif"></tbody>
+                </table>
+            </div>
+
+            <h3 style="margin-top: 40px;">📅 Arsip Riwayat Sesi Harian</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr style="background-color: #f1f5f9;">
+                            <th>Waktu Arsip</th>
+                            <th>Total Pertandingan</th>
+                            <th>Jumlah Pemain Hadir</th>
+                            <th>Rata-rata Waktu Main</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-history-sesi-harian"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="page-grading" class="page-panel">
+            <h2>⭐ Grading & Kualitas Pemain Database</h2>
+            
+            <!-- Lokasi Notifikasi Cerdas Naik/Turun Kelas yang Dihasilkan Dinamis -->
+            <div id="smart-grading-notifications" style="margin-bottom: 15px;"></div>
+            
+            <div style="margin-bottom: 15px; border-radius: 8px; border: 1px solid #3b82f6; overflow: hidden; background: #ffffff;">
+                <button onclick="toggleGradingConfigCollapse()" style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border: none; background: #eff6ff; color: #1e3a8a; font-weight: 800; font-size: 12px; cursor: pointer; text-align: left;">
+                    <span style="display: flex; align-items: center; gap: 6px;">⚙️ Pengaturan Nama & Range Kategori Level</span>
+                    <span id="grading-config-icon">➕</span>
+                </button>
+                
+                <div id="grading-config-content" style="display: none; padding: 12px; border-top: 1px solid rgba(59, 130, 246, 0.2);">
+                    <div style="display: grid; grid-template-columns: 1fr 50px 10px 50px; gap: 6px; margin-bottom: 8px; font-size: 10px; font-weight: 700; color: #475569; align-items: center;">
+                        <div>Label Kategori Level</div><div style="text-align:center;">Min</div><div></div><div style="text-align:center;">Max</div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 50px 10px 50px; gap: 6px; margin-bottom: 6px; align-items: center;">
+                        <input type="text" id="cfg-t1-nama" style="padding: 5px; border-radius: 4px; border: 1px solid #fca5a5; background: #fef2f2; color: #991b1b; font-weight: bold; font-size:11px;">
+                        <input type="number" step="0.1" id="cfg-t1-min" style="padding: 5px; border-radius: 4px; border: 1px solid #fca5a5; text-align:center; font-weight: bold; background: #fef2f2; font-size:11px;">
+                        <span style="text-align:center; font-weight:bold; font-size:11px;">-</span>
+                        <input type="number" step="0.1" id="cfg-t1-max" style="padding: 5px; border-radius: 4px; border: 1px solid #fca5a5; text-align:center; font-weight: bold; background: #fef2f2; font-size:11px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 50px 10px 50px; gap: 6px; margin-bottom: 6px; align-items: center;">
+                        <input type="text" id="cfg-t2-nama" style="padding: 5px; border-radius: 4px; border: 1px solid #bfdbfe; background: #eff6ff; color: #1e40af; font-weight: bold; font-size:11px;">
+                        <input type="number" step="0.1" id="cfg-t2-min" style="padding: 5px; border-radius: 4px; border: 1px solid #bfdbfe; text-align:center; font-weight: bold; background: #eff6ff; font-size:11px;">
+                        <span style="text-align:center; font-weight:bold; font-size:11px;">-</span>
+                        <input type="number" step="0.1" id="cfg-t2-max" style="padding: 5px; border-radius: 4px; border: 1px solid #bfdbfe; text-align:center; font-weight: bold; background: #eff6ff; font-size:11px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 50px 10px 50px; gap: 6px; margin-bottom: 6px; align-items: center;">
+                        <input type="text" id="cfg-t3-nama" style="padding: 5px; border-radius: 4px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #166534; font-weight: bold; font-size:11px;">
+                        <input type="number" step="0.1" id="cfg-t3-min" style="padding: 5px; border-radius: 4px; border: 1px solid #bbf7d0; text-align:center; font-weight: bold; background: #f0fdf4; font-size:11px;">
+                        <span style="text-align:center; font-weight:bold; font-size:11px;">-</span>
+                        <input type="number" step="0.1" id="cfg-t3-max" style="padding: 5px; border-radius: 4px; border: 1px solid #bbf7d0; text-align:center; font-weight: bold; background: #f0fdf4; font-size:11px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 50px 10px 50px; gap: 6px; margin-bottom: 6px; align-items: center;">
+                        <input type="text" id="cfg-t4-nama" style="padding: 5px; border-radius: 4px; border: 1px solid #cbd5e1; background: #f1f5f9; color: #334155; font-weight: bold; font-size:11px;">
+                        <input type="number" step="0.1" id="cfg-t4-min" style="padding: 5px; border-radius: 4px; border: 1px solid #cbd5e1; text-align:center; font-weight: bold; background: #f1f5f9; font-size:11px;">
+                        <span style="text-align:center; font-weight:bold; font-size:11px;">-</span>
+                        <input type="number" step="0.1" id="cfg-t4-max" style="padding: 5px; border-radius: 4px; border: 1px solid #cbd5e1; text-align:center; font-weight: bold; background: #f1f5f9; font-size:11px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 50px 10px 50px; gap: 6px; margin-bottom: 6px; align-items: center;">
+                        <input type="text" id="cfg-t5-nama" style="padding: 5px; border-radius: 4px; border: 1px solid #fde68a; background: #fffbeb; color: #b45309; font-weight: bold; font-size:11px;" placeholder="Kategori 5">
+                        <input type="number" step="0.1" id="cfg-t5-min" style="padding: 5px; border-radius: 4px; border: 1px solid #fde68a; text-align:center; font-weight: bold; background: #fffbeb; font-size:11px;">
+                        <span style="text-align:center; font-weight:bold; font-size:11px;">-</span>
+                        <input type="number" step="0.1" id="cfg-t5-max" style="padding: 5px; border-radius: 4px; border: 1px solid #fde68a; text-align:center; font-weight: bold; background: #fffbeb; font-size:11px;">
+                    </div>
+                    
+                    <button onclick="simpanConfigGrading()" style="margin-top: 6px; width: 100%; background: #2563eb; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; font-size: 11px; cursor: pointer; transition: background 0.2s;">💾 Simpan & Terapkan Kategori</button>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size:12px; font-weight:800; color:#475569;">Filter Level:</span>
+                    <select id="filter-grading-level" onchange="setFilterGradingLevel(this.value)" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; font-weight: 700; color: #1e293b; background: white; cursor: pointer; outline: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                        <option value="semua">📋 Semua Level</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <p style="font-size:11px; color:#64748b; margin: 0; max-width: 250px; text-align: right; line-height: 1.2;">
+                        *Rekomendasi grading dihitung dinamis berdasarkan klasemen harian mabar hari ini saja.
+                    </p>
+                    <button onclick="terapkanSemuaRekomendasiGrading()" style="background: linear-gradient(135deg, #00b4db, #0083b0); border: none; color: white; padding: 8px 14px; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0, 180, 219, 0.25); transition: all 0.2s;">
+                        ⚡ Terapkan Semua
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 45px;">Pos</th>
+                            <th style="text-align: left; width: 180px;">Nama Anggota</th>
+                            <th style="width: 80px; text-align:center;">Main (Match)</th>
+                            <th style="width: 150px; text-align:center;">Grading Skor</th>
+                            <th style="width: 150px; text-align:center;">Rekomendasi</th>
+                            <th style="width: 130px; text-align:center;">Kategori Level</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-grading-pemain"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-export-gambar">
+    <div class="modal-box">
+        <h3>🖼️ Unduh Klasemen (Gambar JPG)</h3>
+        <p>Silakan pilih jenis klasemen yang ingin diekspor menjadi berkas kartu foto JPG resolusi tinggi:</p>
+        <div class="choice-container">
+            <button class="btn-choice choice-green" onclick="prosesEksporGambar('hari-ini')">
+                <h4>🟢 Klasemen Hari Ini (Gambar)</h4>
+                <p>Ekspor gambar visual klasemen mabar yang berlangsung hari ini.</p>
+            </button>
+            <button class="btn-choice choice-blue" onclick="prosesEksporGambar('kumulatif')">
+                <h4>🔵 Klasemen Kumulatif All-Time (Gambar)</h4>
+                <p>Ekspor gambar visual akumulasi performa seluruh sesi mabar historis.</p>
+            </button>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal cancel" onclick="tutupModalExportGambar()">Batal</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-export">
+    <div class="modal-box">
+        <h3>📊 Unduh Laporan</h3>
+        <p>Silakan pilih jenis laporan data yang ingin diekspor ke file .xlsx:</p>
+        <div class="choice-container">
+            <button class="btn-choice choice-green" onclick="exportHariIniExcel()">
+                <h4>🟢 Rekap Aktivitas Hari Ini</h4>
+                <p>Ekspor semua nama terinput, jam kehadiran, jumlah main harian, rata-rata durasi tanding, status & metode bayar, serta nominal kas harian.</p>
+            </button>
+            <button class="btn-choice choice-blue" onclick="exportAllKumulatifExcel()">
+                <h4>🔵 Rekap All Kumulatif</h4>
+                <p>Ekspor keseluruhan data historis kumulatif pemain yang sudah tersimpan dari sesi-sesi sebelumnya beserta seluruh riwayat arsipnya.</p>
+            </button>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal cancel" onclick="tutupModalExport()">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-import-choice">
+    <div class="modal-box">
+        <h3>📥 Impor Database</h3>
+        <p>Silakan pilih jenis data yang ingin Anda impor dari file data:</p>
+        <div class="choice-container">
+            <button class="btn-choice choice-blue" onclick="tutupModalImport(); triggerImportExcel();">
+                <h4>🔵 Impor Klasemen Kumulatif</h4>
+                <p>Impor riwayat kehadiran, jumlah main, menang, kalah, poin, dsb. <b>(Tidak merubah nilai grading pemain yang sudah ada)</b>.</p>
+            </button>
+            <button class="btn-choice choice-orange" onclick="tutupModalImport(); triggerImportGradingExcel();">
+                <h4>⭐ Impor Database Grading</h4>
+                <p>Impor khusus untuk memperbarui data Nama dan <b>Nilai Grade</b> pemain saja secara massal, tanpa merusak statistik poin.</p>
+            </button>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal cancel" onclick="tutupModalImport()">Batal</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-reset">
+    <div class="modal-box" style="max-width: 480px;">
+        <h3>🔄 Opsi Reset Data</h3>
+        <p>Silakan tentukan jenis data yang ingin dihapus atau dibersihkan dari sistem:</p>
+        <div class="choice-container">
+            <!-- Pilihan Reset disusun dengan urutan: Hari ini -> Kumulatif -> Grading Saja (Paling Bawah) -->
+            <button class="btn-choice choice-orange" onclick="eksekusiResetHariIni()">
+                <h4>🟠 Reset Data Hari Ini Saja</h4>
+                <p>Menghapus registrasi nama pemain harian, absensi, riwayat tanding, dan klasemen hari ini. Data All Kumulatif tetap aman.</p>
+            </button>
+            <button class="btn-choice choice-red" style="border-color: #ef4444;" onclick="eksekusiResetKumulatif()">
+                <h4>🔴 Reset Data Kumulatif</h4>
+                <p>Menghapus seluruh riwayat klasemen kumulatif, statistik all-time pemain, dan arsip sesi harian. Data aktif hari ini tetap aman.</p>
+            </button>
+            <button class="btn-choice choice-red" style="border-color: #b91c1c; background: #fef2f2;" onclick="eksekusiResetGradingOnly()">
+                <h4>⭐ Reset Database Grading Saja</h4>
+                <p>Menghapus keseluruhan nama, skor harian, dan kategori kualitas level grading pemain secara permanen.</p>
+            </button>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal cancel" onclick="tutupModalReset()">Batal</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-selesai">
+    <div class="modal-box">
+        <h3>🏁 Selesai Sesi Hari Ini?</h3>
+        <p>Klasemen harian, status kehadiran harian, dan durasi tanding akan diakumulasikan secara permanen ke dalam tabel <b>All Kumulatif</b>. Pertandingan & daftar nama pemain harian akan dibersihkan total.</p>
+        <p style="font-size:12px; color:#ef4444; font-weight:700;">*Jumlah "Main Match" di halaman Grading akan otomatis terakumulasi bertambah sesuai riwayat match hari ini.</p>
+        <div class="modal-actions">
+            <button class="btn-modal confirm" onclick="eksekusiSelesaiHariIni()">Ya, Akumulasikan</button>
+            <button class="btn-modal cancel" onclick="tutupModalSelesai()">Batal</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-match">
+    <div class="modal-box">
+        <h3>✏️ Edit Data Pertandingan</h3>
+        <input type="hidden" id="edit-match-id">
+        <div class="integrated-edit-form">
+            <label>NAMA TIM A (Pemain 1 & Pemain 2 dipisahkan tanda / )</label>
+            <input type="text" id="edit-match-tima" placeholder="CONTOH: BUDI / ANDI">
+            <label>SKOR TIM A</label>
+            <input type="number" id="edit-match-skora" min="0">
+            <div style="height:1px; background:#e2e8f0; margin:5px 0;"></div>
+            <label>NAMA TIM B (Pemain 1 & Pemain 2 dipisahkan tanda / )</label>
+            <input type="text" id="edit-match-timb" placeholder="CONTOH: EDI / IWAN">
+            <label>SKOR TIM B</label>
+            <input type="number" id="edit-match-skorb" min="0">
+            <label>DURASI BERMAIN (Menit:Detik)</label>
+            <input type="text" id="edit-match-durasi" placeholder="15:30">
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal confirm blue" onclick="eksekusiSimpanEditMatch()">Simpan Perubahan</button>
+            <button class="btn-modal cancel" onclick="tutupModalEditMatch()">Batal</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-pemain">
+    <div class="modal-box">
+        <h3>✏️ Edit Data Anggota Harian</h3>
+        <input type="hidden" id="edit-pemain-id">
+        <div class="integrated-edit-form">
+            <label>NAMA PEMAIN</label>
+            <input type="text" id="edit-pemain-nama">
+            <label>NOMINAL IURAN (Rp)</label>
+            <input type="number" id="edit-pemain-nominal" min="0">
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal confirm" onclick="eksekusiSimpanEditPemain()">Simpan</button>
+            <button class="btn-modal cancel" onclick="tutupModalEditPemain()">Batal</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-input-notification">
+    <div class="modal-box">
+        <h3 id="input-notif-title" style="color: #16a34a; margin-bottom: 15px;">📢 Pemberitahuan</h3>
+        <p id="input-notif-message" style="text-align: left; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;"></p>
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="btn-modal confirm blue" onclick="tutupModalInputNotif()">Selesai</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-delete-pemain-confirm">
+    <div class="modal-box">
+        <h3>⚠️ Konfirmasi Hapus Pemain</h3>
+        <p id="delete-pemain-message" style="text-align: left; background: #fff5f5; color: #c53030; padding: 15px; border-radius: 8px; border: 1px solid #feb2b2;"></p>
+        <input type="hidden" id="delete-pemain-id">
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="btn-modal confirm red" onclick="eksekusiHapusPemain()">Ya, Hapus</button>
+            <button class="btn-modal cancel" onclick="tutupModalHapusPemainConfirm()">Batal</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-grading">
+    <div class="modal-box">
+        <h3>✏️ Edit / Hapus Data Pemain</h3>
+        <p style="font-size:12px; color:#64748b; margin-bottom:15px; text-align:left;">Mengubah nama di sini juga akan otomatis mengubah namanya di data aktif hari ini dan riwayat pertandingan.</p>
+        <input type="hidden" id="edit-grading-old-name">
+        <div class="integrated-edit-form">
+            <label>NAMA PEMAIN</label>
+            <input type="text" id="edit-grading-new-name">
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal confirm blue" onclick="eksekusiSimpanEditGrading()">Simpan</button>
+            <button class="btn-modal confirm red" onclick="triggerDeleteFromEditModal()">Hapus</button>
+            <button class="btn-modal cancel" onclick="tutupModalEditGrading()">Batal</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-delete-grading">
+    <div class="modal-box">
+        <h3>⚠️ Konfirmasi Hapus Database</h3>
+        <p id="delete-grading-message" style="text-align: left; background: #fff5f5; color: #c53030; padding: 15px; border-radius: 8px; border: 1px solid #feb2b2;"></p>
+        <input type="hidden" id="delete-grading-name">
+        <div class="modal-actions" style="margin-top: 20px;">
+            <button class="btn-modal confirm red" onclick="eksekusiHapusGrading()">Ya, Hapus Permanen</button>
+            <button class="btn-modal cancel" onclick="tutupModalHapusGrading()">Batal</button>
+        </div>
+    </div>
+</div>
+
+<div id="print-poster-container">
+    <div class="poster-header">
+        <div class="poster-logo-text">TAHES SMASH</div>
+        <div class="poster-sub-title">LEADERBOARD FINAL MABAR BADMINTON FUN</div>
+        <div class="poster-session" id="poster-title-session">SESI MABAR</div><br>
+        <div class="poster-date-badge" id="poster-date">Updated: -</div>
+    </div>
+
+    <div class="podium-container">
+        <div class="podium-box p-2">
+            <div class="podium-rank-badge">2</div>
+            <div class="podium-content">
+                <div class="pod-name" id="pod-name-2">-</div>
+                <div class="pod-pts" id="pod-pts-2">0 Poin</div>
+                <div class="pod-sp" id="pod-sp-2">SP 0</div>
+            </div>
+        </div>
+        <div class="podium-box p-1">
+            <div class="podium-rank-badge">1</div>
+            <div class="podium-content">
+                <div class="pod-name" id="pod-name-1">-</div>
+                <div class="pod-pts" id="pod-pts-1">0 Poin</div>
+                <div class="pod-sp" id="pod-sp-1">SP 0</div>
+            </div>
+        </div>
+        <div class="podium-box p-3">
+            <div class="podium-rank-badge">3</div>
+            <div class="podium-content">
+                <div class="pod-name" id="pod-name-3">-</div>
+                <div class="pod-pts" id="pod-pts-3">0 Poin</div>
+                <div class="pod-sp" id="pod-sp-3">SP 0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-summary-row">
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-text"><div>Total Pemain:</div><span id="stat-total">0</span></div></div>
+        <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-text"><div>Poin Tertinggi:</div><span id="stat-poin">0</span></div></div>
+        <div class="stat-card"><div class="stat-icon">📈</div><div class="stat-text"><div>Selisih Terbaik:</div><span id="stat-sp">0</span></div></div>
+        <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-text"><div>Top Kehadiran:</div><span id="stat-hadir">0 Sesi</span></div></div>
+    </div>
+
+    <div class="poster-tables-wrapper">
+        <div class="poster-table-col">
+            <table class="poster-table">
+                <thead><tr><th>Pos</th><th style="text-align:left;">Pemain</th><th>Hadir</th><th>MP</th><th>M</th><th>K</th><th>PM</th><th>PK</th><th>SP</th><th>Poin</th></tr></thead>
+                <tbody id="poster-tbody-1"></tbody>
+            </table>
+        </div>
+        <div class="poster-table-col">
+            <table class="poster-table">
+                <thead><tr><th>Pos</th><th style="text-align:left;">Pemain</th><th>Hadir</th><th>MP</th><th>M</th><th>K</th><th>PM</th><th>PK</th><th>SP</th><th>Poin</th></tr></thead>
+                <tbody id="poster-tbody-2"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="poster-footer">
+        ◎ MP = Jumlah Match &nbsp; ◎ M = Menang &nbsp; ◎ K = Kalah &nbsp; ◎ PM = Poin Menang &nbsp; ◎ PK = Poin Kalah &nbsp; ◎ SP = Selisih Poin
+    </div>
+</div>
+
+<input type="file" id="import-database-excel" accept=".xlsx, .xls" style="display:none;" onchange="prosesImportExcel(event)">
+<input type="file" id="import-grading-excel" accept=".xlsx, .xls" style="display:none;" onchange="prosesImportGradingExcel(event)">
+
+<script>
+    // ==============================================================================
+    // 1. DEKLARASI VARIABEL GLOBAL
+    // ==============================================================================
+    let userRole = localStorage.getItem('appUserRole') || null;
+    let lastSyncTimestamp = new Date().getTime();
+    let isSyncing = false;
+    
+    let defaultGradingConfig = [
+        { nama: "🔥 PRO / ADVANCED", min: 8.5, max: 10.0 },
+        { nama: "⚡ INTERMEDIATE A", min: 7.0, max: 8.4 },
+        { nama: "🏸 INTERMEDIATE B", min: 5.5, max: 6.9 },
+        { nama: "🌱 BEGINNER", min: 4.0, max: 5.4 },
+        { nama: "⚪ NEWBIE", min: 0.0, max: 3.9 }
+    ];
+
+    let dataPemain = [];
+    let riwayatPertandingan = [];
+    let allMatchKlasemen = {};
+    let databaseGrading = {}; // Database Grading yang bersumber dari input manual / impor
+    let historySesiHarian = []; 
+    let stateLapangan = {};
+    let configGrading = defaultGradingConfig;
+    let jumlahLapangan = 1;
+    let filterKasAktif = 'semua';
+    let filterGradingLevelAktif = 'semua';
+    let timers = {}; 
+    let newlyAddedPlayers = {};
+
+    // ==============================================================================
+    // 2. FUNGSI LOGIN & OTENTIKASI
+    // ==============================================================================
+    function checkLogin() {
+        if (!userRole) {
+            document.getElementById('login-screen').style.display = 'flex';
+            document.querySelector('.main-wrapper').style.display = 'none';
+            document.getElementById('sidebar').style.display = 'none';
+        } else {
+            document.getElementById('login-screen').style.display = 'none';
+            document.querySelector('.main-wrapper').style.display = 'flex';
+            document.getElementById('sidebar').style.display = 'flex';
+            
+            if (userRole === 'member') {
+                document.body.classList.add('role-member');
+            } else {
+                document.body.classList.remove('role-member');
+            }
+        }
+    }
+
+    function loginAdmin() {
+        let pass = prompt("Masukkan Password Admin:");
+        if (pass === 'tahesss') { 
+            userRole = 'admin';
+            localStorage.setItem('appUserRole', 'admin');
+            checkLogin();
+            gantiHalaman('page-input');
+            showLiveToast("Berhasil login sebagai Admin ✅");
+        } else {
+            if (pass !== null) bukaModalInputNotif("⚠️ Akses Ditolak", "Password Admin salah! Silakan coba lagi.");
+        }
+    }
+
+    function loginMember() {
+        userRole = 'member';
+        localStorage.setItem('appUserRole', 'member');
+        checkLogin();
+        gantiHalaman('page-match');
+        showLiveToast("Masuk sebagai Member (Mode Baca) 👁️");
+    }
+
+    function logout() {
+        userRole = null;
+        localStorage.removeItem('appUserRole');
+        checkLogin();
+        window.location.hash = '';
+    }
+
+    // ==============================================================================
+    // 3. PENYIMPANAN LOKAL (MODE OFFLINE)
+    // ==============================================================================
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById('loading-image-process').style.display = 'none';
+        
+        let savedData = localStorage.getItem('tahesquad_offline_db');
+        if (savedData) {
+            try {
+                let db = JSON.parse(savedData);
+                dataPemain = db.dataPemain || [];
+                riwayatPertandingan = db.riwayatPertandingan || [];
+                allMatchKlasemen = db.allMatchKlasemen || {};
+                databaseGrading = db.databaseGrading || {};
+                historySesiHarian = db.historySesiHarian || [];
+                stateLapangan = db.stateLapangan || {};
+                configGrading = db.configGrading || defaultGradingConfig;
+                jumlahLapangan = db.jumlahLapangan || 1;
+            } catch(e) {
+                console.error("Gagal memuat data lokal:", e);
+            }
+        }
+
+        checkLogin();
+        jalankanUlangTimerAktif();
+        initGradingConfigUI();
+        
+        if (userRole) {
+            const hash = window.location.hash;
+            if (hash === '#match') gantiHalaman('page-match', false);
+            else if (hash === '#rekap') gantiHalaman('page-rekap', false);
+            else if (hash === '#allmatch') gantiHalaman('page-allmatch', false);
+            else if (hash === '#input') gantiHalaman('page-input', false);
+            else if (hash === '#grading') gantiHalaman('page-grading', false);
+            else {
+                if (userRole === 'member') gantiHalaman('page-match', false);
+                else gantiHalaman('page-input', false);
+            }
+        }
+        renderUtama();
+        
+        updateSyncStatus('connected');
+        document.getElementById('sync-text').innerText = "Mode Offline Lokal";
+        document.querySelector('.sync-icon').innerText = "💾";
+    });
+
+    function updateSyncStatus(state) {
+        const ind = document.getElementById('cloud-sync-indicator');
+        const txt = document.getElementById('sync-text');
+        if(!ind || !txt) return;
+        ind.className = 'sync-status'; 
+        if(state === 'syncing') {
+            ind.classList.add('syncing'); txt.innerText = "Menyimpan...";
+        } else if (state === 'error') {
+            ind.classList.add('error'); txt.innerText = "Gagal Simpan";
+        } else {
+            ind.classList.add('connected'); txt.innerText = "Tersimpan Lokal";
+        }
+    }
+
+    function simpanKeMemoriSilent() {
+        updateSyncStatus('syncing'); 
+        
+        let payload = {
+            dataPemain: dataPemain,
+            riwayatPertandingan: riwayatPertandingan,
+            allMatchKlasemen: allMatchKlasemen,
+            databaseGrading: databaseGrading,
+            historySesiHarian: historySesiHarian,
+            stateLapangan: stateLapangan,
+            configGrading: configGrading,
+            jumlahLapangan: jumlahLapangan
+        };
+
+        try {
+            localStorage.setItem('tahesquad_offline_db', JSON.stringify(payload));
+            setTimeout(() => { updateSyncStatus('connected'); }, 300);
+        } catch (e) {
+            console.error("Error saving to localStorage", e);
+            updateSyncStatus('error');
+            showLiveToast("⚠️ Gagal menyimpan ke memori lokal. Penyimpanan browser mungkin penuh.");
+        }
+    }
+
+    // ==============================================================================
+    // 4. LOGIKA UTAMA APLIKASI (NAVIGASI, LAPANGAN, MATCH)
+    // ==============================================================================
+    window.addEventListener('hashchange', () => {
+        if (!userRole) return;
+        const hash = window.location.hash;
+        if (hash === '#match') gantiHalaman('page-match', false);
+        else if (hash === '#rekap') gantiHalaman('page-rekap', false);
+        else if (hash === '#allmatch') gantiHalaman('page-allmatch', false);
+        else if (hash === '#input') gantiHalaman('page-input', false);
+        else if (hash === '#grading') gantiHalaman('page-grading', false);
+    });
+
+    window.onclick = function(event) {
+        if (!event.target.closest('.dropdown-container')) {
+            var dropdowns = document.getElementsByClassName("dropdown-menu");
+            for (var i = 0; i < dropdowns.length; i++) {
+                if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+            }
+        }
+    }
+
+    function toggleDropdownAlat(event) {
+        event.stopPropagation();
+        document.getElementById('dropdown-alat-menu').classList.toggle('show');
+    }
+
+    function gantiHalaman(idHalaman, updateHash = true) {
+        if (userRole === 'member' && (idHalaman === 'page-input' || idHalaman === 'page-rekap' || idHalaman === 'page-grading')) {
+            idHalaman = 'page-match';
+            if (updateHash) window.location.hash = 'match';
+        }
+
+        document.querySelectorAll('.page-panel').forEach(panel => panel.classList.remove('active'));
+        document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+        document.getElementById(idHalaman).classList.add('active');
+        
+        if (idHalaman === 'page-input') { document.getElementById('menu-input').classList.add('active'); if (updateHash) window.location.hash = 'input'; }
+        if (idHalaman === 'page-match') { document.getElementById('menu-match').classList.add('active'); if (updateHash) window.location.hash = 'match'; }
+        if (idHalaman === 'page-rekap') { document.getElementById('menu-rekap').classList.add('active'); if (updateHash) window.location.hash = 'rekap'; }
+        if (idHalaman === 'page-allmatch') { document.getElementById('menu-allmatch').classList.add('active'); if (updateHash) window.location.hash = 'allmatch'; }
+        if (idHalaman === 'page-grading') { document.getElementById('menu-grading').classList.add('active'); if (updateHash) window.location.hash = 'grading'; }
+        
+        const topbarLiveScore = document.getElementById('live-score-topbar');
+        if (idHalaman === 'page-allmatch' || idHalaman === 'page-grading') topbarLiveScore.style.display = 'none';
+        else topbarLiveScore.style.display = 'flex';
+        
+        renderUtama();
+    }
+
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('closed'); }
+
+    function dapatkanDetikElapsedTime(courtNum) {
+        let sLap = stateLapangan[courtNum];
+        if (!sLap) return 0;
+        let accumulated = parseInt(sLap.accumulatedTime) || 0;
+        if (sLap.berjalan) {
+            let start = parseInt(sLap.startTime) || Date.now();
+            let deltaSeconds = Math.floor((Date.now() - start) / 1000);
+            return accumulated + deltaSeconds;
+        }
+        return accumulated;
+    }
+
+    function jalankanUlangTimerAktif() {
+        for (let k in timers) { if (timers[k] && timers[k].interval) clearInterval(timers[k].interval); }
+        for (let i = 1; i <= jumlahLapangan; i++) {
+            if (stateLapangan[i] && stateLapangan[i].berjalan) {
+                timers[i] = { 
+                    interval: setInterval(() => {
+                        let totalDetik = dapatkanDetikElapsedTime(i);
+                        let mForm = Math.floor(totalDetik/60).toString().padStart(2,'0');
+                        let sForm = (totalDetik%60).toString().padStart(2,'0');
+                        let nodeStatus = document.getElementById(`status-court-text-${i}`);
+                        if(nodeStatus) nodeStatus.innerText = `Status: Bertanding (${mForm}:${sForm})`;
+                        let nodeMemberTimer = document.getElementById(`member-court-timer-${i}`);
+                        if(nodeMemberTimer) nodeMemberTimer.innerText = `${mForm}:${sForm}`;
+                    }, 500)
+                };
+            } else { timers[i] = { interval: null }; }
+        }
+    }
+
+    function showLiveToast(msg) {
+        const toast = document.getElementById('live-toast');
+        const toastMsg = document.getElementById('toast-message');
+        if (toast && toastMsg) {
+            toastMsg.innerText = msg; toast.style.display = 'flex';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+    }
+
+    function bukaModalExportGambar() { document.getElementById('modal-export-gambar').style.display = 'flex'; }
+    function tutupModalExportGambar() { document.getElementById('modal-export-gambar').style.display = 'none'; }
+    function bukaModalExport() { document.getElementById('modal-export').style.display = 'flex'; }
+    function tutupModalExport() { document.getElementById('modal-export').style.display = 'none'; }
+    function bukaModalImport() { document.getElementById('modal-import-choice').style.display = 'flex'; }
+    function tutupModalImport() { document.getElementById('modal-import-choice').style.display = 'none'; }
+    function bukaModalSelesai() { document.getElementById('modal-selesai').style.display = 'flex'; }
+    function tutupModalSelesai() { document.getElementById('modal-selesai').style.display = 'none'; }
+    function bukaModalReset() { document.getElementById('modal-reset').style.display = 'flex'; }
+    function tutupModalReset() { document.getElementById('modal-reset').style.display = 'none'; }
+    function bukaModalInputNotif(title, message) {
+        document.getElementById('input-notif-title').innerHTML = title;
+        document.getElementById('input-notif-message').innerHTML = message;
+        document.getElementById('modal-input-notification').style.display = 'flex';
+    }
+    function tutupModalInputNotif() { document.getElementById('modal-input-notification').style.display = 'none'; }
+
+    function toggleGradingConfigCollapse() {
+        const content = document.getElementById('grading-config-content');
+        const icon = document.getElementById('grading-config-icon');
+        if (content.style.display === 'none') { content.style.display = 'block'; icon.innerText = '➖'; } 
+        else { content.style.display = 'none'; icon.innerText = '➕'; }
+    }
+
+    function initGradingConfigUI() {
+        if(configGrading && configGrading.length >= 5) {
+            for(let i=1; i<=5; i++) {
+                let cfg = configGrading[i-1];
+                let nNode = document.getElementById(`cfg-t${i}-nama`);
+                let minNode = document.getElementById(`cfg-t${i}-min`);
+                let maxNode = document.getElementById(`cfg-t${i}-max`);
+                if(nNode) nNode.value = cfg.nama;
+                if(minNode) minNode.value = cfg.min;
+                if(maxNode) maxNode.value = cfg.max;
+            }
+        }
+    }
+
+    function simpanConfigGrading() {
+        for(let i=1; i<=5; i++) {
+            let nNode = document.getElementById(`cfg-t${i}-nama`).value.trim();
+            let minNode = parseFloat(document.getElementById(`cfg-t${i}-min`).value) || 0;
+            let maxNode = parseFloat(document.getElementById(`cfg-t${i}-max`).value) || 0;
+            if(nNode) { configGrading[i-1].nama = nNode; configGrading[i-1].min = minNode; configGrading[i-1].max = maxNode; }
+        }
+        simpanKeMemoriSilent(); showLiveToast("Pengaturan Kategori Level Grading disimpan! ⚙️");
+        renderHalamanGrading(); renderPapanSkorLapangan(); 
+    }
+
+    function tambahLapangan() {
+        if (jumlahLapangan < 6) { jumlahLapangan++; simpanKeMemoriSilent(); renderPapanSkorLapangan(); } 
+        else showLiveToast("Maksimal 6 lapangan diperbolehkan.");
+    }
+    function kurangiLapangan() {
+        if (jumlahLapangan > 1) {
+            let court = stateLapangan[jumlahLapangan];
+            if(court && (court.ta1 || court.tb1 || court.berjalan)) { showLiveToast(`Lapangan ${jumlahLapangan} sedang digunakan!`); return; }
+            delete stateLapangan[jumlahLapangan]; jumlahLapangan--; simpanKeMemoriSilent(); renderPapanSkorLapangan();
+        }
+    }
+
+    function prosesDaftarNama() {
+        const text = document.getElementById('wa-text').value;
+        const nominalDefault = parseInt(document.getElementById('iuran-pemain').value) || 25000;
+        if (!text.trim()) return;
+        const lines = text.split('\n'); let totalInputted = 0; let listPemainBaru = []; let listPemainDuplikat = [];
+        lines.forEach(line => {
+            let clean = line.replace(/^\d+[\.\-\s\)]+/, '').trim().replace(/[\d\.\-\)]+$/, '').trim();
+            if (clean.length > 1) {
+                let namaFix = clean.toUpperCase();
+                if (dataPemain.some(p => p.nama === namaFix)) listPemainDuplikat.push(namaFix);
+                else { buatObjekPemain(namaFix, nominalDefault); totalInputted++; listPemainBaru.push(namaFix); }
+            }
+        });
+        dataPemain.sort((a, b) => a.nama.localeCompare(b.nama)); document.getElementById('wa-text').value = '';
+        
+        let isiPesan = `<b>Laporan Proses Massal:</b><br><br>✅ <b>${totalInputted}</b> pemain baru berhasil ditambahkan.<br>`;
+        if (listPemainBaru.length > 0) isiPesan += `<br><b>Pemain Baru:</b><br><div style="max-height: 120px; overflow-y: auto; font-size: 12px; padding: 8px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px;">${listPemainBaru.join(', ')}</div>`;
+        if (listPemainDuplikat.length > 0) isiPesan += `<br><b>⚠️ Dilewati (Sudah Ada):</b><br><div style="max-height: 80px; overflow-y: auto; font-size: 11px; padding: 8px; background: #fff7ed; border: 1px solid #ffedd5; border-radius: 4px;">${listPemainDuplikat.join(', ')}</div>`;
+        bukaModalInputNotif("📊 Hasil Pemrosesan Teks", isiPesan); renderUtama();
+    }
+
+    function buatObjekPemain(namaFix, nominal) {
+        const uniqueId = Date.now() + Math.floor(Math.random() * 100000) + dataPemain.length;
+        dataPemain.push({
+            id: uniqueId, nama: namaFix, lunas: false, jamDatang: '', main: 0, menang: 0, kalah: 0, poin: 0,
+            skorMenang: 0, skorKalah: 0, selisihSkor: 0, sudahBayar: false, metode: 'Tunai', nominal: nominal, form: []
+        });
+        
+        // Daftarkan pemain ke database grading terdekopel (jika belum ada)
+        if (!databaseGrading[namaFix]) {
+            databaseGrading[namaFix] = { nama: namaFix, mainMatch: 0, grading: 5.0 };
+            newlyAddedPlayers[namaFix] = Date.now();
+        }
+        simpanKeMemoriSilent(); return true;
+    }
+
+    function hitungKategoriGrading(nilai) {
+        let v = parseFloat(nilai);
+        let colors = [{bg: '#fee2e2', text: '#ef4444'}, {bg: '#eff6ff', text: '#3b82f6'}, {bg: '#f0fdf4', text: '#16a34a'}, {bg: '#f1f5f9', text: '#475569'}, {bg: '#fffbeb', text: '#b45309'}];
+        let cIdx = configGrading.length - 1; 
+        for (let i = 0; i < configGrading.length; i++) { if (v >= configGrading[i].min && v <= configGrading[i].max) { cIdx = i; break; } }
+        let c = colors[cIdx] || colors[0]; let name = configGrading[cIdx] ? configGrading[cIdx].nama : "UNKNOWN";
+        return `<span style="background: ${c.bg}; color: ${c.text}; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; display: inline-block;">${name}</span>`;
+    }
+
+    function dapatkanGradingPemain(nama) {
+        if (!nama) return 5.0;
+        if (databaseGrading[nama] && databaseGrading[nama].grading !== undefined) return parseFloat(databaseGrading[nama].grading);
+        return 5.0; 
+    }
+
+    function updateGradingPemainSlider(nama, nilai, cleanId) {
+        let floatVal = parseFloat(nilai);
+        let sliderEl = document.getElementById(`slider-${cleanId}`);
+        let textEl = document.getElementById(`grading-val-${cleanId}`);
+        if (textEl) textEl.innerText = floatVal.toFixed(1);
+        if (sliderEl) {
+            let persentase = (floatVal / 10) * 100;
+            sliderEl.style.background = `linear-gradient(to right, #2563eb ${persentase}%, #e2e8f0 ${persentase}%)`;
+        }
+        if (databaseGrading[nama]) {
+            databaseGrading[nama].grading = floatVal;
+            const cellKat = document.getElementById(`grading-kat-${cleanId}`);
+            if (cellKat) cellKat.innerHTML = hitungKategoriGrading(floatVal);
+            simpanKeMemoriSilent(); 
+            let newRec = hitungRekomendasiGrading(nama);
+            let recContainer = document.getElementById(`rec-container-${cleanId}`);
+            if(recContainer) recContainer.innerHTML = buildHtmlRekomendasi(nama, floatVal, newRec);
+            
+            renderNotifikasiCerdasGrading();
+        }
+    }
+
+    function hitungRekomendasiGrading(nama) {
+        let pHari = dataPemain.find(x => x.nama === nama) || { main: 0, menang: 0, kalah: 0, selisihSkor: 0 };
+        let totalMain = parseInt(pHari.main) || 0;
+        let totalMenang = parseInt(pHari.menang) || 0;
+        let totalSP = parseInt(pHari.selisihSkor) || 0;
+        let currentGrade = parseFloat(dapatkanGradingPemain(nama));
+        
+        if (totalMain === 0) return currentGrade; 
+        let winRate = totalMenang / totalMain; 
+        let avgSP = totalSP / totalMain; 
+        let recAdjustment = 0;
+        
+        // Mempertimbangkan dampak kemenangan/kekalahan pertandingan harian untuk penentuan +- grading harian
+        if (winRate > 0.55 || (winRate >= 0.5 && avgSP > 1.5)) {
+            recAdjustment = 0.2; 
+        } else if (winRate < 0.45 || (winRate <= 0.5 && avgSP < -1.5)) {
+            recAdjustment = -0.2;
+        }
+        
+        let finalRecGrade = currentGrade + recAdjustment;
+        finalRecGrade = Math.max(0.0, Math.min(10.0, finalRecGrade)); 
+        return parseFloat(finalRecGrade.toFixed(1));
+    }
+
+    // Fungsi pembantu mengecek batas range level perpindahan kategori
+    function periksaPerubahanKelas(nama, currentGrade, recGrade) {
+        let idxCurrent = -1;
+        let idxRec = -1;
+        for (let i = 0; i < configGrading.length; i++) {
+            if (currentGrade >= configGrading[i].min && currentGrade <= configGrading[i].max) idxCurrent = i;
+            if (recGrade >= configGrading[i].min && recGrade <= configGrading[i].max) idxRec = i;
+        }
+        if (idxCurrent === -1) idxCurrent = configGrading.length - 1;
+        if (idxRec === -1) idxRec = configGrading.length - 1;
+
+        if (idxRec < idxCurrent) { // indeks lebih kecil di configGrading berarti kelas lebih tinggi (0 = PRO, 4 = NEWBIE)
+            return { tipe: 'UP', levelLama: configGrading[idxCurrent].nama, levelBaru: configGrading[idxRec].nama };
+        } else if (idxRec > idxCurrent) {
+            return { tipe: 'DOWN', levelLama: configGrading[idxCurrent].nama, levelBaru: configGrading[idxRec].nama };
+        }
+        return null;
+    }
+
+    function buildHtmlRekomendasi(nama, currentGrade, recGrade) {
+        let diff = recGrade - currentGrade;
+        let levelChange = periksaPerubahanKelas(nama, currentGrade, recGrade);
+        let arrowTeks = "";
+        let alertBadge = "";
+        
+        if (levelChange) {
+            if (levelChange.tipe === 'UP') {
+                // Menggunakan tanda segitiga solid warna hijau saja (Unicode murni)
+                arrowTeks = `<span style="color:#16a34a; font-size:13px; font-weight:900;" title="Naik Level">▲</span>`;
+                alertBadge = `<div style="margin-top: 3px;"><span style="background: #dcfce7; color: #15803d; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; display: inline-block;">📈 Naik Kelas</span></div>`;
+            } else {
+                // Menggunakan tanda segitiga solid warna hijau saja (Unicode murni)
+                arrowTeks = `<span style="color:#16a34a; font-size:13px; font-weight:900;" title="Turun Level">▼</span>`;
+                alertBadge = `<div style="margin-top: 3px;"><span style="background: #fee2e2; color: #b91c1c; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; display: inline-block;">📉 Turun Kelas</span></div>`;
+            }
+        }
+
+        if (Math.abs(diff) >= 0.05) { 
+            let isUp = diff > 0;
+            let diffTeks = isUp ? `+${diff.toFixed(1)}` : `${diff.toFixed(1)}`;
+            let diffColor = isUp ? '#16a34a' : '#ef4444'; 
+            return `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    ${arrowTeks}
+                    <span style="color:${diffColor}; font-size:11px; font-weight:800;">${diffTeks}</span>
+                    <span style="background:#f0fdf4; color:#10b981; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:800;">⚡ ${recGrade.toFixed(1)}</span>
+                    <button class="btn-set-grade admin-only" onclick="terapkanSatuRekomendasi('${nama}', ${recGrade})">Set</button>
+                </div>
+                ${alertBadge}
+            </div>`;
+        } else { 
+            return `<span style="color:#94a3b8; font-size:11px; font-weight:bold;">Akurat</span>`; 
+        }
+    }
+
+    function terapkanSatuRekomendasi(nama, nilai) {
+        if (databaseGrading[nama]) { 
+            databaseGrading[nama].grading = parseFloat(nilai); 
+            simpanKeMemoriSilent(); 
+            showLiveToast(`Grading ${nama} diperbarui! ⚡`); 
+            renderUtama(); 
+        }
+    }
+    
+    function terapkanSemuaRekomendasiGrading() {
+        let count = 0; 
+        Object.keys(databaseGrading).forEach(nama => { 
+            databaseGrading[nama].grading = hitungRekomendasiGrading(nama); 
+            count++; 
+        });
+        simpanKeMemoriSilent(); 
+        bukaModalInputNotif("⚡ Rekomendasi Sukses", `Berhasil menyesuaikan grading untuk <b>${count}</b> pemain.`); 
+        renderUtama();
+    }
+
+    function renderNotifikasiCerdasGrading() {
+        const container = document.getElementById('smart-grading-notifications');
+        if (!container) return;
+        container.innerHTML = '';
+
+        let listPerubahan = [];
+        Object.values(databaseGrading).forEach(p => {
+            if (!p || !p.nama) return;
+            let currentGrade = p.grading !== undefined ? p.grading : 5.0;
+            let recGrade = hitungRekomendasiGrading(p.nama);
+            let perubahan = periksaPerubahanKelas(p.nama, currentGrade, recGrade);
+            if (perubahan) {
+                listPerubahan.push({ nama: p.nama, currentGrade, recGrade, ...perubahan });
+            }
+        });
+
+        if (listPerubahan.length === 0) {
+            return; 
+        }
+
+        // PEMBARUAN UTAMA: Kotak background putih dan tanda segitiga warna hijau saja
+        let html = `
+            <div style="background: #ffffff; border: 1.5px solid #16a34a; border-radius: 10px; padding: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: #1e3a8a; font-size: 13px; margin-bottom: 10px;">
+                    <span style="color:#16a34a; font-size:15px; font-weight:900;">▲</span>
+                    <span>💡 Rekomendasi Penyesuaian Kelas Mabar Otomatis</span>
+                    <span style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-size: 10px; padding: 2px 8px; border-radius: 12px; font-weight: 800;">${listPerubahan.length} Pemain</span>
+                </div>
+                <div style="max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
+        `;
+
+        listPerubahan.forEach(item => {
+            let actionTeks = item.tipe === 'UP' ? 'Promosikan Naik Kelas' : 'Turunkan Kelas';
+            // Hanya menggunakan tanda segitiga warna hijau murni saja
+            let icon = item.tipe === 'UP' ? '<span style="color:#16a34a; font-weight:900; font-size:12px; margin-right:4px;">▲</span>' : '<span style="color:#16a34a; font-weight:900; font-size:12px; margin-right:4px;">▼</span>';
+            
+            html += `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 11.5px;">
+                    <div>
+                        ${icon} <b>${item.nama}</b> (${item.currentGrade.toFixed(1)} → <span style="font-weight: 800; color: #2563eb;">${item.recGrade.toFixed(1)}</span>) 
+                        disarankan masuk ke <span style="font-weight: 800; text-decoration: underline;">${item.levelBaru}</span>
+                    </div>
+                    <button class="btn-apply-balance admin-only" style="margin: 0; padding: 4px 10px; font-size: 10.5px; background-color: ${item.tipe === 'UP' ? '#16a34a' : '#ef4444'};" onclick="terapkanSatuRekomendasi('${item.nama}', ${item.recGrade})">
+                        ⚡ ${actionTeks}
+                    </button>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+        container.innerHTML = html;
+    }
+
+    function renderHalamanGrading() {
+        const tbody = document.getElementById('tabel-grading-pemain'); const filterSelect = document.getElementById('filter-grading-level');
+        if(!tbody || !filterSelect) return;
+        tbody.innerHTML = '';
+        
+        renderNotifikasiCerdasGrading();
+
+        if (filterSelect.options.length <= 1) {
+            filterSelect.innerHTML = '<option value="semua">📋 Semua Level</option>';
+            configGrading.forEach((cfg, idx) => { filterSelect.innerHTML += `<option value="${idx}">🎯 ${cfg.nama}</option>`; });
+            filterSelect.value = filterGradingLevelAktif;
+        }
+
+        let arrPem = Object.values(databaseGrading).filter(p => p && p.nama && String(p.nama).trim() !== ''); 
+        arrPem.sort((a,b) => String(a.nama).localeCompare(String(b.nama)));
+        
+        let dataTampil = [];
+        arrPem.forEach(p => {
+            let grading = p.grading !== undefined ? p.grading : 5.0; let cIdx = configGrading.length - 1;
+            for (let i = 0; i < configGrading.length; i++) { if (grading >= configGrading[i].min && grading <= configGrading[i].max) { cIdx = i; break; } }
+            if(filterGradingLevelAktif !== 'semua' && cIdx.toString() !== filterGradingLevelAktif) return;
+            dataTampil.push({...p, calcGrade: grading});
+        });
+
+        if(dataTampil.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="color:#888; padding:20px; text-align:center;">Belum ada pemain di level ini.</td></tr>`; return; }
+
+        dataTampil.forEach((p, idx) => {
+            let cleanId = p.nama.replace(/[^a-zA-Z0-9]/g, ''); let recGrade = hitungRekomendasiGrading(p.nama);
+            let persentaseSlider = (p.calcGrade / 10) * 100;
+            let bgSlider = `linear-gradient(to right, #2563eb ${persentaseSlider}%, #e2e8f0 ${persentaseSlider}%)`;
+            let badgeNew = newlyAddedPlayers[p.nama] ? '<span class="badge-new">NEW</span>' : '';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><span class="pos-badge">${idx + 1}</span></td>
+                <td style="text-align: left; font-weight: 700; color: #1e293b; font-size: 13px;">${p.nama} ${badgeNew}<button class="edit-icon-btn admin-only" title="Edit/Hapus Nama" onclick="bukaModalEditGrading('${p.nama}')">✏️</button></td>
+                <td style="text-align:center; font-weight:700; color:#64748b;">${p.mainMatch || 0}</td>
+                <td style="text-align:center;"><div style="display:flex; align-items:center; justify-content:center; gap:8px;"><input type="range" id="slider-${cleanId}" min="0" max="10" step="0.1" value="${p.calcGrade}" class="grading-slider admin-only" style="background: ${bgSlider};" oninput="updateGradingPemainSlider('${p.nama}', this.value, '${cleanId}')"><span id="grading-val-${cleanId}" style="font-weight:800; color:#2563eb; font-size:14px; width: 25px; display:inline-block;">${p.calcGrade.toFixed(1)}</span></div></td>
+                <td style="text-align:center;" id="rec-container-${cleanId}">${buildHtmlRekomendasi(p.nama, p.calcGrade, recGrade)}</td>
+                <td style="text-align:center;" id="grading-kat-${cleanId}">${hitungKategoriGrading(p.calcGrade)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function setFilterGradingLevel(val) { filterGradingLevelAktif = val; renderHalamanGrading(); }
+    function setFilterKas(val) { filterKasAktif = val; renderHalamanKas(); }
+
+    function bukaModalEditGrading(oldName) {
+        document.getElementById('edit-grading-old-name').value = oldName; document.getElementById('edit-grading-new-name').value = oldName;
+        document.getElementById('modal-edit-grading').style.display = 'flex';
+    }
+    function tutupModalEditGrading() { document.getElementById('modal-edit-grading').style.display = 'none'; }
+    
+    function eksekusiSimpanEditGrading() {
+        let oldName = document.getElementById('edit-grading-old-name').value; let newName = document.getElementById('edit-grading-new-name').value.toUpperCase().trim();
+        if(!newName || newName === oldName) { tutupModalEditGrading(); return; }
+        if(databaseGrading[newName]) { bukaModalInputNotif("⚠️ Gagal Edit", `Nama <b>${newName}</b> sudah ada.`); return; }
+        
+        databaseGrading[newName] = {...databaseGrading[oldName]}; databaseGrading[newName].nama = newName; delete databaseGrading[oldName];
+        if(allMatchKlasemen[oldName]) { allMatchKlasemen[newName] = {...allMatchKlasemen[oldName]}; allMatchKlasemen[newName].nama = newName; delete allMatchKlasemen[oldName]; }
+        if (newlyAddedPlayers[oldName]) { newlyAddedPlayers[newName] = newlyAddedPlayers[oldName]; delete newlyAddedPlayers[oldName]; }
+        
+        let playerActive = dataPemain.find(p => p.nama === oldName); if(playerActive) playerActive.nama = newName;
+        riwayatPertandingan.forEach(m => {
+            let tA = m.timA.split(' / ').map(x => x.trim()); if(tA.includes(oldName)) { m.timA = tA.map(x => x === oldName ? newName : x).join(' / '); }
+            let tB = m.timB.split(' / ').map(x => x.trim()); if(tB.includes(oldName)) { m.timB = tB.map(x => x === oldName ? newName : x).join(' / '); }
+        });
+        for(let key in stateLapangan) {
+            let s = stateLapangan[key]; if(s.ta1 === oldName) s.ta1 = newName; if(s.ta2 === oldName) s.ta2 = newName; if(s.tb1 === oldName) s.tb1 = newName; if(s.tb2 === oldName) s.tb2 = newName;
+        }
+        simpanKeMemoriSilent(); tutupModalEditGrading(); showLiveToast(`Pemain diubah menjadi ${newName}`); renderUtama();
+    }
+    
+    function bukaModalHapusGrading(nama) {
+        let sedangBermain = false;
+        for (let key in stateLapangan) { let s = stateLapangan[key]; if (s && (s.ta1 === nama || s.ta2 === nama || s.tb1 === nama || s.tb2 === nama)) { sedangBermain = true; break; } }
+        if (sedangBermain) { bukaModalInputNotif("⚠️ Gagal Hapus", `Pemain <b>${nama}</b> aktif tanding!`); return; }
+        document.getElementById('delete-grading-name').value = nama; document.getElementById('delete-grading-message').innerHTML = `Hapus <b>${nama}</b> permanen dari Database?`;
+        document.getElementById('modal-delete-grading').style.display = 'flex';
+    }
+    function tutupModalHapusGrading() { document.getElementById('modal-delete-grading').style.display = 'none'; }
+    function eksekusiHapusGrading() {
+        let nama = document.getElementById('delete-grading-name').value;
+        if(databaseGrading[nama]) delete databaseGrading[nama];
+        if(allMatchKlasemen[nama]) delete allMatchKlasemen[nama];
+        dataPemain = dataPemain.filter(p => p.nama !== nama);
+        tutupModalHapusGrading(); kalkulasiUlangKlasemen(); showLiveToast(`Pemain ${nama} dihapus.`);
+    }
+    function triggerDeleteFromEditModal() { let oldName = document.getElementById('edit-grading-old-name').value; tutupModalEditGrading(); bukaModalHapusGrading(oldName); }
+
+    function hapusPemain(nama) {
+        const pemain = dataPemain.find(p => p.nama === nama); if (!pemain) return;
+        let sedangBermain = false;
+        for (let key in stateLapangan) { let s = stateLapangan[key]; if (s && (s.ta1 === pemain.nama || s.ta2 === pemain.nama || s.tb1 === pemain.nama || s.tb2 === pemain.nama)) { sedangBermain = true; break; } }
+        if (sedangBermain) { bukaModalInputNotif("⚠️ Gagal Hapus", `Pemain <b>${pemain.nama}</b> sedang tanding aktif!`); return; }
+        document.getElementById('delete-pemain-id').value = pemain.nama; 
+        document.getElementById('delete-pemain-message').innerHTML = `Apakah yakin menghapus <b>${pemain.nama}</b> dari sesi hari ini?`;
+        document.getElementById('modal-delete-pemain-confirm').style.display = 'flex';
+    }
+    function tutupModalHapusPemainConfirm() { document.getElementById('modal-delete-pemain-confirm').style.display = 'none'; }
+    function eksekusiHapusPemain() {
+        let idNama = document.getElementById('delete-pemain-id').value; dataPemain = dataPemain.filter(p => p.nama !== idNama);
+        tutupModalHapusPemainConfirm(); kalkulasiUlangKlasemen();
+    }
+
+    function checkBlowoutHistory(ta1, ta2, tb1, tb2) {
+        if (!ta1 || !tb1) return null;
+        let targetPlayers = [ta1, ta2, tb1, tb2].filter(Boolean);
+        for (let m of riwayatPertandingan) {
+            let mTA = m.timA.split(" / ").map(x => x.trim()), mTB = m.timB.split(" / ").map(x => x.trim());
+            let sA = parseInt(m.skorA) || 0, sB = parseInt(m.skorB) || 0; let diff = Math.abs(sA - sB);
+            if (diff > 15) {
+                let matchPlayers = [...mTA, ...mTB].filter(Boolean);
+                if (targetPlayers.length === 4 && matchPlayers.length === 4) {
+                    let matchCount = 0; targetPlayers.forEach(tp => { if (matchPlayers.includes(tp)) matchCount++; });
+                    if (matchCount === 4) return m;
+                }
+            }
+        }
+        return null;
+    }
+
+    function analisisKeseimbanganMatch(courtNum) {
+        const panelBalance = document.getElementById(`balance-court-${courtNum}`); if (!panelBalance) return;
+        let sLap = stateLapangan[courtNum]; if (!sLap) { panelBalance.innerHTML = ''; return; }
+        let ta1 = sLap.ta1, ta2 = sLap.ta2, tb1 = sLap.tb1, tb2 = sLap.tb2; if (!ta1 && !tb1) { panelBalance.innerHTML = ''; return; }
+        let g_ta1 = dapatkanGradingPemain(ta1), g_ta2 = ta2 ? dapatkanGradingPemain(ta2) : 0; let g_tb1 = dapatkanGradingPemain(tb1), g_tb2 = tb2 ? dapatkanGradingPemain(tb2) : 0;
+        let totalA = g_ta1 + g_ta2, totalB = g_tb1 + g_tb2; let selisih = Math.abs(totalA - totalB);
+        let isiHtml = `<div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#555; padding-top:4px; border-top:1px dashed #e2e8f0;"><span>Team A: <b>${totalA.toFixed(1)}</b></span><span style="color:${selisih > 1.5 ? '#e74c3c' : '#2ecc71'};">Selisih: <b>${selisih.toFixed(1)}</b></span><span>Team B: <b>${totalB.toFixed(1)}</b></span></div>`;
+        
+        let blowoutMatch = checkBlowoutHistory(ta1, ta2, tb1, tb2);
+        if (blowoutMatch && !sLap.blowoutResolved) {
+            let suggestSwapBtn = ''; if (ta1 && ta2 && tb1 && tb2) suggestSwapBtn = `<button class="btn-apply-balance admin-only" style="background-color:#d35400;" onclick="eksekusiSwapTim(${courtNum}, '${ta1}', '${tb1}', '${ta2}', '${tb2}')">🔄 Swap Tim Biar Adil</button>`;
+            isiHtml += `<div class="balancing-assistant" style="background-color: #fee2e2; border-color: #fca5a5; color: #991b1b; padding: 10px; margin-top: 8px; border-radius: 8px;"><div class="balancing-assistant-title" style="color: #991b1b; font-weight: 800; display: flex; align-items: center; gap: 4px;">⚠️ Rawan Bantai (Pernah Kalah Telak)</div><div style="font-size: 11px; margin-bottom: 4px;">Pemain di lapangan ini tercatat pernah mengalami pembantaian dengan skor mencolok <b>${blowoutMatch.skorA} - ${blowoutMatch.skorB}</b> dalam mabar hari ini!</div>${suggestSwapBtn}</div>`;
+            panelBalance.innerHTML = isiHtml; return;
+        }
+
+        if (ta1 && ta2 && tb1 && tb2 && selisih > 1.5 && !sLap.berjalan && !sLap.blowoutResolved) {
+            let rekomendasiSwapDitemukan = false; let timA_swap_ta1 = ta1, timA_swap_ta2 = tb1, timB_swap_tb1 = ta2, timB_swap_tb2 = tb2;
+            let selisihSwap = Math.abs((g_ta1 + g_tb1) - (g_ta2 + g_tb2)); let selisihAlternatif = Math.abs((g_ta1 + g_tb2) - (g_ta2 + g_tb1));
+            if (selisihAlternatif < selisihSwap) { selisihSwap = selisihAlternatif; timA_swap_ta1 = ta1; timA_swap_ta2 = tb2; timB_swap_tb1 = ta2; timB_swap_tb2 = tb1; }
+            if (selisihSwap < selisih) { rekomendasiSwapDitemukan = true; }
+
+            let pemainHadirAktif = dataPemain.filter(p => p.lunas); let tandingGlobal = [];
+            for (let j = 1; j <= jumlahLapangan; j++) { if(stateLapangan[j]) { if(stateLapangan[j].ta1) tandingGlobal.push(stateLapangan[j].ta1); if(stateLapangan[j].ta2) tandingGlobal.push(stateLapangan[j].ta2); if(stateLapangan[j].tb1) tandingGlobal.push(stateLapangan[j].tb1); if(stateLapangan[j].tb2) tandingGlobal.push(stateLapangan[j].tb2); } }
+            let cadangan = pemainHadirAktif.filter(p => !tandingGlobal.includes(p.nama)); let subTerbaik = null; let selisihSubTerbaik = selisih;
+            if (cadangan.length > 0) {
+                let listPemainAktifCourt = [{ nama: ta1, slot: 'ta1', tim: 'A', g: g_ta1 }, { nama: ta2, slot: 'ta2', tim: 'A', g: g_ta2 }, { nama: tb1, slot: 'tb1', tim: 'B', g: g_tb1 }, { nama: tb2, slot: 'tb2', tim: 'B', g: g_tb2 }];
+                listPemainAktifCourt.forEach(pCourt => {
+                    cadangan.forEach(pCad => {
+                        let gCad = dapatkanGradingPemain(pCad.nama); let ujiTotalA = totalA, ujiTotalB = totalB;
+                        if (pCourt.tim === 'A') ujiTotalA = totalA - pCourt.g + gCad; else ujiTotalB = totalB - pCourt.g + gCad;
+                        let ujiSelisih = Math.abs(ujiTotalA - ujiTotalB);
+                        if (ujiSelisih < selisihSubTerbaik) { selisihSubTerbaik = ujiSelisih; subTerbaik = { slot: pCourt.slot, keluar: pCourt.nama, masuk: pCad.nama, selisihBaru: ujiSelisih }; }
+                    });
+                });
+            }
+
+            isiHtml += `<div class="balancing-assistant admin-only"><div class="balancing-assistant-title">⚠️ Laga Tidak Seimbang (Timpang)</div><div style="font-size: 11px;">Rekomendasi penyeimbang sistem:</div>`;
+            if (rekomendasiSwapDitemukan) isiHtml += `<div style="margin-top:4px;">💡 <b>Tukar Pasangan Saja</b> (Selisih jadi <b>${selisihSwap.toFixed(1)}</b>):<br>👉 ${timA_swap_ta1} / ${timA_swap_ta2} VS ${timB_swap_tb1} / ${timB_swap_tb2}<br><button class="btn-apply-balance" onclick="eksekusiSwapTim(${courtNum}, '${timA_swap_ta1}', '${timA_swap_ta2}', '${timB_swap_tb1}', '${timB_swap_tb2}')">🔄 Terapkan Swap Pasangan</button></div>`;
+            if (subTerbaik) isiHtml += `<div style="margin-top:8px; border-top:1px dashed #fcd34d; padding-top:4px;">📥 <b>Ganti Pemain Cadangan</b> (Selisih jadi <b>${subTerbaik.selisihBaru.toFixed(1)}</b>):<br>Ganti <b>${subTerbaik.keluar}</b> dengan <b>${subTerbaik.masuk}</b><br><button class="btn-apply-balance" style="background-color:#1e3a8a;" onclick="eksekusiSubstitusiPemain(${courtNum}, '${subTerbaik.slot}', '${subTerbaik.masuk}')">📥 Masukkan ${subTerbaik.masuk}</button></div>`;
+            if (!rekomendasiSwapDitemukan && !subTerbaik) isiHtml += `<div style="margin-top:4px; font-style:italic; font-size:11px;">Tidak ditemukan alternatif penyeimbang.</div>`;
+            isiHtml += `</div>`;
+        }
+        panelBalance.innerHTML = isiHtml;
+    }
+
+    function suggestDraftPemain(courtNum) {
+        let sLap = stateLapangan[courtNum]; if (!sLap) return;
+        if (sLap.berjalan) { showLiveToast("Pertandingan sedang berlangsung!"); return; }
+        let slots = ["ta1", "ta2", "tb1", "tb2"]; let selectedOnCourt = slots.map(s => sLap[s]).filter(Boolean);
+        if (selectedOnCourt.length === 4) { showLiveToast("Lapangan sudah penuh!"); return; }
+        if (selectedOnCourt.length === 0) { showLiveToast("Pilih minimal 1 pemain di lapangan terlebih dahulu."); return; }
+
+        let pemainHadir = dataPemain.filter(p => p.lunas); let tandingGlobal = [];
+        for (let j = 1; j <= jumlahLapangan; j++) {
+            if (j === courtNum) continue;
+            if (stateLapangan[j]) { if (stateLapangan[j].ta1) tandingGlobal.push(stateLapangan[j].ta1); if (stateLapangan[j].ta2) tandingGlobal.push(stateLapangan[j].ta2); if (stateLapangan[j].tb1) tandingGlobal.push(stateLapangan[j].tb1); if (stateLapangan[j].tb2) tandingGlobal.push(stateLapangan[j].tb2); }
+        }
+
+        let available = pemainHadir.filter(p => !tandingGlobal.includes(p.nama) && !selectedOnCourt.includes(p.nama));
+        let emptySlots = slots.filter(s => !sLap[s]);
+        if (available.length < emptySlots.length) { bukaModalInputNotif("⚠️ Pemain Tidak Cukup", `Dibutuhkan ${emptySlots.length} pemain cadangan.`); return; }
+
+        available.sort((a, b) => (a.main || 0) - (b.main || 0)); let poolSize = 10;
+        if (available.length > poolSize) { let cutoffMain = available[poolSize - 1].main || 0; while (poolSize < available.length && (available[poolSize].main || 0) === cutoffMain) { poolSize++; if (poolSize >= 14) break; } }
+        let draftPool = available.slice(0, poolSize);
+
+        let bestCombo = null; let minScore = 999;
+        function getCombinations(arr, k) {
+            let results = [];
+            function helper(start, combo) { if (combo.length === k) { results.push([...combo]); return; } for (let i = start; i < arr.length; i++) { combo.push(arr[i]); helper(i + 1, combo); combo.pop(); } }
+            helper(0, []); return results;
+        }
+
+        let combos = getCombinations(draftPool, emptySlots.length);
+        for (let combo of combos) {
+            let testLap = { ...sLap }; let sumMain = 0;
+            emptySlots.forEach((slot, idx) => { testLap[slot] = combo[idx].nama; sumMain += (combo[idx].main || 0); });
+            let g_ta1 = dapatkanGradingPemain(testLap.ta1), g_ta2 = testLap.ta2 ? dapatkanGradingPemain(testLap.ta2) : 0; let g_tb1 = dapatkanGradingPemain(testLap.tb1), g_tb2 = testLap.tb2 ? dapatkanGradingPemain(testLap.tb2) : 0;
+            let diff = Math.abs((g_ta1 + g_ta2) - (g_tb1 + g_tb2)); let hasBlowout = checkBlowoutHistory(testLap.ta1, testLap.ta2, testLap.tb1, testLap.tb2);
+            let score = diff + (hasBlowout ? 15 : 0) + (sumMain * 1.5);
+            if (score < minScore) { minScore = score; bestCombo = combo; }
+        }
+
+        if (bestCombo) {
+            emptySlots.forEach((slot, idx) => { sLap[slot] = bestCombo[idx].nama; let selectEl = document.getElementById(`lap-${courtNum}-${slot}`); if (selectEl) selectEl.value = bestCombo[idx].nama; });
+            sLap.blowoutResolved = false; simpanKeMemoriSilent(); renderPapanSkorLapangan(); showLiveToast(`Saran Draft diterapkan!💡`);
+        }
+    }
+
+    function autoGenerateMatch(courtNum) {
+        if(stateLapangan[courtNum] && stateLapangan[courtNum].berjalan) { showLiveToast("Papan sedang berjalan."); return; }
+        let pemainHadir = dataPemain.filter(p => p.lunas); let tandingGlobal = [];
+        for (let j = 1; j <= jumlahLapangan; j++) {
+            if(j === courtNum) continue; 
+            if(stateLapangan[j]) { if(stateLapangan[j].ta1) tandingGlobal.push(stateLapangan[j].ta1); if(stateLapangan[j].ta2) tandingGlobal.push(stateLapangan[j].ta2); if(stateLapangan[j].tb1) tandingGlobal.push(stateLapangan[j].tb1); if(stateLapangan[j].tb2) tandingGlobal.push(stateLapangan[j].tb2); }
+        }
+        
+        let available = pemainHadir.filter(p => !tandingGlobal.includes(p.nama));
+        if(available.length < 4) { bukaModalInputNotif("⚠️ Pemain Tidak Cukup", `Dibutuhkan minimal 4 orang.`); return; }
+
+        available.sort((a, b) => (a.main || 0) - (b.main || 0)); let poolSize = 8;
+        if (available.length > poolSize) { let cutoffMain = available[poolSize - 1].main || 0; while (poolSize < available.length && (available[poolSize].main || 0) === cutoffMain) { poolSize++; if (poolSize >= 14) break; } }
+        let maxDraftPool = available.slice(0, poolSize); let bestMatch = null; let minDiff = 999;
+
+        for(let i=0; i<maxDraftPool.length-3; i++){
+            for(let j=i+1; j<maxDraftPool.length-2; j++){
+                for(let k=j+1; k<maxDraftPool.length-1; k++){
+                    for(let l=k+1; l<maxDraftPool.length; l++){
+                        let p1 = maxDraftPool[i].nama, p2 = maxDraftPool[j].nama, p3 = maxDraftPool[k].nama, p4 = maxDraftPool[l].nama;
+                        let g1 = dapatkanGradingPemain(p1), g2 = dapatkanGradingPemain(p2), g3 = dapatkanGradingPemain(p3), g4 = dapatkanGradingPemain(p4);
+                        let diff1 = Math.abs((g1+g2) - (g3+g4)); let diff2 = Math.abs((g1+g3) - (g2+g4)); let diff3 = Math.abs((g1+g4) - (g2+g3));
+                        let blowout1 = checkBlowoutHistory(p1, p2, p3, p4), blowout2 = checkBlowoutHistory(p1, p3, p2, p4), blowout3 = checkBlowoutHistory(p1, p4, p2, p3);
+                        let sumMain = (maxDraftPool[i].main || 0) + (maxDraftPool[j].main || 0) + (maxDraftPool[k].main || 0) + (maxDraftPool[l].main || 0); let penaltiMain = sumMain * 1.5;
+                        let score1 = diff1 + (blowout1 ? 15 : 0) + penaltiMain; let score2 = diff2 + (blowout2 ? 15 : 0) + penaltiMain; let score3 = diff3 + (blowout3 ? 15 : 0) + penaltiMain;
+                        if(score1 < minDiff) { minDiff = score1; bestMatch = [p1, p2, p3, p4]; }
+                        if(score2 < minDiff) { minDiff = score2; bestMatch = [p1, p3, p2, p4]; }
+                        if(score3 < minDiff) { minDiff = score3; bestMatch = [p1, p4, p2, p3]; }
+                    }
+                }
+            }
+        }
+
+        if(bestMatch) {
+            if(!stateLapangan[courtNum]) stateLapangan[courtNum] = { skorA:0, skorB:0, berjalan:false, startTime:0, accumulatedTime:0, blowoutResolved:false };
+            stateLapangan[courtNum].ta1 = bestMatch[0]; stateLapangan[courtNum].ta2 = bestMatch[1]; stateLapangan[courtNum].tb1 = bestMatch[2]; stateLapangan[courtNum].tb2 = bestMatch[3];
+            stateLapangan[courtNum].blowoutResolved = false; simpanKeMemoriSilent(); renderPapanSkorLapangan(); showLiveToast(`Auto-Draft berhasil! ⚖️`);
+        }
+    }
+
+    function eksekusiSwapTim(courtNum, ta1, ta2, tb1, tb2) {
+        if (!stateLapangan[courtNum]) return;
+        stateLapangan[courtNum].ta1 = ta1; stateLapangan[courtNum].ta2 = ta2; stateLapangan[courtNum].tb1 = tb1; stateLapangan[courtNum].tb2 = tb2;
+        stateLapangan[courtNum].blowoutResolved = true; simpanKeMemoriSilent(); showLiveToast(`Swap tim diterapkan! 🤝`); renderUtama();
+    }
+    
+    function eksekusiSubstitusiPemain(courtNum, slot, namaMasuk) {
+        if (!stateLapangan[courtNum]) return;
+        stateLapangan[courtNum][slot] = namaMasuk; stateLapangan[courtNum].blowoutResolved = true; simpanKeMemoriSilent(); showLiveToast(`${namaMasuk} dimasukkan! 📥`); renderUtama();
+    }
+
+    function buatOpsiPemain(listPemain, terpilih, tandingGlobal) {
+        let h = `<option value="">-- Pilih Pemain --</option>`;
+        listPemain.forEach(p => {
+            if (tandingGlobal.includes(p.nama) && p.nama !== terpilih) return;
+            let sel = p.nama === terpilih ? 'selected' : ''; let teksTampil = p.nama;
+            if (p.nama !== terpilih) { let infoJam = p.jamDatang ? ` | ⏱️ ${p.jamDatang}` : ''; teksTampil += ` (Main: ${p.main||0}${infoJam})`; }
+            h += `<option value="${p.nama}" ${sel}>${teksTampil}</option>`;
+        });
+        return h;
+    }
+
+    function renderPapanSkorLapangan() {
+        const kontainerLap = document.getElementById('kontainer-lapangan'); if(!kontainerLap) return;
+        kontainerLap.innerHTML = '';
+        let isMember = (userRole === 'member');
+        if(jumlahLapangan > 1) kontainerLap.classList.add('grid-layout'); else kontainerLap.classList.remove('grid-layout');
+        let daftarPemainHadir = dataPemain.filter(p => p.lunas); let tandingSekarang = [];
+        
+        for (let j = 1; j <= jumlahLapangan; j++) {
+            if(stateLapangan[j]) { if(stateLapangan[j].ta1) tandingSekarang.push(stateLapangan[j].ta1); if(stateLapangan[j].ta2) tandingSekarang.push(stateLapangan[j].ta2); if(stateLapangan[j].tb1) tandingSekarang.push(stateLapangan[j].tb1); if(stateLapangan[j].tb2) tandingSekarang.push(stateLapangan[j].tb2); }
+        }
+
+        for (let i = 1; i <= jumlahLapangan; i++) {
+            let sLap = stateLapangan[i] || { ta1:"", ta2:"", tb1:"", tb2:"", skorA:0, skorB:0, berjalan:false, startTime:0, accumulatedTime:0, blowoutResolved:false };
+            let totalDetik = dapatkanDetikElapsedTime(i);
+            let statusTeks = sLap.berjalan ? `Status: Bertanding (${Math.floor(totalDetik/60).toString().padStart(2,'0')}:${(totalDetik%60).toString().padStart(2,'0')})` : "Status: Belum Mulai";
+            let currentTimerFormatted = `${Math.floor(totalDetik/60).toString().padStart(2,'0')}:${(totalDetik%60).toString().padStart(2,'0')}`;
+            let divCourt = document.createElement('div'); divCourt.className = 'score-board-container';
+            
+            if (isMember) {
+                let ta1Display = sLap.ta1 ? `<div class="court-player-chip">${sLap.ta1}</div>` : `<div class="court-empty-slot">Kosong</div>`;
+                let ta2Display = sLap.ta2 ? `<div class="court-player-chip">${sLap.ta2}</div>` : `<div class="court-empty-slot">Kosong</div>`;
+                let tb1Display = sLap.tb1 ? `<div class="court-player-chip">${sLap.tb1}</div>` : `<div class="court-empty-slot">Kosong</div>`;
+                let tb2Display = sLap.tb2 ? `<div class="court-player-chip">${sLap.tb2}</div>` : `<div class="court-empty-slot">Kosong</div>`;
+
+                divCourt.innerHTML = `
+                    <div class="court-title-bar"><div class="court-main-name">LAPANGAN ${i}</div><div class="court-status-sub" id="status-court-text-${i}">${statusTeks}</div></div>
+                    <div class="member-court-view">
+                        <div class="court-line-horizontal"></div><div class="court-line-center"></div>
+                        <div class="court-timer-digital-badge" id="member-court-timer-${i}">${currentTimerFormatted}</div>
+                        <div class="court-side team-a"><div class="court-score-display-small">${sLap.skorA}</div>${ta1Display}${ta2Display}</div>
+                        <div class="court-side team-b"><div class="court-score-display-small">${sLap.skorB}</div>${tb1Display}${tb2Display}</div>
+                    </div>
+                `;
+            } else {
+                let filledCount = [sLap.ta1, sLap.ta2, sLap.tb1, sLap.tb2].filter(Boolean).length;
+                let btnActionText = "", btnActionOnClick = "", btnActionClass = ""; let activeSave = sLap.berjalan ? 'active' : '';
+
+                if (filledCount === 0) { btnActionText = "🎲 Auto Draft"; btnActionOnClick = `autoGenerateMatch(${i})`; btnActionClass = "auto"; } 
+                else if (filledCount > 0 && filledCount < 4) { btnActionText = "💡 Saran Draft"; btnActionOnClick = `suggestDraftPemain(${i})`; btnActionClass = "suggest"; } 
+                else { btnActionText = "🔄 Ulang Draft"; btnActionOnClick = `autoGenerateMatch(${i})`; btnActionClass = "auto"; }
+                
+                divCourt.innerHTML = `
+                    <div class="court-title-bar"><div class="court-main-name">LAPANGAN ${i}</div><div class="court-status-sub" id="status-court-text-${i}">${statusTeks}</div></div>
+                    <div class="court-body-form">
+                        <div class="team-row-box">
+                            <div class="select-players-wrapper">
+                                <select id="lap-${i}-ta1" onchange="updateStateInputLapangan(${i})">${buatOpsiPemain(daftarPemainHadir, sLap.ta1, tandingSekarang)}</select>
+                                <select id="lap-${i}-ta2" onchange="updateStateInputLapangan(${i})">${buatOpsiPemain(daftarPemainHadir, sLap.ta2, tandingSekarang)}</select>
+                            </div>
+                            <div class="score-input-box"><input type="number" id="lap-${i}-skor-a" value="${sLap.skorA}" min="0" oninput="updateSkorStateLapangan(${i})"></div>
+                        </div>
+                        <div class="vs-divider-center">VS</div>
+                        <div class="team-row-box">
+                            <div class="select-players-wrapper">
+                                <select id="lap-${i}-tb1" onchange="updateStateInputLapangan(${i})">${buatOpsiPemain(daftarPemainHadir, sLap.tb1, tandingSekarang)}</select>
+                                <select id="lap-${i}-tb2" onchange="updateStateInputLapangan(${i})">${buatOpsiPemain(daftarPemainHadir, sLap.tb2, tandingSekarang)}</select>
+                            </div>
+                            <div class="score-input-box"><input type="number" id="lap-${i}-skor-b" value="${sLap.skorB}" min="0" oninput="updateSkorStateLapangan(${i})"></div>
+                        </div>
+                        <div id="balance-court-${i}" class="admin-only"></div>
+                    </div>
+                    <div class="court-action-footer admin-only" style="grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                        <button class="btn-court-footer start" onclick="mulaiMatchTimer(${i})">⏱️ Mulai</button>
+                        <button class="btn-court-footer ${btnActionClass}" onclick="${btnActionOnClick}">${btnActionText}</button>
+                        <button class="btn-court-footer save ${activeSave}" id="btn-save-lap-${i}" onclick="simpanHasilOtomatis(${i})">💾 Selesai</button>
+                    </div>
+                `;
+            }
+            kontainerLap.appendChild(divCourt); if(!isMember) { analisisKeseimbanganMatch(i); }
+        }
+    }
+
+    function hitungLiveNavbarStatistik() {
+        let hadir = dataPemain.filter(p => p.lunas).length; let countMatch = riwayatPertandingan.length; let totalDetikPertandingan = 0; let teksRataHarian = "00:00";
+        riwayatPertandingan.forEach(m => {
+            let dur = String(m.durasi || "00:00").replace(/'/g, ''); 
+            if (dur.includes(":") && !dur.includes("T")) { let parts = dur.split(":"); totalDetikPertandingan += (parseInt(parts[0]) * 60) + parseInt(parts[1]); }
+        });
+        if (countMatch > 0 && totalDetikPertandingan > 0) {
+            let avgDetikPerMatch = Math.floor(totalDetikPertandingan / countMatch);
+            let mRata = Math.floor(avgDetikPerMatch / 60).toString().padStart(2, '0'); let sRata = (avgDetikPerMatch % 60).toString().padStart(2, '0');
+            teksRataHarian = `${mRata}:${sRata}`;
+        }
+        let elHadir = document.getElementById('live-total-pemain'); let elMatch = document.getElementById('live-total-match'); let elRata = document.getElementById('live-avg-durasi');
+        if(elHadir) elHadir.innerText = hadir.toString().padStart(2, '0'); if(elMatch) elMatch.innerText = countMatch.toString().padStart(2, '0'); if(elRata) elRata.innerText = teksRataHarian;
+        return { totalMatch: countMatch, rataWaktu: teksRataHarian };
+    }
+
+    function hitungRataWaktuHarianFormat(namaPemain) {
+        let totalDetik = 0; let tanding = 0;
+        riwayatPertandingan.forEach(m => {
+            let pA = m.timA.split(" / ").map(x => x.trim()), pB = m.timB.split(" / ").map(x => x.trim());
+            if (pA.includes(namaPemain) || pB.includes(namaPemain)) {
+                tanding++; let dur = String(m.durasi || "00:00").replace(/'/g, ''); 
+                if (dur.includes(":") && !dur.includes("T")) { let parts = dur.split(":"); totalDetik += (parseInt(parts[0]) * 60) + parseInt(parts[1]); }
+            }
+        });
+        if (tanding === 0) return "00:00";
+        let avgDetik = Math.floor(totalDetik / tanding); let m = Math.floor(avgDetik / 60).toString().padStart(2, '0'); let s = (avgDetik % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    function renderUtama() {
+        const tbody = document.getElementById('tabel-klasemen'); if(!tbody) return;
+        tbody.innerHTML = '';
+        let ligaSort = [...dataPemain].sort((a, b) => {
+            if ((b.poin || 0) !== (a.poin || 0)) return (b.poin || 0) - (a.poin || 0);
+            if ((b.selisihSkor || 0) !== (a.selisihSkor || 0)) return (b.selisihSkor || 0) - (a.selisihSkor || 0);
+            if ((b.menang || 0) !== (a.menang || 0)) return (b.menang || 0) - (a.menang || 0);
+            return a.nama.localeCompare(b.nama);
+        });
+
+        ligaSort.forEach((pemain, index) => {
+            let formHtml = (pemain.form && pemain.form.length > 0) ? '<div class="form-container">' + pemain.form.slice(-5).map(f => `<span class="form-dot ${f==='M'?'win':'lose'}">${f}</span>`).join('') + '</div>' : '<span style="color:#cbd5e1; font-size:11px;">-</span>';
+            let clockInfo = pemain.jamDatang ? `<span class="time-arrival">⏱️ ${pemain.jamDatang}</span>` : '';
+            let btnClass = pemain.lunas ? 'is-present' : ''; let labelHadir = pemain.lunas ? 'HADIR' : 'ABSEN';
+            let rataWaktuHarian = hitungRataWaktuHarianFormat(pemain.nama);
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><span class="pos-badge">${index + 1}</span></td>
+                <td style="text-align: left; font-weight: 700; color:#1e293b;">${pemain.nama}</td>
+                <td><div class="absen-cell-wrapper"><button class="btn-absen-toggle ${btnClass}" onclick="toggleAbsensi('${pemain.nama}')"><span class="status-dot"></span> ${labelHadir}</button>${clockInfo}</div></td>
+                <td style="font-weight: 700;">${pemain.main || 0}</td>
+                <td style="color: #16a34a; font-weight: 700;">${pemain.menang || 0}</td><td style="color: #dc2626; font-weight: 700;">${pemain.kalah || 0}</td>
+                <td style="color: #16a34a; font-weight: 600;">${pemain.skorMenang || 0}</td><td style="color: #dc2626; font-weight: 600;">${pemain.skorKalah || 0}</td>
+                <td style="color: #8b5cf6; font-weight: 700;">${(pemain.selisihSkor > 0 ? '+' : '') + (pemain.selisihSkor || 0)}</td>
+                <td style="color: #2563eb; font-weight: 800; font-size: 15px;">${pemain.poin || 0}</td>
+                <td style="font-family: monospace; font-weight: 700; color: #475569;">${rataWaktuHarian}</td>
+                <td>${formHtml}</td>
+                <td class="admin-only"><button style="background:none; border:none; cursor:pointer; font-size:14px;" onclick="hapusPemain('${pemain.nama}')">❌</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        renderPapanSkorLapangan(); renderRiwayatPertandinganLog(); renderHalamanKas(); renderHalamanAllKumulatif(); renderHalamanGrading(); hitungLiveNavbarStatistik();
+    }
+
+    function toggleAbsensi(nama) {
+        const pemain = dataPemain.find(p => p.nama === nama);
+        if (pemain) {
+            if (pemain.lunas) { 
+                let sedangBermain = false;
+                for (let key in stateLapangan) { let s = stateLapangan[key]; if (s && (s.ta1 === pemain.nama || s.ta2 === pemain.nama || s.tb1 === pemain.nama || s.tb2 === pemain.nama)) { sedangBermain = true; break; } }
+                if (sedangBermain) { bukaModalInputNotif("⚠️ Gagal Absen", `Pemain <b>${pemain.nama}</b> sedang bertanding aktif!`); return; }
+            }
+            pemain.lunas = !pemain.lunas;
+            if (pemain.lunas) { const sek = new Date(); pemain.jamDatang = `${sek.getHours().toString().padStart(2,'0')}:${sek.getMinutes().toString().padStart(2,'0')}`; showLiveToast(`${pemain.nama} hadir mabar! ⏱️`); } 
+            else { pemain.jamDatang = ''; showLiveToast(`${pemain.nama} dibatalkan hadir.`); }
+            simpanKeMemoriSilent(); renderUtama();
+        }
+    }
+
+    function updateStateInputLapangan(courtNum) {
+        if(!stateLapangan[courtNum]) stateLapangan[courtNum] = { ta1:"", ta2:"", tb1:"", tb2:"", skorA:0, skorB:0, berjalan:false, startTime:0, accumulatedTime:0, blowoutResolved:false };
+        stateLapangan[courtNum].ta1 = document.getElementById(`lap-${courtNum}-ta1`).value; stateLapangan[courtNum].ta2 = document.getElementById(`lap-${courtNum}-ta2`).value;
+        stateLapangan[courtNum].tb1 = document.getElementById(`lap-${courtNum}-tb1`).value; stateLapangan[courtNum].tb2 = document.getElementById(`lap-${courtNum}-tb2`).value;
+        stateLapangan[courtNum].blowoutResolved = false; simpanKeMemoriSilent(); renderPapanSkorLapangan();
+    }
+
+    function updateSkorStateLapangan(courtNum) {
+        if(!stateLapangan[courtNum]) return;
+        stateLapangan[courtNum].skorA = parseInt(document.getElementById(`lap-${courtNum}-skor-a`).value) || 0; stateLapangan[courtNum].skorB = parseInt(document.getElementById(`lap-${courtNum}-skor-b`).value) || 0;
+        simpanKeMemoriSilent(); analisisKeseimbanganMatch(courtNum); 
+    }
+
+    function mulaiMatchTimer(courtNum) {
+        if (!stateLapangan[courtNum]) stateLapangan[courtNum] = { ta1:"", ta2:"", tb1:"", tb2:"", skorA:0, skorB:0, berjalan:false, startTime:0, accumulatedTime:0, blowoutResolved:false };
+        if (stateLapangan[courtNum].berjalan) return;
+        if (timers[courtNum] && timers[courtNum].interval) clearInterval(timers[courtNum].interval);
+        
+        stateLapangan[courtNum].berjalan = true; stateLapangan[courtNum].startTime = Date.now(); simpanKeMemoriSilent();
+        let saveBtn = document.getElementById(`btn-save-lap-${courtNum}`); if(saveBtn) saveBtn.classList.add('active');
+        
+        timers[courtNum] = {
+            interval: setInterval(() => {
+                let totalDetik = dapatkanDetikElapsedTime(courtNum); let mForm = Math.floor(totalDetik/60).toString().padStart(2,'0'); let sForm = (totalDetik%60).toString().padStart(2,'0');
+                let nodeText = document.getElementById(`status-court-text-${courtNum}`); if(nodeText) nodeText.innerText = `Status: Bertanding (${mForm}:${sForm})`;
+                let nodeMemberTimer = document.getElementById(`member-court-timer-${courtNum}`); if(nodeMemberTimer) nodeMemberTimer.innerText = `${mForm}:${sForm}`;
+            }, 500)
+        };
+        analisisKeseimbanganMatch(courtNum);
+    }
+
+    function simpanHasilOtomatis(courtNum) {
+        let sLap = stateLapangan[courtNum];
+        if (!sLap || !sLap.berjalan) return; if (!sLap.ta1 || !sLap.tb1) return;
+        if(timers[courtNum] && timers[courtNum].interval) { clearInterval(timers[courtNum].interval); timers[courtNum].interval = null; }
+        
+        let totalDetik = dapatkanDetikElapsedTime(courtNum);
+        let mFinal = Math.floor(totalDetik / 60).toString().padStart(2, '0'); let sFinal = (totalDetik % 60).toString().padStart(2, '0');
+        
+        riwayatPertandingan.unshift({
+            id: 'M-' + Date.now(), timA: [sLap.ta1, sLap.ta2].filter(Boolean).join(" / "), timB: [sLap.tb1, sLap.tb2].filter(Boolean).join(" / "),
+            skorA: sLap.skorA, skorB: sLap.skorB, durasi: `${mFinal}:${sFinal}`
+        });
+
+        stateLapangan[courtNum] = { ta1:"", ta2:"", tb1:"", tb2:"", skorA:0, skorB:0, berjalan:false, startTime:0, accumulatedTime:0, blowoutResolved:false };
+        timers[courtNum] = { interval: null }; 
+        kalkulasiUlangKlasemen(); showLiveToast("Match selesai! Rekomendasi grading pemain diperbarui ⚡");
+    }
+
+    function kalkulasiUlangKlasemen() {
+        dataPemain.forEach(p => { p.main = 0; p.menang = 0; p.kalah = 0; p.poin = 0; p.skorMenang = 0; p.skorKalah = 0; p.selisihSkor = 0; p.form = []; });
+        for (let i = riwayatPertandingan.length - 1; i >= 0; i--) {
+            let m = riwayatPertandingan[i]; let pA = m.timA.split(" / ").map(x => x.trim()); let pB = m.timB.split(" / ").map(x => x.trim());
+            let sA = parseInt(m.skorA) || 0; let sB = parseInt(m.skorB) || 0; let pemenang = sA > sB ? 'A' : (sB > sA ? 'B' : 'SERI');
+            pA.forEach(n => {
+                let p = dataPemain.find(x => x.nama === n);
+                if(p) {
+                    p.main++; p.skorMenang += sA; p.skorKalah += sB;
+                    if(pemenang === 'A') { p.menang++; p.poin += 3; p.form.push('M'); } else if(pemenang === 'B') { p.kalah++; p.form.push('K'); }
+                    p.selisihSkor = p.skorMenang - p.skorKalah;
+                }
+            });
+            pB.forEach(n => {
+                let p = dataPemain.find(x => x.nama === n);
+                if(p) {
+                    p.main++; p.skorMenang += sB; p.skorKalah += sA;
+                    if(pemenang === 'B') { p.menang++; p.poin += 3; p.form.push('M'); } else if(pemenang === 'A') { p.kalah++; p.form.push('K'); }
+                    p.selisihSkor = p.skorMenang - p.skorKalah;
+                }
+            });
+        }
+        simpanKeMemoriSilent(); renderUtama();
+    }
+
+    function renderRiwayatPertandinganLog() {
+        const rList = document.getElementById('log-riwayat'); if(!rList) return;
+        rList.innerHTML = '';
+        if(riwayatPertandingan.length === 0) { rList.innerHTML = `<li style="font-size:12px; color:#888; text-align:center; padding:10px;">Belum ada riwayat tanding masuk hari ini.</li>`; return; }
+
+        riwayatPertandingan.forEach(m => {
+            let winA = m.skorA > m.skorB ? 'font-weight:900; color:#16a34a;' : ''; let winB = m.skorB > m.skorA ? 'font-weight:900; color:#16a34a;' : '';
+            const li = document.createElement('li'); li.className = 'history-item';
+            li.innerHTML = `
+                <div><div><span style="${winA}">${m.timA}</span> <b style="background:#e2e8f0; padding:2px 6px; border-radius:4px; margin:0 4px;">${m.skorA} : ${m.skorB}</b> <span style="${winB}">${m.timB}</span></div>
+                <div class="history-time">⏱️ Durasi Bermain: <b>${m.durasi || "00:00"} Menit</b></div></div>
+                <div class="history-right-side admin-only"><button class="btn-edit-history" onclick="bukaModalEditMatch('${m.id}')">✏️ Edit</button><button style="background:none; border:none; cursor:pointer; font-size:13px;" onclick="hapusMatchRiwayat('${m.id}')">❌</button></div>
+            `;
+            rList.appendChild(li);
+        });
+    }
+
+    function hapusMatchRiwayat(idMatch) { riwayatPertandingan = riwayatPertandingan.filter(m => m.id !== idMatch); kalkulasiUlangKlasemen(); }
+    
+    function bukaModalEditMatch(idMatch) {
+        let match = riwayatPertandingan.find(m => m.id === idMatch); if(!match) return;
+        document.getElementById('edit-match-id').value = match.id; document.getElementById('edit-match-tima').value = match.timA;
+        document.getElementById('edit-match-skora').value = match.skorA; document.getElementById('edit-match-timb').value = match.timB;
+        document.getElementById('edit-match-skorb').value = match.skorB; document.getElementById('edit-match-durasi').value = match.durasi || "00:00";
+        document.getElementById('modal-edit-match').style.display = 'flex';
+    }
+    function tutupModalEditMatch() { document.getElementById('modal-edit-match').style.display = 'none'; }
+    function eksekusiSimpanEditMatch() {
+        let id = document.getElementById('edit-match-id').value; let match = riwayatPertandingan.find(m => m.id === id);
+        if(match) {
+            match.timA = document.getElementById('edit-match-tima').value.toUpperCase().trim(); match.skorA = parseInt(document.getElementById('edit-match-skora').value) || 0;
+            match.timB = document.getElementById('edit-match-timb').value.toUpperCase().trim(); match.skorB = parseInt(document.getElementById('edit-match-skorb').value) || 0;
+            match.durasi = document.getElementById('edit-match-durasi').value.trim(); tutupModalEditMatch(); kalkulasiUlangKlasemen();
+        }
+    }
+
+    function renderHalamanKas() {
+        const listContainer = document.getElementById('rekap-kas-list'); if(!listContainer) return;
+        listContainer.innerHTML = '';
+        let totalTunai = 0, totalTransfer = 0, totalBelum = 0, countTunai = 0, countQris = 0, countSponsor = 0, countBelum = 0;
+        let kasSort = [...dataPemain].sort((a, b) => a.nama.localeCompare(b.nama));
+
+        kasSort.forEach(pemain => {
+            let nominalUang = parseInt(pemain.nominal) || 0;
+            if (pemain.sudahBayar) {
+                if (pemain.metode === "Tunai") { totalTunai += nominalUang; countTunai++; }
+                else if (pemain.metode === "QRIS") { totalTransfer += nominalUang; countQris++; }
+                else if (pemain.metode === "Sponsor") { countSponsor++; }
+            } else { totalBelum += nominalUang; countBelum++; }
+
+            if(filterKasAktif === 'sudah' && !pemain.sudahBayar) return; if(filterKasAktif === 'belum' && pemain.sudahBayar) return;
+            if(filterKasAktif === 'tunai' && (!pemain.sudahBayar || pemain.metode !== 'Tunai')) return; if(filterKasAktif === 'tf' && (!pemain.sudahBayar || pemain.metode !== 'QRIS')) return;
+            if(filterKasAktif === 'sponsor' && (!pemain.sudahBayar || pemain.metode !== 'Sponsor')) return;
+
+            let payIcon = pemain.metode === "QRIS" ? "📱" : (pemain.metode === "Sponsor" ? "🤝" : "💵");
+            let labelBayarBtn = pemain.sudahBayar ? (pemain.metode === "Sponsor" ? "🤝 SPONSOR" : "🟢 LUNAS") : "🔴 BELUM BAYAR"; let classBayarBtn = pemain.sudahBayar ? "lunas" : "belum";
+
+            const li = document.createElement('li'); li.className = `member-item ${pemain.sudahBayar ? 'is-paid-row' : ''}`;
+            li.innerHTML = `
+                <div class="member-info-left"><div class="pay-avatar-icon">${payIcon}</div><div class="member-names-block"><div class="member-name-rekap">${pemain.sudahBayar ? '<span class="check-v">✓</span>' : ''} <span>${pemain.nama}</span><button class="btn-rekap-link edit" onclick="editPemain('${pemain.nama}')" title="Edit Iuran" style="margin-left: 6px;">✏️ Edit</button></div><div class="member-sub">Iuran: Rp ${nominalUang.toLocaleString('id-ID')}</div></div></div>
+                <div class="rekap-pay-controls">
+                    <select onchange="gantiMetode('${pemain.nama}', this.value)"><option value="Tunai" ${pemain.metode === 'Tunai' ? 'selected' : ''}>💵 Tunai</option><option value="QRIS" ${pemain.metode === 'QRIS' ? 'selected' : ''}>📱 QRIS/TF</option><option value="Sponsor" ${pemain.metode === 'Sponsor' ? 'selected' : ''}>🤝 Sponsor</option></select>
+                    <button class="btn-bayar-toggle ${classBayarBtn}" onclick="toggleStatusBayar('${pemain.nama}')">${labelBayarBtn}</button>
+                </div>
+            `;
+            listContainer.appendChild(li);
+        });
+        document.getElementById('total-tunai').innerText = "Rp " + totalTunai.toLocaleString('id-ID'); document.getElementById('total-transfer').innerText = "Rp " + totalTransfer.toLocaleString('id-ID');
+        document.getElementById('total-belum').innerText = "Rp " + totalBelum.toLocaleString('id-ID'); document.getElementById('total-keseluruhan').innerText = "Rp " + (totalTunai + totalTransfer).toLocaleString('id-ID');
+        document.getElementById('count-tunai').innerText = `(${countTunai} Orang)`; document.getElementById('count-transfer').innerText = `(${countQris} Orang)`; document.getElementById('count-belum').innerText = `(${countBelum} Orang)`;
+        document.getElementById('lbl-total-m').innerText = dataPemain.length; document.getElementById('lbl-hadir-m').innerText = dataPemain.filter(p => p.lunas).length;
+        document.getElementById('lbl-lunas-m').innerText = countTunai + countQris; document.getElementById('lbl-sponsor-m').innerText = countSponsor;
+    }
+
+    function toggleStatusBayar(nama) { const pemain = dataPemain.find(p => p.nama === nama); if(pemain) { pemain.sudahBayar = !pemain.sudahBayar; simpanKeMemoriSilent(); renderHalamanKas(); } }
+    function gantiMetode(nama, value) { const pemain = dataPemain.find(p => p.nama === nama); if(pemain) { pemain.metode = value; if (value === 'Sponsor') { pemain.nominal = 0; } simpanKeMemoriSilent(); renderHalamanKas(); } }
+    
+    function editPemain(nama) {
+        const pemain = dataPemain.find(p => p.nama === nama); if(!pemain) return;
+        document.getElementById('edit-pemain-id').value = pemain.nama; 
+        document.getElementById('edit-pemain-nama').value = pemain.nama; document.getElementById('edit-pemain-nominal').value = pemain.nominal; document.getElementById('modal-edit-pemain').style.display = 'flex';
+    }
+    function tutupModalEditPemain() { document.getElementById('modal-edit-pemain').style.display = 'none'; }
+    function eksekusiSimpanEditPemain() {
+        let idNama = document.getElementById('edit-pemain-id').value; let pemain = dataPemain.find(p => p.nama === idNama);
+        if(pemain) { pemain.nama = document.getElementById('edit-pemain-nama').value.toUpperCase().trim(); pemain.nominal = parseInt(document.getElementById('edit-pemain-nominal').value) || 0; tutupModalEditPemain(); simpanKeMemoriSilent(); renderUtama(); }
+    }
+
+    function renderHalamanAllKumulatif() {
+        const tbodyAllMatch = document.getElementById('tabel-allmatch-kumulatif'); if(!tbodyAllMatch) return;
+        tbodyAllMatch.innerHTML = ''; let arrayAllMatch = Object.values(allMatchKlasemen);
+        if(arrayAllMatch.length === 0) { tbodyAllMatch.innerHTML = `<tr><td colspan="10" style="color:#888; padding:20px; font-size:12px;">Belum ada data kumulatif.</td></tr>`; } 
+        else {
+            arrayAllMatch.sort((a, b) => {
+                let poinA = parseInt(a.poin) || 0; let poinB = parseInt(b.poin) || 0; if (poinB !== poinA) return poinB - poinA;
+                let spA = parseInt(a.selisihSkor) || 0; let spB = parseInt(b.selisihSkor) || 0; if (spB !== spA) return spB - spA;
+                let menangA = parseInt(a.menang) || 0; let menangB = parseInt(b.menang) || 0; return menangB - menangA;
+            });
+            
+            arrayAllMatch.forEach((p, idx) => {
+                let spVal = parseInt(p.selisihSkor) || 0, tanda = spVal > 0 ? `+${spVal}` : spVal; let totalMP = parseInt(p.menang || 0) + parseInt(p.kalah || 0);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="pos-badge">${idx + 1}</span></td>
+                    <td style="text-align: left; font-weight: 700; text-transform: uppercase; color:#1e293b;">${p.nama}</td>
+                    <td style="text-align: left; font-weight: 700; color:#16a34a;">${p.kehadiran || 0} Sesi</td>
+                    <td style="font-weight: 700;">${totalMP}</td><td style="color: #16a34a; font-weight: 700;">${p.menang || 0}</td><td style="color: #dc2626; font-weight: 700;">${p.kalah || 0}</td>
+                    <td style="color: #16a34a; font-weight: 600;">${p.skorMenang || 0}</td><td style="color: #dc2626; font-weight: 600;">${p.skorKalah || 0}</td><td style="color: #8b5cf6; font-weight: 700;">${tanda}</td>
+                    <td style="color: #2563eb; font-weight: 800; font-size: 15px;">${p.poin || 0}</td>
+                `;
+                tbodyAllMatch.appendChild(tr);
+            });
+        }
+
+        const tbodyHistoryHarian = document.getElementById('tabel-history-sesi-harian'); if(!tbodyHistoryHarian) return;
+        tbodyHistoryHarian.innerHTML = '';
+        if(historySesiHarian.length === 0) { tbodyHistoryHarian.innerHTML = `<tr><td colspan="4" style="color:#888; padding:20px; font-size:12px;">Belum ada mabar diarsipkan.</td></tr>`; return; }
+        historySesiHarian.forEach(sesi => {
+            const trSesi = document.createElement('tr');
+            trSesi.innerHTML = `<td style="font-weight:600; color:#334155;">📅 ${sesi.waktu}</td><td style="font-weight:700; color:#0284c7;">${sesi.totalMatch} Pertandingan</td><td style="font-weight:700; color:#16a34a;">${sesi.pemainHadir} Orang</td><td style="font-family:monospace; font-weight:700; color:#e27c3a;">⏱️ ${sesi.rataWaktu}</td>`;
+            tbodyHistoryHarian.appendChild(trSesi);
+        });
+    }
+
+    function eksekusiResetHariIni() {
+        riwayatPertandingan = []; dataPemain = []; stateLapangan = {}; 
+        for(let k in timers) { if(timers[k] && timers[k].interval) clearInterval(timers[k].interval); }
+        timers = {}; simpanKeMemoriSilent(); tutupModalReset(); gantiHalaman('page-input'); showLiveToast("Data hari ini berhasil dibersihkan! 🧹"); renderUtama();
+    }
+
+    // PEMBARUAN LOGIKA: Tombol Reset Grading menghapus keseluruhan nama, skor harian dan kualitas level secara permanen
+    function eksekusiResetGradingOnly() {
+        databaseGrading = {}; 
+        simpanKeMemoriSilent(); tutupModalReset(); showLiveToast("Database grading dikosongkan secara total! 🧹⭐"); renderUtama();
+    }
+
+    function eksekusiResetKumulatif() {
+        allMatchKlasemen = {}; historySesiHarian = [];
+        simpanKeMemoriSilent(); tutupModalReset(); showLiveToast("Data Klasemen Kumulatif berhasil dihapus! 🔴 Database grading tetap aman!"); renderUtama();
+    }
+
+    function eksekusiSelesaiHariIni() {
+        let statistikHarian = hitungLiveNavbarStatistik(); let jumlahPemainHadir = dataPemain.filter(p => p.lunas).length; let totalKasMasuk = 0;
+        dataPemain.forEach(p => { if (p.sudahBayar && (p.metode === "Tunai" || p.metode === "QRIS")) totalKasMasuk += p.nominal; });
+        let waktuSekarang = new Date(); let stringWaktu = `${waktuSekarang.getDate().toString().padStart(2,'0')}/${(waktuSekarang.getMonth()+1).toString().padStart(2,'0')}/${waktuSekarang.getFullYear()} ${waktuSekarang.getHours().toString().padStart(2,'0')}:${waktuSekarang.getMinutes().toString().padStart(2,'0')}`;
+        historySesiHarian.unshift({ waktu: stringWaktu, totalMatch: statistikHarian.totalMatch, pemainHadir: jumlahPemainHadir, rataWaktu: statistikHarian.rataWaktu, kasMasuk: totalKasMasuk });
+
+        // Akumulasi kehadiran kumulatif
+        dataPemain.forEach(p => {
+            if (p.lunas) {
+                if (!allMatchKlasemen[p.nama]) allMatchKlasemen[p.nama] = { nama: p.nama, kehadiran: 0, main: 0, menang: 0, kalah: 0, poin: 0, skorMenang: 0, skorKalah: 0, selisihSkor: 0, totalDurasiDetik: 0 };
+                allMatchKlasemen[p.nama].kehadiran = (allMatchKlasemen[p.nama].kehadiran || 0) + 1;
+            }
+        });
+        
+        // Akumulasi match stats kumulatif
+        Object.keys(allMatchKlasemen).forEach(n => {
+            let p = dataPemain.find(x => x.nama === n);
+            allMatchKlasemen[n].main = (allMatchKlasemen[n].main || 0) + (p ? p.main : 0); allMatchKlasemen[n].menang = (allMatchKlasemen[n].menang || 0) + (p ? p.menang : 0);
+            allMatchKlasemen[n].kalah = (allMatchKlasemen[n].kalah || 0) + (p ? p.kalah : 0); allMatchKlasemen[n].skorMenang = (allMatchKlasemen[n].skorMenang || 0) + (p ? p.skorMenang : 0);
+            allMatchKlasemen[n].skorKalah = (allMatchKlasemen[n].skorKalah || 0) + (p ? p.skorKalah : 0); allMatchKlasemen[n].poin = (allMatchKlasemen[n].poin || 0) + (p ? p.poin : 0);
+            allMatchKlasemen[n].selisihSkor = allMatchKlasemen[n].skorMenang - allMatchKlasemen[n].skorKalah;
+        });
+
+        // Akumulasi total Main Match di database grading pemain secara harian
+        dataPemain.forEach(p => {
+            let n = p.nama;
+            if (!databaseGrading[n]) {
+                databaseGrading[n] = { nama: n, mainMatch: 0, grading: 5.0 };
+            }
+            databaseGrading[n].mainMatch = (databaseGrading[n].mainMatch || 0) + (p.main || 0);
+        });
+
+        riwayatPertandingan.forEach(m => {
+            let pTimA = m.timA.split(" / ").map(x => x.trim()), pTimB = m.timB.split(" / ").map(x => x.trim()), detikMatch = 0;
+            let dur = String(m.durasi || "00:00").replace(/'/g, ''); if (dur.includes(":") && !dur.includes("T")) { let parts = dur.split(":"); detikMatch = (parseInt(parts[0]) * 60) + parseInt(parts[1]); }
+            let semuaPemainMatch = [...pTimA, ...pTimB];
+            semuaPemainMatch.forEach(namaP => { if (namaP && allMatchKlasemen[namaP]) allMatchKlasemen[namaP].totalDurasiDetik = (allMatchKlasemen[namaP].totalDurasiDetik || 0) + detikMatch; });
+        });
+
+        riwayatPertandingan = []; dataPemain = []; stateLapangan = {}; 
+        for(let k in timers) { if(timers[k].interval) clearInterval(timers[k].interval); }
+        timers = {}; jalankanUlangTimerAktif(); simpanKeMemoriSilent(); tutupModalSelesai(); gantiHalaman('page-allmatch'); 
+    }
+
+    function hitungRataMenitHarian(namaPemain) {
+        let totalDetik = 0; let tanding = 0;
+        riwayatPertandingan.forEach(m => {
+            let pA = m.timA.split(" / ").map(x => x.trim()), pB = m.timB.split(" / ").map(x => x.trim());
+            if (pA.includes(namaPemain) || pB.includes(namaPemain)) {
+                tanding++; let dur = String(m.durasi || "00:00").replace(/'/g, ''); 
+                if (dur.includes(":") && !dur.includes("T")) { let parts = dur.split(":"); totalDetik += (parseInt(parts[0]) * 60) + parseInt(parts[1]); }
+            }
+        });
+        if (tanding === 0) return 0; return Math.round((totalDetik / tanding) / 60);
+    }
+
+    function getCellRef(col, row) {
+        let colRef = ""; while (col >= 0) { colRef = String.fromCharCode((col % 26) + 65) + colRef; col = Math.floor(col / 26) - 1; } return colRef + (row + 1);
+    }
+
+    function exportHariIniExcel() {
+        let todayStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        let titleRow = ["REKAP AKTIVITAS & KLASEMEN HARIAN BADMINTON TAHESQUAD", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+        let infoRow = ["Tanggal Sesi: " + todayStr, "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+        let emptyRow = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+        let headers = ["No", "Nama Pemain", "Status Kehadiran", "Jam Datang", "Main (MP)", "Menang (M)", "Kalah (K)", "Poin Menang (PM)", "Poin Kalah (PK)", "Selisih (SP)", "Poin Liga", "Rata2 Menit Bermain", "Status Bayar", "Metode Bayar", "Nominal Bayar"];
+        let rows = [titleRow, infoRow, emptyRow, headers]; let totalKas = 0;
+
+        let dataSorted = [...dataPemain].sort((a, b) => {
+            if ((b.poin || 0) !== (a.poin || 0)) return (b.poin || 0) - (a.poin || 0);
+            if ((b.selisihSkor || 0) !== (a.selisihSkor || 0)) return (b.selisihSkor || 0) - (a.selisihSkor || 0);
+            if ((b.menang || 0) !== (a.menang || 0)) return (b.menang || 0) - (a.menang || 0); return a.nama.localeCompare(b.nama);
+        });
+
+        dataSorted.forEach((p, idx) => {
+            let rataMenit = hitungRataMenitHarian(p.nama); if (p.sudahBayar && p.metode !== 'Sponsor') { totalKas += p.nominal; }
+            let spTanda = (p.selisihSkor > 0 ? '+' : '') + (p.selisihSkor || 0);
+            rows.push([idx + 1, p.nama, p.lunas ? "HADIR" : "TIDAK HADIR", p.jamDatang || "-", p.main || 0, p.menang || 0, p.kalah || 0, p.skorMenang || 0, p.skorKalah || 0, spTanda, p.poin || 0, rataMenit + " Menit", p.sudahBayar ? "Sudah Bayar" : "Belum Bayar", p.sudahBayar ? p.metode : "-", p.nominal]);
+        });
+        
+        rows.push(["", "", "", "", "", "", "", "", "", "", "", "", "", "TOTAL KAS MASUK", totalKas]);
+        
+        // Menambahkan Jarak dan Header Riwayat Pertandingan di Bagian Bawah Klasemen
+        rows.push(["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]);
+        
+        let matchTitleIdx = rows.length;
+        rows.push(["RIWAYAT PERTANDINGAN SESI HARIAN", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]);
+        
+        let matchHeaderIdx = rows.length;
+        rows.push(["No Match", "Tim A", "Skor A", "", "Skor B", "Tim B", "Durasi Bermain", "", "", "", "", "", "", "", ""]);
+        
+        let startMatchDataIdx = rows.length;
+        if (riwayatPertandingan.length === 0) {
+            rows.push(["Belum ada pertandingan tanding masuk hari ini.", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]);
+        } else {
+            riwayatPertandingan.forEach((m, mIdx) => {
+                rows.push([mIdx + 1, m.timA, m.skorA, "VS", m.skorB, m.timB, (m.durasi || "00:00") + " Menit", "", "", "", "", "", "", "", ""]);
+            });
+        }
+        let endMatchDataIdx = rows.length;
+
+        let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(rows);
+        
+        // Penggabungan Kolom (Merges) yang Diperluas
+        ws['!merges'] = [ 
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 14 } }, 
+            { s: { r: 1, c: 0 }, e: { r: 1, c: 14 } },
+            { s: { r: matchTitleIdx, c: 0 }, e: { r: matchTitleIdx, c: 14 } },
+            { s: { r: matchHeaderIdx, c: 6 }, e: { r: matchHeaderIdx, c: 14 } }
+        ];
+        
+        for (let r = startMatchDataIdx; r < endMatchDataIdx; r++) {
+            ws['!merges'].push({ s: { r: r, c: 6 }, e: { r: r, c: 14 } });
+        }
+
+        let totalRows = rows.length, totalCols = 15;
+        for (let r = 0; r < totalRows; r++) {
+            for (let c = 0; c < totalCols; c++) {
+                let cellRef = getCellRef(c, r); if (!ws[cellRef]) continue;
+                
+                // Aturan Desain Sel Default
+                ws[cellRef].s = { 
+                    font: { name: "Arial", sz: 10 }, 
+                    alignment: { vertical: "center" }, 
+                    border: { 
+                        top: { style: "thin", color: { rgb: "E2E8F0" } }, 
+                        bottom: { style: "thin", color: { rgb: "E2E8F0" } }, 
+                        left: { style: "thin", color: { rgb: "E2E8F0" } }, 
+                        right: { style: "thin", color: { rgb: "E2E8F0" } } 
+                    } 
+                };
+                
+                if (r === 0) {
+                    ws[cellRef].s = { font: { name: "Arial", sz: 14, bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "1E5631" } }, alignment: { horizontal: "center", vertical: "center" } };
+                } else if (r === 1) {
+                    ws[cellRef].s = { font: { name: "Arial", sz: 10, italic: true, color: { rgb: "475569" } }, fill: { fgColor: { rgb: "F1F5F9" } }, alignment: { horizontal: "center", vertical: "center" } };
+                } else if (r === 2) {
+                    ws[cellRef].s = { border: {} };
+                } else if (r === 3) {
+                    ws[cellRef].s = { font: { name: "Arial", sz: 10, bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "334155" } }, alignment: { horizontal: "center", vertical: "center" }, border: { top: { style: "medium", color: { rgb: "000000" } }, bottom: { style: "medium", color: { rgb: "000000" } } } };
+                } else if (r > 3 && r < matchTitleIdx - 2) {
+                    let bgColor = (r % 2 === 0) ? "F8FAFC" : "FFFFFF"; ws[cellRef].s.fill = { fgColor: { rgb: bgColor } };
+                    if (c === 0) ws[cellRef].s.alignment.horizontal = "center"; 
+                    else if (c === 1) { ws[cellRef].s.alignment.horizontal = "left"; ws[cellRef].s.font.bold = true; } 
+                    else if (c === 2) { ws[cellRef].s.alignment.horizontal = "center"; let isHadir = ws[cellRef].v === "HADIR"; ws[cellRef].s.font.bold = true; ws[cellRef].s.font.color = { rgb: isHadir ? "16A34A" : "DC2626" }; ws[cellRef].s.fill = { fgColor: { rgb: isHadir ? "DCFCE7" : "FEE2E2" } }; } 
+                    else if (c === 3 || c === 4 || c === 5 || c === 6 || c === 7 || c === 8 || c === 11) ws[cellRef].s.alignment.horizontal = "center";
+                    else if (c === 9) { ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true; let textSP = String(ws[cellRef].v); if (textSP.startsWith("+")) ws[cellRef].s.font.color = { rgb: "16A34A" }; else if (textSP.startsWith("-")) ws[cellRef].s.font.color = { rgb: "DC2626" }; }
+                    else if (c === 10) { ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true; ws[cellRef].s.font.color = { rgb: "2563EB" }; }
+                    else if (c === 12) { ws[cellRef].s.alignment.horizontal = "center"; let isLunas = ws[cellRef].v === "Sudah Bayar"; ws[cellRef].s.font.bold = true; ws[cellRef].s.font.color = { rgb: isLunas ? "16A34A" : "D97706" }; ws[cellRef].s.fill = { fgColor: { rgb: isLunas ? "DCFCE7" : "FEF3C7" } }; } 
+                    else if (c === 13) ws[cellRef].s.alignment.horizontal = "center"; 
+                    else if (c === 14) { ws[cellRef].s.alignment.horizontal = "right"; ws[cellRef].t = 'n'; ws[cellRef].z = '"Rp "#,##0'; }
+                } else if (r === matchTitleIdx - 2) {
+                    ws[cellRef].s = { font: { name: "Arial", sz: 11, bold: true, color: { rgb: "1E40AF" } }, fill: { fgColor: { rgb: "EFF6FF" } }, alignment: { vertical: "center" }, border: { top: { style: "double", color: { rgb: "1E40AF" } }, bottom: { style: "double", color: { rgb: "1E40AF" } } } };
+                    if (c === 13 || c === 14) { ws[cellRef].s.alignment.horizontal = "right"; if (c === 14) { ws[cellRef].t = 'n'; ws[cellRef].z = '"Rp "#,##0'; } }
+                } else if (r === matchTitleIdx - 1) {
+                    ws[cellRef].s = { border: {} };
+                } else if (r === matchTitleIdx) {
+                    ws[cellRef].s = { font: { name: "Arial", sz: 12, bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "0F3460" } }, alignment: { horizontal: "center", vertical: "center" } };
+                } else if (r === matchHeaderIdx) {
+                    ws[cellRef].s = { font: { name: "Arial", sz: 10, bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "1E293B" } }, alignment: { horizontal: "center", vertical: "center" } };
+                } else if (r >= startMatchDataIdx && r < endMatchDataIdx) {
+                    let bgColor = (r % 2 === 0) ? "F8FAFC" : "FFFFFF"; ws[cellRef].s.fill = { fgColor: { rgb: bgColor } };
+                    if (c === 0 || c === 3 || c === 6) {
+                        ws[cellRef].s.alignment.horizontal = "center";
+                    } else if (c === 1) {
+                        ws[cellRef].s.alignment.horizontal = "right";
+                        ws[cellRef].s.font.bold = true;
+                    } else if (c === 2) {
+                        ws[cellRef].s.alignment.horizontal = "center";
+                        ws[cellRef].s.font.bold = true;
+                        ws[cellRef].s.font.color = { rgb: "16A34A" };
+                    } else if (c === 4) {
+                        ws[cellRef].s.alignment.horizontal = "center";
+                        ws[cellRef].s.font.bold = true;
+                        ws[cellRef].s.font.color = { rgb: "16A34A" };
+                    } else if (c === 5) {
+                        ws[cellRef].s.alignment.horizontal = "left";
+                        ws[cellRef].s.font.bold = true;
+                    }
+                }
+            }
+        }
+        ws['!cols'] = [ { wch: 6 }, { wch: 25 }, { wch: 18 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 10 }, { wch: 22 }, { wch: 16 }, { wch: 16 }, { wch: 18 } ];
+        XLSX.utils.book_append_sheet(wb, ws, "Rekap Hari Ini"); XLSX.writeFile(wb, "TaheSquad_Rekap_Harian.xlsx"); tutupModalExport();
+    }
+
+    function exportAllKumulatifExcel() {
+        let arrayAllMatch = Object.values(allMatchKlasemen);
+        let todayStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        let titleRow = ["KLASEMEN KUMULATIF ALL-TIME BADMINTON TAHESQUAD", "", "", "", "", "", "", "", "", "", "", ""];
+        let infoRow = ["Data Akumulasi s/d: " + todayStr, "", "", "", "", "", "", "", "", "", "", ""];
+        let emptyRow = ["", "", "", "", "", "", "", "", "", "", "", ""];
+        let headers = ["Pos", "Nama Pemain", "Total Kehadiran", "Total MP", "M", "K", "PM", "PK", "Selisih Poin (SP)", "Total Poin Kumulatif", "Grading Pemain", "Kategori Level"];
+        let rows = [titleRow, infoRow, emptyRow, headers];
+
+        arrayAllMatch.sort((a, b) => {
+            let poinA = parseInt(a.poin) || 0; let poinB = parseInt(b.poin) || 0; if (poinB !== poinA) return poinB - poinA;
+            let spA = parseInt(a.selisihSkor) || 0; let spB = parseInt(b.selisihSkor) || 0; if (spB !== spA) return spB - spA;
+            let menangA = parseInt(a.menang) || 0; let menangB = parseInt(b.menang) || 0; return menangB - menangA;
+        });
+
+        arrayAllMatch.forEach((p, idx) => {
+            let spVal = parseInt(p.selisihSkor) || 0; let tanda = spVal > 0 ? `+${spVal}` : spVal; let totalMP = parseInt(p.menang || 0) + parseInt(p.kalah || 0);
+            let gradingVal = dapatkanGradingPemain(p.nama); let gradingKat = configGrading[configGrading.length-1] ? configGrading[configGrading.length-1].nama : "UNKNOWN";
+            for(let i=0; i<configGrading.length; i++){ if(gradingVal >= configGrading[i].min && gradingVal <= configGrading[i].max){ gradingKat = configGrading[i].nama; break; } }
+            rows.push([idx + 1, p.nama, (p.kehadiran || 0) + " Sesi", totalMP, p.menang || 0, p.kalah || 0, p.skorMenang || 0, p.skorKalah || 0, tanda, p.poin || 0, gradingVal, gradingKat]);
+        });
+
+        let endKlasemenIndex = rows.length; let historyTitleIndex = endKlasemenIndex + 2; let historyHeaderIndex = historyTitleIndex + 1;
+        rows.push(["", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", ""]);
+        rows.push(["ARSIP RIWAYAT SESI HARIAN (HISTORY)", "", "", "", "", "", "", "", "", "", "", ""]);
+        rows.push(["Waktu Arsip", "Total Pertandingan", "Jumlah Pemain Hadir", "Rata-rata Waktu Main", "", "", "", "", "", "", "", ""]);
+        if (historySesiHarian.length === 0) { rows.push(["Belum ada riwayat sesi harian yang diarsipkan.", "", "", "", "", "", "", "", "", "", "", ""]); } 
+        else { historySesiHarian.forEach(sesi => { rows.push([sesi.waktu, sesi.totalMatch + " Pertandingan", sesi.pemainHadir + " Orang", sesi.rataWaktu, "", "", "", "", "", "", "", ""]); }); }
+
+        let endHistoryIndex = rows.length; let gradingTitleIndex = endHistoryIndex + 2; let gradingHeaderIndex = gradingTitleIndex + 1;
+        rows.push(["", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", ""]);
+        rows.push(["DATABASE KUALITAS GRADING PEMAIN", "", "", "", "", "", "", "", "", "", "", ""]);
+        rows.push(["No", "Nama Pemain", "Nilai Grade", "Kategori Level", "", "", "", "", "", "", "", ""]);
+        
+        let arrayGrading = Object.values(databaseGrading).sort((a,b) => (b.grading || 0) - (a.grading || 0));
+        if(arrayGrading.length === 0) { rows.push(["Belum ada data grading.", "", "", "", "", "", "", "", "", "", "", ""]); } 
+        else {
+            arrayGrading.forEach((p, idx) => {
+                let gradingVal = p.grading !== undefined ? p.grading : 5.0; let gradingKat = configGrading[configGrading.length-1] ? configGrading[configGrading.length-1].nama : "UNKNOWN";
+                for(let i=0; i<configGrading.length; i++){ if(gradingVal >= configGrading[i].min && gradingVal <= configGrading[i].max){ gradingKat = configGrading[i].nama; break; } }
+                rows.push([idx + 1, p.nama, gradingVal, gradingKat, "", "", "", "", "", "", "", ""]);
+            });
+        }
+
+        let totalRows = rows.length, totalCols = 12; let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(rows);
+
+        ws['!merges'] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 11 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 11 } }, 
+            { s: { r: historyTitleIndex, c: 0 }, e: { r: historyTitleIndex, c: 11 } }, { s: { r: gradingTitleIndex, c: 0 }, e: { r: gradingTitleIndex, c: 11 } }
+        ];
+        for (let r = historyHeaderIndex; r < endHistoryIndex; r++) { ws['!merges'].push({ s: { r: r, c: 3 }, e: { r: r, c: 11 } }); }
+        for (let r = gradingHeaderIndex; r < rows.length; r++) { ws['!merges'].push({ s: { r: r, c: 3 }, e: { r: r, c: 11 } }); }
+
+        for (let r = 0; r < totalRows; r++) {
+            for (let c = 0; c < totalCols; c++) {
+                let cellRef = getCellRef(c, r); if (!ws[cellRef]) continue;
+                ws[cellRef].s = { font: { name: "Arial", sz: 10 }, alignment: { vertical: "center" }, border: { top: { style: "thin", color: { rgb: "E2E8F0" } }, bottom: { style: "thin", color: { rgb: "E2E8F0" } }, left: { style: "thin", color: { rgb: "E2E8F0" } }, right: { style: "thin", color: { rgb: "E2E8F0" } } } };
+                if (r === 0) ws[cellRef].s = { font: { name: "Arial", sz: 14, bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "0F3460" } }, alignment: { horizontal: "center", vertical: "center" } };
+                else if (r === 1) ws[cellRef].s = { font: { name: "Arial", sz: 10, italic: true, color: { rgb: "475569" } }, fill: { fgColor: { rgb: "F1F5F9" } }, alignment: { horizontal: "center", vertical: "center" } };
+                else if (r === 2) ws[cellRef].s = { border: {} };
+                else if (r === 3) ws[cellRef].s = { font: { name: "Arial", sz: 10, bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "1E293B" } }, alignment: { horizontal: "center", vertical: "center" }, border: { top: { style: "medium", color: { rgb: "000000" } }, bottom: { style: "medium", color: { rgb: "000000" } } } };
+                else if (r > 3 && r < endKlasemenIndex) { 
+                    let bgColor = (r % 2 === 0) ? "F8FAFC" : "FFFFFF"; ws[cellRef].s.fill = { fgColor: { rgb: bgColor } };
+                    if (c === 0) { 
+                        ws[cellRef].s.alignment.horizontal = "center"; let rankVal = ws[cellRef].v;
+                        if (rankVal === 1) { ws[cellRef].s.fill = { fgColor: { rgb: "FEF08A" } }; ws[cellRef].s.font.bold = true; } 
+                        else if (rankVal === 2) { ws[cellRef].s.fill = { fgColor: { rgb: "E2E8F0" } }; ws[cellRef].s.font.bold = true; } 
+                        else if (rankVal === 3) { ws[cellRef].s.fill = { fgColor: { rgb: "FFEDD5" } }; ws[cellRef].s.font.bold = true; }
+                    } 
+                    else if (c === 1) { ws[cellRef].s.alignment.horizontal = "left"; ws[cellRef].s.font.bold = true; } 
+                    else if (c >= 2 && c <= 7) ws[cellRef].s.alignment.horizontal = "center";
+                    else if (c === 8) { 
+                        ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true;
+                        let textSP = String(ws[cellRef].v); if (textSP.startsWith("+")) ws[cellRef].s.font.color = { rgb: "16A34A" }; else if (textSP.startsWith("-")) ws[cellRef].s.font.color = { rgb: "DC2626" };
+                    } 
+                    else if (c === 9) { ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true; ws[cellRef].s.font.color = { rgb: "2563EB" }; } 
+                    else if (c === 10) { ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true; } 
+                    else if (c === 11) {
+                        ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true; let katVal = ws[cellRef].v;
+                        if (configGrading[0] && katVal === configGrading[0].nama) { ws[cellRef].s.fill = { fgColor: { rgb: "FEE2E2" } }; ws[cellRef].s.font.color = { rgb: "EF4444" }; } 
+                        else if (configGrading[1] && katVal === configGrading[1].nama) { ws[cellRef].s.fill = { fgColor: { rgb: "EFF6FF" } }; ws[cellRef].s.font.color = { rgb: "3B82F6" }; } 
+                        else if (configGrading[2] && katVal === configGrading[2].nama) { ws[cellRef].s.fill = { fgColor: { rgb: "FCFDF4" } }; ws[cellRef].s.font.color = { rgb: "16A34A" }; }
+                        else if (configGrading[3] && katVal === configGrading[3].nama) { ws[cellRef].s.fill = { fgColor: { rgb: "F1F5F9" } }; ws[cellRef].s.font.color = { rgb: "475569" }; }
+                        else if (configGrading[4] && katVal === configGrading[4].nama) { ws[cellRef].s.fill = { fgColor: { rgb: "FFFBEB" } }; ws[cellRef].s.font.color = { rgb: "B45309" }; }
+                    }
+                    else ws[cellRef].s.border = { top: { style: "thin", color: { rgb: "E2E8F0" } }, bottom: { style: "thin", color: { rgb: "E2E8F0" } } };
+                }
+            }
+        }
+        ws['!cols'] = [ { wch: 18 }, { wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 18 }, { wch: 22 }, { wch: 16 }, { wch: 20 } ];
+        XLSX.utils.book_append_sheet(wb, ws, "Data Kumulatif"); XLSX.writeFile(wb, "TaheSquad_All_Kumulatif.xlsx"); tutupModalExport();
+    }
+
+    function triggerImportExcel() { document.getElementById('import-database-excel').click(); }
+    
+    function prosesImportExcel(e) {
+        const file = e.target.files[0]; if (!file) return; 
+        document.getElementById('loading-image-process').style.display = 'flex';
+        document.getElementById('loading-image-text').innerText = "Membaca Berkas Excel...";
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const data = new Uint8Array(event.target.result); const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0]; const worksheet = workbook.Sheets[firstSheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+                if (!jsonData || jsonData.length === 0) throw new Error("Berkas Excel kosong atau tidak terbaca!");
+
+                let headerIdx = -1;
+                for (let i = 0; i < jsonData.length; i++) {
+                    const row = jsonData[i]; 
+                    if (!row || !Array.isArray(row)) continue;
+                    let rowStr = row.join(" ").toLowerCase();
+                    if (rowStr.includes('nama') && (rowStr.includes('mp') || rowStr.includes('menang') || rowStr.includes('poin'))) { headerIdx = i; break; }
+                }
+
+                if (headerIdx === -1) throw new Error("Format salah! Pastikan ada kolom 'Nama Pemain' dan 'Poin'.");
+
+                const headers = jsonData[headerIdx].map(h => String(h || '').trim().toLowerCase());
+                const nameColIdx = headers.findIndex(h => h.includes('nama pemain') || h.includes('pemain'));
+                const kehadiranColIdx = headers.findIndex(h => h.includes('kehadiran') || h.includes('sesi'));
+                const mColIdx = headers.findIndex(h => h === 'm' || (h.includes('menang') && !h.includes('skor') && !h.includes('poin')));
+                const kColIdx = headers.findIndex(h => h === 'k' || (h.includes('kalah') && !h.includes('skor') && !h.includes('poin')));
+                const pmColIdx = headers.findIndex(h => h === 'pm' || h.includes('poin menang') || h.includes('skor menang'));
+                const pkColIdx = headers.findIndex(h => h === 'pk' || h.includes('poin kalah') || h.includes('skor kalah'));
+                const spColIdx = headers.findIndex(h => h === 'sp' || h.includes('selisih poin') || h.includes('selisih skor') || h.includes('selisih'));
+                const totalPoinColIdx = headers.findIndex(h => h.includes('total poin') || h.includes('poin kumulatif') || h === 'poin');
+
+                if (nameColIdx === -1) throw new Error("Kolom Nama Pemain tidak terdeteksi!");
+                let importedCount = 0; let updatedCount = 0;
+
+                for (let i = headerIdx + 1; i < jsonData.length; i++) {
+                    const row = jsonData[i]; 
+                    if (!row || !Array.isArray(row) || row.length === 0) continue;
+                    let firstCell = String(row[0] || '').toUpperCase();
+                    let secondCell = String(row[1] || '').toUpperCase();
+                    if (firstCell.includes('ARSIP RIWAYAT') || firstCell.includes('DATABASE KUALITAS') || secondCell.includes('ARSIP RIWAYAT')) break;
+
+                    const rawName = row[nameColIdx]; if (!rawName) continue;
+                    let nama = String(rawName).trim().replace(/\s*\(\d+\s*sesi\)/i, '').trim().toUpperCase();
+                    if (!nama || nama === 'TOTAL KAS MASUK' || nama === 'NAMA PEMAIN' || nama === 'PEMAIN') continue;
+
+                    let kehadiran = 0; if (kehadiranColIdx !== -1 && row[kehadiranColIdx] !== undefined) kehadiran = parseInt(String(row[kehadiranColIdx]).replace(/[^0-9]/g, '')) || 0;
+                    let menang = 0; if (mColIdx !== -1 && row[mColIdx] !== undefined) menang = parseInt(row[mColIdx]) || 0;
+                    let kalah = 0; if (kColIdx !== -1 && row[kColIdx] !== undefined) kalah = parseInt(row[kColIdx]) || 0;
+                    let totalMP = menang + kalah; 
+                    let skorMenang = 0; if (pmColIdx !== -1 && row[pmColIdx] !== undefined) skorMenang = parseInt(row[pmColIdx]) || 0;
+                    let skorKalah = 0; if (pkColIdx !== -1 && row[pkColIdx] !== undefined) skorKalah = parseInt(row[pkColIdx]) || 0;
+                    let selisihSkor = skorMenang - skorKalah;
+                    if (spColIdx !== -1 && row[spColIdx] !== undefined) { let spVal = String(row[spColIdx]).replace('+', ''); selisihSkor = parseInt(spVal) || selisihSkor; }
+                    let poin = 0; if (totalPoinColIdx !== -1 && row[totalPoinColIdx] !== undefined) poin = parseInt(row[totalPoinColIdx]) || 0;
+                    
+                    if (allMatchKlasemen[nama]) { updatedCount++; } else { importedCount++; }
+
+                    allMatchKlasemen[nama] = { nama: nama, kehadiran: kehadiran, main: totalMP, menang: menang, kalah: kalah, skorMenang: skorMenang, skorKalah: skorKalah, selisihSkor: selisihSkor, poin: poin };
+                    
+                    if(!databaseGrading[nama]) {
+                        databaseGrading[nama] = { nama: nama, mainMatch: totalMP, grading: 5.0 };
+                    }
+                }
+                simpanKeMemoriSilent(); renderUtama();
+                document.getElementById('loading-image-process').style.display = 'none';
+                bukaModalInputNotif("📥 Hasil Impor Database Kumulatif", `Selesai memproses file Excel!<br><br>✅ Pemain Baru: <b>${importedCount}</b><br>🔄 Diperbarui: <b>${updatedCount}</b>`);
+            } catch (error) { console.error(error); document.getElementById('loading-image-process').style.display = 'none'; showLiveToast(error.message || "Terjadi kesalahan saat membaca file Excel! ❌"); }
+            document.getElementById('import-database-excel').value = ''; 
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function triggerImportGradingExcel() { document.getElementById('import-grading-excel').click(); }
+    
+    function prosesImportGradingExcel(e) {
+        const file = e.target.files[0]; if (!file) return; 
+        document.getElementById('loading-image-process').style.display = 'flex';
+        document.getElementById('loading-image-text').innerText = "Membaca Berkas Excel...";
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const data = new Uint8Array(event.target.result); const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0]; const worksheet = workbook.Sheets[firstSheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                if (!jsonData || jsonData.length === 0) throw new Error("Berkas Excel kosong!");
+
+                let headerIdx = -1;
+                for (let i = 0; i < jsonData.length; i++) {
+                    const row = jsonData[i]; 
+                    if (!row || !Array.isArray(row)) continue;
+                    let rowStr = row.join(" ").toLowerCase();
+                    if (rowStr.includes('nama') && (rowStr.includes('grade') || rowStr.includes('grading'))) { headerIdx = i; break; }
+                }
+
+                if (headerIdx === -1) throw new Error("Format Excel tidak dikenal! Harus ada kolom Nama dan Grading.");
+
+                const headers = jsonData[headerIdx].map(h => String(h || '').trim().toLowerCase());
+                const nameColIdx = headers.findIndex(h => h.includes('nama pemain') || h.includes('pemain') || h === 'nama');
+                const gradingColIdx = headers.findIndex(h => h.includes('grading') || h.includes('grade') || h.includes('nilai grade'));
+
+                if (nameColIdx === -1 || gradingColIdx === -1) throw new Error("Kolom Nama atau Grading tidak ditemukan!");
+                let updatedCount = 0; let addedCount = 0;
+
+                for (let i = headerIdx + 1; i < jsonData.length; i++) {
+                    const row = jsonData[i]; 
+                    if (!row || !Array.isArray(row) || row.length === 0) continue;
+                    let firstCell = String(row[0] || '').toUpperCase();
+                    if (firstCell.includes('ARSIP RIWAYAT') || firstCell.includes('DATABASE KUALITAS')) continue;
+
+                    const rawName = row[nameColIdx]; if (!rawName) continue;
+                    let nama = String(rawName).trim().replace(/\s*\(\d+\s*sesi\)/i, '').trim().toUpperCase();
+                    if (!nama || nama === 'TOTAL KAS MASUK' || nama === 'NAMA PEMAIN' || nama === 'PEMAIN') continue;
+
+                    let gradingVal = 5.0;
+                    if (row[gradingColIdx] !== undefined) { let rawGrading = String(row[gradingColIdx]).replace(',', '.'); gradingVal = parseFloat(rawGrading) || 5.0; }
+
+                    if (databaseGrading[nama]) { databaseGrading[nama].grading = gradingVal; updatedCount++; } 
+                    else { databaseGrading[nama] = { nama: nama, mainMatch: 0, grading: gradingVal }; addedCount++; }
+                }
+                simpanKeMemoriSilent(); renderUtama();
+                document.getElementById('loading-image-process').style.display = 'none';
+                bukaModalInputNotif("📥 Hasil Impor Grading Database", `Selesai memperbarui database grading!<br><br>✅ Pemain Baru: <b>${addedCount}</b><br>🔄 Diperbarui: <b>${updatedCount}</b>`);
+            } catch (error) { console.error(error); document.getElementById('loading-image-process').style.display = 'none'; showLiveToast(error.message || "Terjadi kesalahan saat membaca berkas Excel! ❌"); }
+            document.getElementById('import-grading-excel').value = ''; 
+        };
+        reader.readAsArrayBuffer(file);
+    }
+    
+    function prosesEksporGambar(jenis) {
+        const poster = document.getElementById('print-poster-container');
+        const titleSession = document.getElementById('poster-title-session');
+        const dateBadge = document.getElementById('poster-date');
+        const tbody1 = document.getElementById('poster-tbody-1');
+        const tbody2 = document.getElementById('poster-tbody-2');
+        
+        if(!tbody1 || !tbody2) { showLiveToast("Error: HTML Poster E-Sport tidak ditemukan!"); return; }
+
+        let data = (jenis === 'hari-ini') ? [...dataPemain] : Object.values(allMatchKlasemen);
+        data = data.filter(p => p && p.nama && String(p.nama).trim() !== '');
+
+        if (data.length === 0) {
+            tutupModalExportGambar();
+            bukaModalInputNotif("⚠️ Data Kosong", `Tidak ada data pemain untuk diekspor.`);
+            return;
+        }
+
+        data.sort((a, b) => {
+            let pA = parseInt(a.poin) || 0; let pB = parseInt(b.poin) || 0; if (pB !== pA) return pB - pA;
+            let spA = parseInt(a.selisihSkor) || 0; let spB = parseInt(b.selisihSkor) || 0; if (spB !== spA) return spB - spA;
+            let mA = parseInt(a.menang) || 0; let mB = parseInt(b.menang) || 0; return mB - mA;
+        });
+        
+        poster.style.display = 'block';
+        let d = new Date(); let monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        let bulanThn = `${monthNames[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
+        
+        titleSession.innerText = (jenis === 'hari-ini') ? `SESI MABAR HARI INI` : `SESI ${bulanThn}`;
+        dateBadge.innerText = `Updated: ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+        
+        for(let i=1; i<=3; i++) {
+            let p = data[i-1];
+            if(p) {
+                document.getElementById(`pod-name-${i}`).innerText = p.nama;
+                document.getElementById(`pod-pts-${i}`).innerText = `${p.poin||0} Poin`;
+                let spVal = parseInt(p.selisihSkor) || 0; document.getElementById(`pod-sp-${i}`).innerText = `SP ${spVal > 0 ? '+'+spVal : spVal}`;
+            } else {
+                document.getElementById(`pod-name-${i}`).innerText = "-";
+                document.getElementById(`pod-pts-${i}`).innerText = "0 Poin"; document.getElementById(`pod-sp-${i}`).innerText = "SP 0";
+            }
+        }
+
+        document.getElementById('stat-total').innerText = data.length;
+        document.getElementById('stat-poin').innerText = data.length > 0 ? (data[0].poin||0) : 0;
+        let maxSp = data.length > 0 ? Math.max(...data.map(p => parseInt(p.selisihSkor)||0)) : 0;
+        document.getElementById('stat-sp').innerText = maxSp > 0 ? `+${maxSp}` : maxSp;
+        let maxHadir = data.length > 0 ? Math.max(...data.map(p => parseInt(p.kehadiran)||1)) : 1;
+        document.getElementById('stat-hadir').innerText = `${maxHadir} Sesi`;
+
+        tbody1.innerHTML = ''; tbody2.innerHTML = '';
+        let midPoint = Math.ceil(data.length / 2);
+
+        data.forEach((p, idx) => {
+            let spVal = parseInt(p.selisihSkor) || 0;
+            let spClass = spVal > 0 ? "plus" : (spVal < 0 ? "minus" : "");
+            let spTanda = spVal > 0 ? `+${spVal}` : spVal;
+            
+            let mainCalc = (jenis === 'hari-ini') ? (p.main||0) : (parseInt(p.menang||0) + parseInt(p.kalah||0));
+            let hadirSesi = (jenis === 'hari-ini') ? (p.lunas ? "Hadir" : "Absen") : `${p.kehadiran||0} Sesi`;
+
+            let rowHtml = `
+                <td class="pt-pos">${idx + 1}</td>
+                <td>${p.nama}</td>
+                <td style="color:#10b981;">${hadirSesi}</td>
+                <td>${mainCalc}</td>
+                <td style="color:#10b981;">${p.menang||0}</td>
+                <td style="color:#f43f5e;">${p.kalah||0}</td>
+                <td style="color:#10b981;">${p.skorMenang||0}</td>
+                <td style="color:#f43f5e;">${p.skorKalah||0}</td>
+                <td class="pt-sp ${spClass}">${spTanda}</td>
+                <td class="pt-poin">${p.poin||0}</td>
+            `;
+            
+            let row = document.createElement('tr'); row.innerHTML = rowHtml;
+            if (idx < midPoint) tbody1.appendChild(row); else tbody2.appendChild(row);
+        });
+
+        document.getElementById('loading-image-process').style.display = 'flex';
+        document.getElementById('loading-image-text').innerText = "Merender Infografis HD...";
+
+        setTimeout(() => {
+            html2canvas(poster, { backgroundColor: '#02081f', scale: 2 }).then(canvas => {
+                let link = document.createElement('a');
+                link.download = `TahesSmash_${jenis}_${new Date().getTime()}.jpg`;
+                link.href = canvas.toDataURL("image/jpeg", 0.9);
+                link.click();
+                poster.style.display = 'none'; document.getElementById('loading-image-process').style.display = 'none';
+                tutupModalExportGambar();
+            }).catch(err => {
+                console.error(err); poster.style.display = 'none'; document.getElementById('loading-image-process').style.display = 'none';
+                showLiveToast("Gagal memproses gambar!");
+            });
+        }, 500);
+    }
+</script>
+</body>
+</html>
