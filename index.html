@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -34,7 +33,9 @@
             --neon-cyan: #00f3ff;
             --neon-blue: #0077ff;
         }
+        
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
             font-family: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
             background-color: var(--bg);
@@ -57,6 +58,7 @@
             position: relative;
             border-right: 1px solid #21262d;
         }
+        
         .sidebar.closed { margin-left: calc(-1 * var(--sidebar-width)); }
         
         .sidebar-header {
@@ -70,6 +72,7 @@
             background: linear-gradient(135deg, #161b22, #0a0a0a);
             line-height: 1.4;
         }
+        
         .sidebar-header span { 
             display: block;
             font-size: 22px;
@@ -80,6 +83,7 @@
         }
         
         .sidebar-menu { list-style: none; padding: 20px 12px; flex: 1; overflow-y: auto; overflow-x: hidden; }
+        
         .sidebar-menu li {
             padding: 12px 16px;
             cursor: pointer;
@@ -93,6 +97,7 @@
             margin-bottom: 6px;
             transition: all 0.2s ease;
         }
+        
         .sidebar-menu li:hover { background-color: var(--dark-hover); color: var(--dark-text); }
         .sidebar-menu li.active {
             background-color: var(--dark-field);
@@ -440,9 +445,7 @@
             font-weight: bold;
             cursor: pointer;
         }
-        .btn-set-grade:hover {
-            background-color: #1d4ed8;
-        }
+        .btn-set-grade:hover { background-color: #1d4ed8; }
 
         .edit-icon-btn {
             background: none;
@@ -504,6 +507,7 @@
 
         .poster-footer { margin-top: 30px; text-align: center; padding-top: 15px; border-top: 1px solid rgba(0, 229, 255, 0.3); font-size: 14px; font-weight: 600; color: #cbd5e1; }
 
+        /* --- STYLING INDIKATOR CLOUD SYNC --- */
         .sync-status {
             padding: 5px 14px; border-radius: 20px; font-size: 11.5px; font-weight: 700;
             display: flex; align-items: center; gap: 6px; transition: all 0.3s ease;
@@ -1228,14 +1232,17 @@
     function updateSyncStatus(state) {
         const ind = document.getElementById('cloud-sync-indicator');
         const txt = document.getElementById('sync-text');
-        if(!ind || !txt) return;
+        if (!ind || !txt) return;
         ind.className = 'sync-status'; 
-        if(state === 'syncing') {
-            ind.classList.add('syncing'); txt.innerText = "Menyimpan...";
+        if (state === 'syncing') {
+            ind.classList.add('syncing'); 
+            txt.innerText = "Menyimpan...";
         } else if (state === 'error') {
-            ind.classList.add('error'); txt.innerText = "Gagal Simpan";
+            ind.classList.add('error'); 
+            txt.innerText = "Gagal Simpan";
         } else {
-            ind.classList.add('connected'); txt.innerText = "Tersimpan Lokal";
+            ind.classList.add('connected'); 
+            txt.innerText = "Tersimpan Lokal";
         }
     }
 
@@ -1313,7 +1320,9 @@
         renderUtama();
     }
 
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('closed'); }
+    function toggleSidebar() { 
+        document.getElementById('sidebar').classList.toggle('closed'); 
+    }
 
     function dapatkanDetikElapsedTime(courtNum) {
         let sLap = stateLapangan[courtNum];
@@ -1328,7 +1337,9 @@
     }
 
     function jalankanUlangTimerAktif() {
-        for (let k in timers) { if (timers[k] && timers[k].interval) clearInterval(timers[k].interval); }
+        for (let k in timers) { 
+            if (timers[k] && timers[k].interval) clearInterval(timers[k].interval); 
+        }
         for (let i = 1; i <= jumlahLapangan; i++) {
             if (stateLapangan[i] && stateLapangan[i].berjalan) {
                 timers[i] = { 
@@ -1337,12 +1348,14 @@
                         let mForm = Math.floor(totalDetik/60).toString().padStart(2,'0');
                         let sForm = (totalDetik%60).toString().padStart(2,'0');
                         let nodeStatus = document.getElementById(`status-court-text-${i}`);
-                        if(nodeStatus) nodeStatus.innerText = `Status: Bertanding (${mForm}:${sForm})`;
+                        if (nodeStatus) nodeStatus.innerText = `Status: Bertanding (${mForm}:${sForm})`;
                         let nodeMemberTimer = document.getElementById(`member-court-timer-${i}`);
-                        if(nodeMemberTimer) nodeMemberTimer.innerText = `${mForm}:${sForm}`;
+                        if (nodeMemberTimer) nodeMemberTimer.innerText = `${mForm}:${sForm}`;
                     }, 500)
                 };
-            } else { timers[i] = { interval: null }; }
+            } else { 
+                timers[i] = { interval: null }; 
+            }
         }
     }
 
@@ -1350,7 +1363,8 @@
         const toast = document.getElementById('live-toast');
         const toastMsg = document.getElementById('toast-message');
         if (toast && toastMsg) {
-            toastMsg.innerText = msg; toast.style.display = 'flex';
+            toastMsg.innerText = msg; 
+            toast.style.display = 'flex';
             setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
     }
@@ -1365,23 +1379,32 @@
     function tutupModalSelesai() { document.getElementById('modal-selesai').style.display = 'none'; }
     function bukaModalReset() { document.getElementById('modal-reset').style.display = 'flex'; }
     function tutupModalReset() { document.getElementById('modal-reset').style.display = 'none'; }
+    
     function bukaModalInputNotif(title, message) {
         document.getElementById('input-notif-title').innerHTML = title;
         document.getElementById('input-notif-message').innerHTML = message;
         document.getElementById('modal-input-notification').style.display = 'flex';
     }
-    function tutupModalInputNotif() { document.getElementById('modal-input-notification').style.display = 'none'; }
+    
+    function tutupModalInputNotif() { 
+        document.getElementById('modal-input-notification').style.display = 'none'; 
+    }
 
     function toggleGradingConfigCollapse() {
         const content = document.getElementById('grading-config-content');
         const icon = document.getElementById('grading-config-icon');
-        if (content.style.display === 'none') { content.style.display = 'block'; icon.innerText = '➖'; } 
-        else { content.style.display = 'none'; icon.innerText = '➕'; }
+        if (content.style.display === 'none') { 
+            content.style.display = 'block'; 
+            icon.innerText = '➖'; 
+        } else { 
+            content.style.display = 'none'; 
+            icon.innerText = '➕'; 
+        }
     }
 
     function initGradingConfigUI() {
         if(configGrading && configGrading.length >= 5) {
-            for(let i=1; i<=5; i++) {
+            for(let i = 1; i <= 5; i++) {
                 let cfg = configGrading[i-1];
                 let nNode = document.getElementById(`cfg-t${i}-nama`);
                 let minNode = document.getElementById(`cfg-t${i}-min`);
@@ -1394,25 +1417,43 @@
     }
 
     function simpanConfigGrading() {
-        for(let i=1; i<=5; i++) {
+        for(let i = 1; i <= 5; i++) {
             let nNode = document.getElementById(`cfg-t${i}-nama`).value.trim();
             let minNode = parseFloat(document.getElementById(`cfg-t${i}-min`).value) || 0;
             let maxNode = parseFloat(document.getElementById(`cfg-t${i}-max`).value) || 0;
-            if(nNode) { configGrading[i-1].nama = nNode; configGrading[i-1].min = minNode; configGrading[i-1].max = maxNode; }
+            if(nNode) { 
+                configGrading[i-1].nama = nNode; 
+                configGrading[i-1].min = minNode; 
+                configGrading[i-1].max = maxNode; 
+            }
         }
-        simpanKeMemoriSilent(); showLiveToast("Pengaturan Kategori Level Grading disimpan! ⚙️");
-        renderHalamanGrading(); renderPapanSkorLapangan(); 
+        simpanKeMemoriSilent(); 
+        showLiveToast("Pengaturan Kategori Level Grading disimpan! ⚙️");
+        renderHalamanGrading(); 
+        renderPapanSkorLapangan(); 
     }
 
     function tambahLapangan() {
-        if (jumlahLapangan < 6) { jumlahLapangan++; simpanKeMemoriSilent(); renderPapanSkorLapangan(); } 
-        else showLiveToast("Maksimal 6 lapangan diperbolehkan.");
+        if (jumlahLapangan < 6) { 
+            jumlahLapangan++; 
+            simpanKeMemoriSilent(); 
+            renderPapanSkorLapangan(); 
+        } else {
+            showLiveToast("Maksimal 6 lapangan diperbolehkan.");
+        }
     }
+    
     function kurangiLapangan() {
         if (jumlahLapangan > 1) {
             let court = stateLapangan[jumlahLapangan];
-            if(court && (court.ta1 || court.tb1 || court.berjalan)) { showLiveToast(`Lapangan ${jumlahLapangan} sedang digunakan!`); return; }
-            delete stateLapangan[jumlahLapangan]; jumlahLapangan--; simpanKeMemoriSilent(); renderPapanSkorLapangan();
+            if(court && (court.ta1 || court.tb1 || court.berjalan)) { 
+                showLiveToast(`Lapangan ${jumlahLapangan} sedang digunakan!`); 
+                return; 
+            }
+            delete stateLapangan[jumlahLapangan]; 
+            jumlahLapangan--; 
+            simpanKeMemoriSilent(); 
+            renderPapanSkorLapangan();
         }
     }
 
@@ -1420,21 +1461,38 @@
         const text = document.getElementById('wa-text').value;
         const nominalDefault = parseInt(document.getElementById('iuran-pemain').value) || 25000;
         if (!text.trim()) return;
-        const lines = text.split('\n'); let totalInputted = 0; let listPemainBaru = []; let listPemainDuplikat = [];
+        
+        const lines = text.split('\n'); 
+        let totalInputted = 0; 
+        let listPemainBaru = []; 
+        let listPemainDuplikat = [];
+        
         lines.forEach(line => {
             let clean = line.replace(/^\d+[\.\-\s\)]+/, '').trim().replace(/[\d\.\-\)]+$/, '').trim();
             if (clean.length > 1) {
                 let namaFix = clean.toUpperCase();
-                if (dataPemain.some(p => p.nama === namaFix)) listPemainDuplikat.push(namaFix);
-                else { buatObjekPemain(namaFix, nominalDefault); totalInputted++; listPemainBaru.push(namaFix); }
+                if (dataPemain.some(p => p.nama === namaFix)) {
+                    listPemainDuplikat.push(namaFix);
+                } else { 
+                    buatObjekPemain(namaFix, nominalDefault); 
+                    totalInputted++; 
+                    listPemainBaru.push(namaFix); 
+                }
             }
         });
-        dataPemain.sort((a, b) => a.nama.localeCompare(b.nama)); document.getElementById('wa-text').value = '';
+        
+        dataPemain.sort((a, b) => a.nama.localeCompare(b.nama)); 
+        document.getElementById('wa-text').value = '';
         
         let isiPesan = `<b>Laporan Proses Massal:</b><br><br>✅ <b>${totalInputted}</b> pemain baru berhasil ditambahkan.<br>`;
-        if (listPemainBaru.length > 0) isiPesan += `<br><b>Pemain Baru:</b><br><div style="max-height: 120px; overflow-y: auto; font-size: 12px; padding: 8px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px;">${listPemainBaru.join(', ')}</div>`;
-        if (listPemainDuplikat.length > 0) isiPesan += `<br><b>⚠️ Dilewati (Sudah Ada):</b><br><div style="max-height: 80px; overflow-y: auto; font-size: 11px; padding: 8px; background: #fff7ed; border: 1px solid #ffedd5; border-radius: 4px;">${listPemainDuplikat.join(', ')}</div>`;
-        bukaModalInputNotif("📊 Hasil Pemrosesan Teks", isiPesan); renderUtama();
+        if (listPemainBaru.length > 0) {
+            isiPesan += `<br><b>Pemain Baru:</b><br><div style="max-height: 120px; overflow-y: auto; font-size: 12px; padding: 8px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px;">${listPemainBaru.join(', ')}</div>`;
+        }
+        if (listPemainDuplikat.length > 0) {
+            isiPesan += `<br><b>⚠️ Dilewati (Sudah Ada):</b><br><div style="max-height: 80px; overflow-y: auto; font-size: 11px; padding: 8px; background: #fff7ed; border: 1px solid #ffedd5; border-radius: 4px;">${listPemainDuplikat.join(', ')}</div>`;
+        }
+        bukaModalInputNotif("📊 Hasil Pemrosesan Teks", isiPesan); 
+        renderUtama();
     }
 
     function buatObjekPemain(namaFix, nominal) {
@@ -1449,15 +1507,30 @@
             databaseGrading[namaFix] = { nama: namaFix, mainMatch: 0, grading: 5.0 };
             newlyAddedPlayers[namaFix] = Date.now();
         }
-        simpanKeMemoriSilent(); return true;
+        simpanKeMemoriSilent(); 
+        return true;
     }
 
     function hitungKategoriGrading(nilai) {
         let v = parseFloat(nilai);
-        let colors = [{bg: '#fee2e2', text: '#ef4444'}, {bg: '#eff6ff', text: '#3b82f6'}, {bg: '#f0fdf4', text: '#16a34a'}, {bg: '#f1f5f9', text: '#475569'}, {bg: '#fffbeb', text: '#b45309'}];
+        let colors = [
+            {bg: '#fee2e2', text: '#ef4444'}, 
+            {bg: '#eff6ff', text: '#3b82f6'}, 
+            {bg: '#f0fdf4', text: '#16a34a'}, 
+            {bg: '#f1f5f9', text: '#475569'}, 
+            {bg: '#fffbeb', text: '#b45309'}
+        ];
         let cIdx = configGrading.length - 1; 
-        for (let i = 0; i < configGrading.length; i++) { if (v >= configGrading[i].min && v <= configGrading[i].max) { cIdx = i; break; } }
-        let c = colors[cIdx] || colors[0]; let name = configGrading[cIdx] ? configGrading[cIdx].nama : "UNKNOWN";
+        
+        for (let i = 0; i < configGrading.length; i++) { 
+            if (v >= configGrading[i].min && v <= configGrading[i].max) { 
+                cIdx = i; 
+                break; 
+            } 
+        }
+        
+        let c = colors[cIdx] || colors[0]; 
+        let name = configGrading[cIdx] ? configGrading[cIdx].nama : "UNKNOWN";
         return `<span style="background: ${c.bg}; color: ${c.text}; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; display: inline-block;">${name}</span>`;
     }
 
@@ -1472,10 +1545,12 @@
         let sliderEl = document.getElementById(`slider-${cleanId}`);
         let textEl = document.getElementById(`grading-val-${cleanId}`);
         if (textEl) textEl.innerText = floatVal.toFixed(1);
+        
         if (sliderEl) {
             let persentase = (floatVal / 10) * 100;
             sliderEl.style.background = `linear-gradient(to right, #2563eb ${persentase}%, #e2e8f0 ${persentase}%)`;
         }
+        
         if (databaseGrading[nama]) {
             databaseGrading[nama].grading = floatVal;
             const cellKat = document.getElementById(`grading-kat-${cleanId}`);
@@ -1540,11 +1615,9 @@
         
         if (levelChange) {
             if (levelChange.tipe === 'UP') {
-                // Menggunakan tanda segitiga solid warna hijau saja (Unicode murni)
                 arrowTeks = `<span style="color:#16a34a; font-size:13px; font-weight:900;" title="Naik Level">▲</span>`;
                 alertBadge = `<div style="margin-top: 3px;"><span style="background: #dcfce7; color: #15803d; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; display: inline-block;">📈 Naik Kelas</span></div>`;
             } else {
-                // Menggunakan tanda segitiga solid warna hijau saja (Unicode murni)
                 arrowTeks = `<span style="color:#16a34a; font-size:13px; font-weight:900;" title="Turun Level">▼</span>`;
                 alertBadge = `<div style="margin-top: 3px;"><span style="background: #fee2e2; color: #b91c1c; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; display: inline-block;">📉 Turun Kelas</span></div>`;
             }
@@ -1608,7 +1681,6 @@
             return; 
         }
 
-        // PEMBARUAN UTAMA: Kotak background putih dan tanda segitiga warna hijau saja
         let html = `
             <div style="background: #ffffff; border: 1.5px solid #16a34a; border-radius: 10px; padding: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; color: #1e3a8a; font-size: 13px; margin-bottom: 10px;">
@@ -1621,7 +1693,6 @@
 
         listPerubahan.forEach(item => {
             let actionTeks = item.tipe === 'UP' ? 'Promosikan Naik Kelas' : 'Turunkan Kelas';
-            // Hanya menggunakan tanda segitiga warna hijau murni saja
             let icon = item.tipe === 'UP' ? '<span style="color:#16a34a; font-weight:900; font-size:12px; margin-right:4px;">▲</span>' : '<span style="color:#16a34a; font-weight:900; font-size:12px; margin-right:4px;">▼</span>';
             
             html += `
@@ -1645,7 +1716,8 @@
     }
 
     function renderHalamanGrading() {
-        const tbody = document.getElementById('tabel-grading-pemain'); const filterSelect = document.getElementById('filter-grading-level');
+        const tbody = document.getElementById('tabel-grading-pemain'); 
+        const filterSelect = document.getElementById('filter-grading-level');
         if(!tbody || !filterSelect) return;
         tbody.innerHTML = '';
         
@@ -1653,7 +1725,9 @@
 
         if (filterSelect.options.length <= 1) {
             filterSelect.innerHTML = '<option value="semua">📋 Semua Level</option>';
-            configGrading.forEach((cfg, idx) => { filterSelect.innerHTML += `<option value="${idx}">🎯 ${cfg.nama}</option>`; });
+            configGrading.forEach((cfg, idx) => { 
+                filterSelect.innerHTML += `<option value="${idx}">🎯 ${cfg.nama}</option>`; 
+            });
             filterSelect.value = filterGradingLevelAktif;
         }
 
@@ -1662,16 +1736,26 @@
         
         let dataTampil = [];
         arrPem.forEach(p => {
-            let grading = p.grading !== undefined ? p.grading : 5.0; let cIdx = configGrading.length - 1;
-            for (let i = 0; i < configGrading.length; i++) { if (grading >= configGrading[i].min && grading <= configGrading[i].max) { cIdx = i; break; } }
-            if(filterGradingLevelAktif !== 'semua' && cIdx.toString() !== filterGradingLevelAktif) return;
+            let grading = p.grading !== undefined ? p.grading : 5.0; 
+            let cIdx = configGrading.length - 1;
+            for (let i = 0; i < configGrading.length; i++) { 
+                if (grading >= configGrading[i].min && grading <= configGrading[i].max) { 
+                    cIdx = i; 
+                    break; 
+                } 
+            }
+            if (filterGradingLevelAktif !== 'semua' && cIdx.toString() !== filterGradingLevelAktif) return;
             dataTampil.push({...p, calcGrade: grading});
         });
 
-        if(dataTampil.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="color:#888; padding:20px; text-align:center;">Belum ada pemain di level ini.</td></tr>`; return; }
+        if (dataTampil.length === 0) { 
+            tbody.innerHTML = `<tr><td colspan="6" style="color:#888; padding:20px; text-align:center;">Belum ada pemain di level ini.</td></tr>`; 
+            return; 
+        }
 
         dataTampil.forEach((p, idx) => {
-            let cleanId = p.nama.replace(/[^a-zA-Z0-9]/g, ''); let recGrade = hitungRekomendasiGrading(p.nama);
+            let cleanId = p.nama.replace(/[^a-zA-Z0-9]/g, ''); 
+            let recGrade = hitungRekomendasiGrading(p.nama);
             let persentaseSlider = (p.calcGrade / 10) * 100;
             let bgSlider = `linear-gradient(to right, #2563eb ${persentaseSlider}%, #e2e8f0 ${persentaseSlider}%)`;
             let badgeNew = newlyAddedPlayers[p.nama] ? '<span class="badge-new">NEW</span>' : '';
@@ -1692,61 +1776,125 @@
     function setFilterKas(val) { filterKasAktif = val; renderHalamanKas(); }
 
     function bukaModalEditGrading(oldName) {
-        document.getElementById('edit-grading-old-name').value = oldName; document.getElementById('edit-grading-new-name').value = oldName;
+        document.getElementById('edit-grading-old-name').value = oldName; 
+        document.getElementById('edit-grading-new-name').value = oldName;
         document.getElementById('modal-edit-grading').style.display = 'flex';
     }
-    function tutupModalEditGrading() { document.getElementById('modal-edit-grading').style.display = 'none'; }
+    
+    function tutupModalEditGrading() { 
+        document.getElementById('modal-edit-grading').style.display = 'none'; 
+    }
     
     function eksekusiSimpanEditGrading() {
-        let oldName = document.getElementById('edit-grading-old-name').value; let newName = document.getElementById('edit-grading-new-name').value.toUpperCase().trim();
+        let oldName = document.getElementById('edit-grading-old-name').value; 
+        let newName = document.getElementById('edit-grading-new-name').value.toUpperCase().trim();
         if(!newName || newName === oldName) { tutupModalEditGrading(); return; }
         if(databaseGrading[newName]) { bukaModalInputNotif("⚠️ Gagal Edit", `Nama <b>${newName}</b> sudah ada.`); return; }
         
-        databaseGrading[newName] = {...databaseGrading[oldName]}; databaseGrading[newName].nama = newName; delete databaseGrading[oldName];
-        if(allMatchKlasemen[oldName]) { allMatchKlasemen[newName] = {...allMatchKlasemen[oldName]}; allMatchKlasemen[newName].nama = newName; delete allMatchKlasemen[oldName]; }
-        if (newlyAddedPlayers[oldName]) { newlyAddedPlayers[newName] = newlyAddedPlayers[oldName]; delete newlyAddedPlayers[oldName]; }
+        databaseGrading[newName] = {...databaseGrading[oldName]}; 
+        databaseGrading[newName].nama = newName; 
+        delete databaseGrading[oldName];
         
-        let playerActive = dataPemain.find(p => p.nama === oldName); if(playerActive) playerActive.nama = newName;
-        riwayatPertandingan.forEach(m => {
-            let tA = m.timA.split(' / ').map(x => x.trim()); if(tA.includes(oldName)) { m.timA = tA.map(x => x === oldName ? newName : x).join(' / '); }
-            let tB = m.timB.split(' / ').map(x => x.trim()); if(tB.includes(oldName)) { m.timB = tB.map(x => x === oldName ? newName : x).join(' / '); }
-        });
-        for(let key in stateLapangan) {
-            let s = stateLapangan[key]; if(s.ta1 === oldName) s.ta1 = newName; if(s.ta2 === oldName) s.ta2 = newName; if(s.tb1 === oldName) s.tb1 = newName; if(s.tb2 === oldName) s.tb2 = newName;
+        if (allMatchKlasemen[oldName]) { 
+            allMatchKlasemen[newName] = {...allMatchKlasemen[oldName]}; 
+            allMatchKlasemen[newName].nama = newName; 
+            delete allMatchKlasemen[oldName]; 
         }
-        simpanKeMemoriSilent(); tutupModalEditGrading(); showLiveToast(`Pemain diubah menjadi ${newName}`); renderUtama();
+        if (newlyAddedPlayers[oldName]) { 
+            newlyAddedPlayers[newName] = newlyAddedPlayers[oldName]; 
+            delete newlyAddedPlayers[oldName]; 
+        }
+        
+        let playerActive = dataPemain.find(p => p.nama === oldName); 
+        if (playerActive) playerActive.nama = newName;
+        
+        riwayatPertandingan.forEach(m => {
+            let tA = m.timA.split(' / ').map(x => x.trim()); 
+            if(tA.includes(oldName)) { m.timA = tA.map(x => x === oldName ? newName : x).join(' / '); }
+            let tB = m.timB.split(' / ').map(x => x.trim()); 
+            if(tB.includes(oldName)) { m.timB = tB.map(x => x === oldName ? newName : x).join(' / '); }
+        });
+        
+        for (let key in stateLapangan) {
+            let s = stateLapangan[key]; 
+            if (s.ta1 === oldName) s.ta1 = newName; 
+            if (s.ta2 === oldName) s.ta2 = newName; 
+            if (s.tb1 === oldName) s.tb1 = newName; 
+            if (s.tb2 === oldName) s.tb2 = newName;
+        }
+        simpanKeMemoriSilent(); 
+        tutupModalEditGrading(); 
+        showLiveToast(`Pemain diubah menjadi ${newName}`); 
+        renderUtama();
     }
     
     function bukaModalHapusGrading(nama) {
         let sedangBermain = false;
-        for (let key in stateLapangan) { let s = stateLapangan[key]; if (s && (s.ta1 === nama || s.ta2 === nama || s.tb1 === nama || s.tb2 === nama)) { sedangBermain = true; break; } }
-        if (sedangBermain) { bukaModalInputNotif("⚠️ Gagal Hapus", `Pemain <b>${nama}</b> aktif tanding!`); return; }
-        document.getElementById('delete-grading-name').value = nama; document.getElementById('delete-grading-message').innerHTML = `Hapus <b>${nama}</b> permanen dari Database?`;
+        for (let key in stateLapangan) { 
+            let s = stateLapangan[key]; 
+            if (s && (s.ta1 === nama || s.ta2 === nama || s.tb1 === nama || s.tb2 === nama)) { 
+                sedangBermain = true; 
+                break; 
+            } 
+        }
+        if (sedangBermain) { 
+            bukaModalInputNotif("⚠️ Gagal Hapus", `Pemain <b>${nama}</b> aktif tanding!`); 
+            return; 
+        }
+        document.getElementById('delete-grading-name').value = nama; 
+        document.getElementById('delete-grading-message').innerHTML = `Hapus <b>${nama}</b> permanen dari Database?`;
         document.getElementById('modal-delete-grading').style.display = 'flex';
     }
-    function tutupModalHapusGrading() { document.getElementById('modal-delete-grading').style.display = 'none'; }
+    
+    function tutupModalHapusGrading() { 
+        document.getElementById('modal-delete-grading').style.display = 'none'; 
+    }
+    
     function eksekusiHapusGrading() {
         let nama = document.getElementById('delete-grading-name').value;
         if(databaseGrading[nama]) delete databaseGrading[nama];
         if(allMatchKlasemen[nama]) delete allMatchKlasemen[nama];
         dataPemain = dataPemain.filter(p => p.nama !== nama);
-        tutupModalHapusGrading(); kalkulasiUlangKlasemen(); showLiveToast(`Pemain ${nama} dihapus.`);
+        tutupModalHapusGrading(); 
+        kalkulasiUlangKlasemen(); 
+        showLiveToast(`Pemain ${nama} dihapus.`);
     }
-    function triggerDeleteFromEditModal() { let oldName = document.getElementById('edit-grading-old-name').value; tutupModalEditGrading(); bukaModalHapusGrading(oldName); }
+    
+    function triggerDeleteFromEditModal() { 
+        let oldName = document.getElementById('edit-grading-old-name').value; 
+        tutupModalEditGrading(); 
+        bukaModalHapusGrading(oldName); 
+    }
 
     function hapusPemain(nama) {
-        const pemain = dataPemain.find(p => p.nama === nama); if (!pemain) return;
+        const pemain = dataPemain.find(p => p.nama === nama); 
+        if (!pemain) return;
         let sedangBermain = false;
-        for (let key in stateLapangan) { let s = stateLapangan[key]; if (s && (s.ta1 === pemain.nama || s.ta2 === pemain.nama || s.tb1 === pemain.nama || s.tb2 === pemain.nama)) { sedangBermain = true; break; } }
-        if (sedangBermain) { bukaModalInputNotif("⚠️ Gagal Hapus", `Pemain <b>${pemain.nama}</b> sedang tanding aktif!`); return; }
+        for (let key in stateLapangan) { 
+            let s = stateLapangan[key]; 
+            if (s && (s.ta1 === pemain.nama || s.ta2 === pemain.nama || s.tb1 === pemain.nama || s.tb2 === pemain.nama)) { 
+                sedangBermain = true; 
+                break; 
+            } 
+        }
+        if (sedangBermain) { 
+            bukaModalInputNotif("⚠️ Gagal Hapus", `Pemain <b>${pemain.nama}</b> sedang tanding aktif!`); 
+            return; 
+        }
         document.getElementById('delete-pemain-id').value = pemain.nama; 
         document.getElementById('delete-pemain-message').innerHTML = `Apakah yakin menghapus <b>${pemain.nama}</b> dari sesi hari ini?`;
         document.getElementById('modal-delete-pemain-confirm').style.display = 'flex';
     }
-    function tutupModalHapusPemainConfirm() { document.getElementById('modal-delete-pemain-confirm').style.display = 'none'; }
+    
+    function tutupModalHapusPemainConfirm() { 
+        document.getElementById('modal-delete-pemain-confirm').style.display = 'none'; 
+    }
+    
     function eksekusiHapusPemain() {
-        let idNama = document.getElementById('delete-pemain-id').value; dataPemain = dataPemain.filter(p => p.nama !== idNama);
-        tutupModalHapusPemainConfirm(); kalkulasiUlangKlasemen();
+        let idNama = document.getElementById('delete-pemain-id').value; 
+        dataPemain = dataPemain.filter(p => p.nama !== idNama);
+        tutupModalHapusPemainConfirm(); 
+        kalkulasiUlangKlasemen();
     }
 
     function checkBlowoutHistory(ta1, ta2, tb1, tb2) {
@@ -1754,11 +1902,13 @@
         let targetPlayers = [ta1, ta2, tb1, tb2].filter(Boolean);
         for (let m of riwayatPertandingan) {
             let mTA = m.timA.split(" / ").map(x => x.trim()), mTB = m.timB.split(" / ").map(x => x.trim());
-            let sA = parseInt(m.skorA) || 0, sB = parseInt(m.skorB) || 0; let diff = Math.abs(sA - sB);
+            let sA = parseInt(m.skorA) || 0, sB = parseInt(m.skorB) || 0; 
+            let diff = Math.abs(sA - sB);
             if (diff > 15) {
                 let matchPlayers = [...mTA, ...mTB].filter(Boolean);
                 if (targetPlayers.length === 4 && matchPlayers.length === 4) {
-                    let matchCount = 0; targetPlayers.forEach(tp => { if (matchPlayers.includes(tp)) matchCount++; });
+                    let matchCount = 0; 
+                    targetPlayers.forEach(tp => { if (matchPlayers.includes(tp)) matchCount++; });
                     if (matchCount === 4) return m;
                 }
             }
@@ -1767,108 +1917,240 @@
     }
 
     function analisisKeseimbanganMatch(courtNum) {
-        const panelBalance = document.getElementById(`balance-court-${courtNum}`); if (!panelBalance) return;
-        let sLap = stateLapangan[courtNum]; if (!sLap) { panelBalance.innerHTML = ''; return; }
-        let ta1 = sLap.ta1, ta2 = sLap.ta2, tb1 = sLap.tb1, tb2 = sLap.tb2; if (!ta1 && !tb1) { panelBalance.innerHTML = ''; return; }
-        let g_ta1 = dapatkanGradingPemain(ta1), g_ta2 = ta2 ? dapatkanGradingPemain(ta2) : 0; let g_tb1 = dapatkanGradingPemain(tb1), g_tb2 = tb2 ? dapatkanGradingPemain(tb2) : 0;
-        let totalA = g_ta1 + g_ta2, totalB = g_tb1 + g_tb2; let selisih = Math.abs(totalA - totalB);
+        const panelBalance = document.getElementById(`balance-court-${courtNum}`); 
+        if (!panelBalance) return;
+        
+        let sLap = stateLapangan[courtNum]; 
+        if (!sLap) { panelBalance.innerHTML = ''; return; }
+        
+        let ta1 = sLap.ta1, ta2 = sLap.ta2, tb1 = sLap.tb1, tb2 = sLap.tb2; 
+        if (!ta1 && !tb1) { panelBalance.innerHTML = ''; return; }
+        
+        let g_ta1 = dapatkanGradingPemain(ta1), g_ta2 = ta2 ? dapatkanGradingPemain(ta2) : 0; 
+        let g_tb1 = dapatkanGradingPemain(tb1), g_tb2 = tb2 ? dapatkanGradingPemain(tb2) : 0;
+        let totalA = g_ta1 + g_ta2, totalB = g_tb1 + g_tb2; 
+        let selisih = Math.abs(totalA - totalB);
         let isiHtml = `<div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:#555; padding-top:4px; border-top:1px dashed #e2e8f0;"><span>Team A: <b>${totalA.toFixed(1)}</b></span><span style="color:${selisih > 1.5 ? '#e74c3c' : '#2ecc71'};">Selisih: <b>${selisih.toFixed(1)}</b></span><span>Team B: <b>${totalB.toFixed(1)}</b></span></div>`;
         
         let blowoutMatch = checkBlowoutHistory(ta1, ta2, tb1, tb2);
         if (blowoutMatch && !sLap.blowoutResolved) {
-            let suggestSwapBtn = ''; if (ta1 && ta2 && tb1 && tb2) suggestSwapBtn = `<button class="btn-apply-balance admin-only" style="background-color:#d35400;" onclick="eksekusiSwapTim(${courtNum}, '${ta1}', '${tb1}', '${ta2}', '${tb2}')">🔄 Swap Tim Biar Adil</button>`;
+            let suggestSwapBtn = ''; 
+            if (ta1 && ta2 && tb1 && tb2) {
+                suggestSwapBtn = `<button class="btn-apply-balance admin-only" style="background-color:#d35400;" onclick="eksekusiSwapTim(${courtNum}, '${ta1}', '${tb1}', '${ta2}', '${tb2}')">🔄 Swap Tim Biar Adil</button>`;
+            }
             isiHtml += `<div class="balancing-assistant" style="background-color: #fee2e2; border-color: #fca5a5; color: #991b1b; padding: 10px; margin-top: 8px; border-radius: 8px;"><div class="balancing-assistant-title" style="color: #991b1b; font-weight: 800; display: flex; align-items: center; gap: 4px;">⚠️ Rawan Bantai (Pernah Kalah Telak)</div><div style="font-size: 11px; margin-bottom: 4px;">Pemain di lapangan ini tercatat pernah mengalami pembantaian dengan skor mencolok <b>${blowoutMatch.skorA} - ${blowoutMatch.skorB}</b> dalam mabar hari ini!</div>${suggestSwapBtn}</div>`;
-            panelBalance.innerHTML = isiHtml; return;
+            panelBalance.innerHTML = isiHtml; 
+            return;
         }
 
         if (ta1 && ta2 && tb1 && tb2 && selisih > 1.5 && !sLap.berjalan && !sLap.blowoutResolved) {
-            let rekomendasiSwapDitemukan = false; let timA_swap_ta1 = ta1, timA_swap_ta2 = tb1, timB_swap_tb1 = ta2, timB_swap_tb2 = tb2;
-            let selisihSwap = Math.abs((g_ta1 + g_tb1) - (g_ta2 + g_tb2)); let selisihAlternatif = Math.abs((g_ta1 + g_tb2) - (g_ta2 + g_tb1));
-            if (selisihAlternatif < selisihSwap) { selisihSwap = selisihAlternatif; timA_swap_ta1 = ta1; timA_swap_ta2 = tb2; timB_swap_tb1 = ta2; timB_swap_tb2 = tb1; }
-            if (selisihSwap < selisih) { rekomendasiSwapDitemukan = true; }
+            let rekomendasiSwapDitemukan = false; 
+            let timA_swap_ta1 = ta1, timA_swap_ta2 = tb1, timB_swap_tb1 = ta2, timB_swap_tb2 = tb2;
+            let selisihSwap = Math.abs((g_ta1 + g_tb1) - (g_ta2 + g_tb2)); 
+            let selisihAlternatif = Math.abs((g_ta1 + g_tb2) - (g_ta2 + g_tb1));
+            
+            if (selisihAlternatif < selisihSwap) { 
+                selisihSwap = selisihAlternatif; 
+                timA_swap_ta1 = ta1; 
+                timA_swap_ta2 = tb2; 
+                timB_swap_tb1 = ta2; 
+                timB_swap_tb2 = tb1; 
+            }
+            if (selisihSwap < selisih) { 
+                rekomendasiSwapDitemukan = true; 
+            }
 
-            let pemainHadirAktif = dataPemain.filter(p => p.lunas); let tandingGlobal = [];
-            for (let j = 1; j <= jumlahLapangan; j++) { if(stateLapangan[j]) { if(stateLapangan[j].ta1) tandingGlobal.push(stateLapangan[j].ta1); if(stateLapangan[j].ta2) tandingGlobal.push(stateLapangan[j].ta2); if(stateLapangan[j].tb1) tandingGlobal.push(stateLapangan[j].tb1); if(stateLapangan[j].tb2) tandingGlobal.push(stateLapangan[j].tb2); } }
-            let cadangan = pemainHadirAktif.filter(p => !tandingGlobal.includes(p.nama)); let subTerbaik = null; let selisihSubTerbaik = selisih;
+            let pemainHadirAktif = dataPemain.filter(p => p.lunas); 
+            let tandingGlobal = [];
+            
+            for (let j = 1; j <= jumlahLapangan; j++) { 
+                if (stateLapangan[j]) { 
+                    if (stateLapangan[j].ta1) tandingGlobal.push(stateLapangan[j].ta1); 
+                    if (stateLapangan[j].ta2) tandingGlobal.push(stateLapangan[j].ta2); 
+                    if (stateLapangan[j].tb1) tandingGlobal.push(stateLapangan[j].tb1); 
+                    if (stateLapangan[j].tb2) tandingGlobal.push(stateLapangan[j].tb2); 
+                } 
+            }
+            
+            let cadangan = pemainHadirAktif.filter(p => !tandingGlobal.includes(p.nama)); 
+            let subTerbaik = null; 
+            let selisihSubTerbaik = selisih;
+            
             if (cadangan.length > 0) {
-                let listPemainAktifCourt = [{ nama: ta1, slot: 'ta1', tim: 'A', g: g_ta1 }, { nama: ta2, slot: 'ta2', tim: 'A', g: g_ta2 }, { nama: tb1, slot: 'tb1', tim: 'B', g: g_tb1 }, { nama: tb2, slot: 'tb2', tim: 'B', g: g_tb2 }];
+                let listPemainAktifCourt = [
+                    { nama: ta1, slot: 'ta1', tim: 'A', g: g_ta1 }, 
+                    { nama: ta2, slot: 'ta2', tim: 'A', g: g_ta2 }, 
+                    { nama: tb1, slot: 'tb1', tim: 'B', g: g_tb1 }, 
+                    { nama: tb2, slot: 'tb2', tim: 'B', g: g_tb2 }
+                ];
+                
                 listPemainAktifCourt.forEach(pCourt => {
                     cadangan.forEach(pCad => {
-                        let gCad = dapatkanGradingPemain(pCad.nama); let ujiTotalA = totalA, ujiTotalB = totalB;
-                        if (pCourt.tim === 'A') ujiTotalA = totalA - pCourt.g + gCad; else ujiTotalB = totalB - pCourt.g + gCad;
+                        let gCad = dapatkanGradingPemain(pCad.nama); 
+                        let ujiTotalA = totalA, ujiTotalB = totalB;
+                        if (pCourt.tim === 'A') ujiTotalA = totalA - pCourt.g + gCad; 
+                        else ujiTotalB = totalB - pCourt.g + gCad;
+                        
                         let ujiSelisih = Math.abs(ujiTotalA - ujiTotalB);
-                        if (ujiSelisih < selisihSubTerbaik) { selisihSubTerbaik = ujiSelisih; subTerbaik = { slot: pCourt.slot, keluar: pCourt.nama, masuk: pCad.nama, selisihBaru: ujiSelisih }; }
+                        if (ujiSelisih < selisihSubTerbaik) { 
+                            selisihSubTerbaik = ujiSelisih; 
+                            subTerbaik = { slot: pCourt.slot, keluar: pCourt.nama, masuk: pCad.nama, selisihBaru: ujiSelisih }; 
+                        }
                     });
                 });
             }
 
             isiHtml += `<div class="balancing-assistant admin-only"><div class="balancing-assistant-title">⚠️ Laga Tidak Seimbang (Timpang)</div><div style="font-size: 11px;">Rekomendasi penyeimbang sistem:</div>`;
-            if (rekomendasiSwapDitemukan) isiHtml += `<div style="margin-top:4px;">💡 <b>Tukar Pasangan Saja</b> (Selisih jadi <b>${selisihSwap.toFixed(1)}</b>):<br>👉 ${timA_swap_ta1} / ${timA_swap_ta2} VS ${timB_swap_tb1} / ${timB_swap_tb2}<br><button class="btn-apply-balance" onclick="eksekusiSwapTim(${courtNum}, '${timA_swap_ta1}', '${timA_swap_ta2}', '${timB_swap_tb1}', '${timB_swap_tb2}')">🔄 Terapkan Swap Pasangan</button></div>`;
-            if (subTerbaik) isiHtml += `<div style="margin-top:8px; border-top:1px dashed #fcd34d; padding-top:4px;">📥 <b>Ganti Pemain Cadangan</b> (Selisih jadi <b>${subTerbaik.selisihBaru.toFixed(1)}</b>):<br>Ganti <b>${subTerbaik.keluar}</b> dengan <b>${subTerbaik.masuk}</b><br><button class="btn-apply-balance" style="background-color:#1e3a8a;" onclick="eksekusiSubstitusiPemain(${courtNum}, '${subTerbaik.slot}', '${subTerbaik.masuk}')">📥 Masukkan ${subTerbaik.masuk}</button></div>`;
-            if (!rekomendasiSwapDitemukan && !subTerbaik) isiHtml += `<div style="margin-top:4px; font-style:italic; font-size:11px;">Tidak ditemukan alternatif penyeimbang.</div>`;
+            if (rekomendasiSwapDitemukan) {
+                isiHtml += `<div style="margin-top:4px;">💡 <b>Tukar Pasangan Saja</b> (Selisih jadi <b>${selisihSwap.toFixed(1)}</b>):<br>👉 ${timA_swap_ta1} / ${timA_swap_ta2} VS ${timB_swap_tb1} / ${timB_swap_tb2}<br><button class="btn-apply-balance" onclick="eksekusiSwapTim(${courtNum}, '${timA_swap_ta1}', '${timA_swap_ta2}', '${timB_swap_tb1}', '${timB_swap_tb2}')">🔄 Terapkan Swap Pasangan</button></div>`;
+            }
+            if (subTerbaik) {
+                isiHtml += `<div style="margin-top:8px; border-top:1px dashed #fcd34d; padding-top:4px;">📥 <b>Ganti Pemain Cadangan</b> (Selisih jadi <b>${subTerbaik.selisihBaru.toFixed(1)}</b>):<br>Ganti <b>${subTerbaik.keluar}</b> dengan <b>${subTerbaik.masuk}</b><br><button class="btn-apply-balance" style="background-color:#1e3a8a;" onclick="eksekusiSubstitusiPemain(${courtNum}, '${subTerbaik.slot}', '${subTerbaik.masuk}')">📥 Masukkan ${subTerbaik.masuk}</button></div>`;
+            }
+            if (!rekomendasiSwapDitemukan && !subTerbaik) {
+                isiHtml += `<div style="margin-top:4px; font-style:italic; font-size:11px;">Tidak ditemukan alternatif penyeimbang.</div>`;
+            }
             isiHtml += `</div>`;
         }
         panelBalance.innerHTML = isiHtml;
     }
 
     function suggestDraftPemain(courtNum) {
-        let sLap = stateLapangan[courtNum]; if (!sLap) return;
-        if (sLap.berjalan) { showLiveToast("Pertandingan sedang berlangsung!"); return; }
-        let slots = ["ta1", "ta2", "tb1", "tb2"]; let selectedOnCourt = slots.map(s => sLap[s]).filter(Boolean);
-        if (selectedOnCourt.length === 4) { showLiveToast("Lapangan sudah penuh!"); return; }
-        if (selectedOnCourt.length === 0) { showLiveToast("Pilih minimal 1 pemain di lapangan terlebih dahulu."); return; }
+        let sLap = stateLapangan[courtNum]; 
+        if (!sLap) return;
+        if (sLap.berjalan) { 
+            showLiveToast("Pertandingan sedang berlangsung!"); 
+            return; 
+        }
+        
+        let slots = ["ta1", "ta2", "tb1", "tb2"]; 
+        let selectedOnCourt = slots.map(s => sLap[s]).filter(Boolean);
+        if (selectedOnCourt.length === 4) { 
+            showLiveToast("Lapangan sudah penuh!"); 
+            return; 
+        }
+        if (selectedOnCourt.length === 0) { 
+            showLiveToast("Pilih minimal 1 pemain di lapangan terlebih dahulu."); 
+            return; 
+        }
 
-        let pemainHadir = dataPemain.filter(p => p.lunas); let tandingGlobal = [];
+        let pemainHadir = dataPemain.filter(p => p.lunas); 
+        let tandingGlobal = [];
+        
         for (let j = 1; j <= jumlahLapangan; j++) {
             if (j === courtNum) continue;
-            if (stateLapangan[j]) { if (stateLapangan[j].ta1) tandingGlobal.push(stateLapangan[j].ta1); if (stateLapangan[j].ta2) tandingGlobal.push(stateLapangan[j].ta2); if (stateLapangan[j].tb1) tandingGlobal.push(stateLapangan[j].tb1); if (stateLapangan[j].tb2) tandingGlobal.push(stateLapangan[j].tb2); }
+            if (stateLapangan[j]) { 
+                if (stateLapangan[j].ta1) tandingGlobal.push(stateLapangan[j].ta1); 
+                if (stateLapangan[j].ta2) tandingGlobal.push(stateLapangan[j].ta2); 
+                if (stateLapangan[j].tb1) tandingGlobal.push(stateLapangan[j].tb1); 
+                if (stateLapangan[j].tb2) tandingGlobal.push(stateLapangan[j].tb2); 
+            }
         }
 
         let available = pemainHadir.filter(p => !tandingGlobal.includes(p.nama) && !selectedOnCourt.includes(p.nama));
         let emptySlots = slots.filter(s => !sLap[s]);
-        if (available.length < emptySlots.length) { bukaModalInputNotif("⚠️ Pemain Tidak Cukup", `Dibutuhkan ${emptySlots.length} pemain cadangan.`); return; }
+        
+        if (available.length < emptySlots.length) { 
+            bukaModalInputNotif("⚠️ Pemain Tidak Cukup", `Dibutuhkan ${emptySlots.length} pemain cadangan.`); 
+            return; 
+        }
 
-        available.sort((a, b) => (a.main || 0) - (b.main || 0)); let poolSize = 10;
-        if (available.length > poolSize) { let cutoffMain = available[poolSize - 1].main || 0; while (poolSize < available.length && (available[poolSize].main || 0) === cutoffMain) { poolSize++; if (poolSize >= 14) break; } }
+        available.sort((a, b) => (a.main || 0) - (b.main || 0)); 
+        let poolSize = 10;
+        
+        if (available.length > poolSize) { 
+            let cutoffMain = available[poolSize - 1].main || 0; 
+            while (poolSize < available.length && (available[poolSize].main || 0) === cutoffMain) { 
+                poolSize++; 
+                if (poolSize >= 14) break; 
+            } 
+        }
         let draftPool = available.slice(0, poolSize);
 
-        let bestCombo = null; let minScore = 999;
+        let bestCombo = null; 
+        let minScore = 999;
+        
         function getCombinations(arr, k) {
             let results = [];
-            function helper(start, combo) { if (combo.length === k) { results.push([...combo]); return; } for (let i = start; i < arr.length; i++) { combo.push(arr[i]); helper(i + 1, combo); combo.pop(); } }
-            helper(0, []); return results;
+            function helper(start, combo) { 
+                if (combo.length === k) { results.push([...combo]); return; } 
+                for (let i = start; i < arr.length; i++) { 
+                    combo.push(arr[i]); 
+                    helper(i + 1, combo); 
+                    combo.pop(); 
+                } 
+            }
+            helper(0, []); 
+            return results;
         }
 
         let combos = getCombinations(draftPool, emptySlots.length);
         for (let combo of combos) {
-            let testLap = { ...sLap }; let sumMain = 0;
+            let testLap = { ...sLap }; 
+            let sumMain = 0;
             emptySlots.forEach((slot, idx) => { testLap[slot] = combo[idx].nama; sumMain += (combo[idx].main || 0); });
-            let g_ta1 = dapatkanGradingPemain(testLap.ta1), g_ta2 = testLap.ta2 ? dapatkanGradingPemain(testLap.ta2) : 0; let g_tb1 = dapatkanGradingPemain(testLap.tb1), g_tb2 = testLap.tb2 ? dapatkanGradingPemain(testLap.tb2) : 0;
-            let diff = Math.abs((g_ta1 + g_ta2) - (g_tb1 + g_tb2)); let hasBlowout = checkBlowoutHistory(testLap.ta1, testLap.ta2, testLap.tb1, testLap.tb2);
+            
+            let g_ta1 = dapatkanGradingPemain(testLap.ta1), g_ta2 = testLap.ta2 ? dapatkanGradingPemain(testLap.ta2) : 0; 
+            let g_tb1 = dapatkanGradingPemain(testLap.tb1), g_tb2 = testLap.tb2 ? dapatkanGradingPemain(testLap.tb2) : 0;
+            let diff = Math.abs((g_ta1 + g_ta2) - (g_tb1 + g_tb2)); 
+            let hasBlowout = checkBlowoutHistory(testLap.ta1, testLap.ta2, testLap.tb1, testLap.tb2);
+            
             let score = diff + (hasBlowout ? 15 : 0) + (sumMain * 1.5);
             if (score < minScore) { minScore = score; bestCombo = combo; }
         }
 
         if (bestCombo) {
-            emptySlots.forEach((slot, idx) => { sLap[slot] = bestCombo[idx].nama; let selectEl = document.getElementById(`lap-${courtNum}-${slot}`); if (selectEl) selectEl.value = bestCombo[idx].nama; });
-            sLap.blowoutResolved = false; simpanKeMemoriSilent(); renderPapanSkorLapangan(); showLiveToast(`Saran Draft diterapkan!💡`);
+            emptySlots.forEach((slot, idx) => { 
+                sLap[slot] = bestCombo[idx].nama; 
+                let selectEl = document.getElementById(`lap-${courtNum}-${slot}`); 
+                if (selectEl) selectEl.value = bestCombo[idx].nama; 
+            });
+            sLap.blowoutResolved = false; 
+            simpanKeMemoriSilent(); 
+            renderPapanSkorLapangan(); 
+            showLiveToast(`Saran Draft diterapkan!💡`);
         }
     }
 
     function autoGenerateMatch(courtNum) {
-        if(stateLapangan[courtNum] && stateLapangan[courtNum].berjalan) { showLiveToast("Papan sedang berjalan."); return; }
-        let pemainHadir = dataPemain.filter(p => p.lunas); let tandingGlobal = [];
+        if(stateLapangan[courtNum] && stateLapangan[courtNum].berjalan) { 
+            showLiveToast("Papan sedang berjalan."); 
+            return; 
+        }
+        
+        let pemainHadir = dataPemain.filter(p => p.lunas); 
+        let tandingGlobal = [];
+        
         for (let j = 1; j <= jumlahLapangan; j++) {
             if(j === courtNum) continue; 
-            if(stateLapangan[j]) { if(stateLapangan[j].ta1) tandingGlobal.push(stateLapangan[j].ta1); if(stateLapangan[j].ta2) tandingGlobal.push(stateLapangan[j].ta2); if(stateLapangan[j].tb1) tandingGlobal.push(stateLapangan[j].tb1); if(stateLapangan[j].tb2) tandingGlobal.push(stateLapangan[j].tb2); }
+            if(stateLapangan[j]) { 
+                if(stateLapangan[j].ta1) tandingGlobal.push(stateLapangan[j].ta1); 
+                if(stateLapangan[j].ta2) tandingGlobal.push(stateLapangan[j].ta2); 
+                if(stateLapangan[j].tb1) tandingGlobal.push(stateLapangan[j].tb1); 
+                if(stateLapangan[j].tb2) tandingGlobal.push(stateLapangan[j].tb2); 
+            }
         }
         
         let available = pemainHadir.filter(p => !tandingGlobal.includes(p.nama));
-        if(available.length < 4) { bukaModalInputNotif("⚠️ Pemain Tidak Cukup", `Dibutuhkan minimal 4 orang.`); return; }
+        if(available.length < 4) { 
+            bukaModalInputNotif("⚠️ Pemain Tidak Cukup", `Dibutuhkan minimal 4 orang.`); 
+            return; 
+        }
 
-        available.sort((a, b) => (a.main || 0) - (b.main || 0)); let poolSize = 8;
-        if (available.length > poolSize) { let cutoffMain = available[poolSize - 1].main || 0; while (poolSize < available.length && (available[poolSize].main || 0) === cutoffMain) { poolSize++; if (poolSize >= 14) break; } }
-        let maxDraftPool = available.slice(0, poolSize); let bestMatch = null; let minDiff = 999;
+        available.sort((a, b) => (a.main || 0) - (b.main || 0)); 
+        let poolSize = 8;
+        
+        if (available.length > poolSize) { 
+            let cutoffMain = available[poolSize - 1].main || 0; 
+            while (poolSize < available.length && (available[poolSize].main || 0) === cutoffMain) { 
+                poolSize++; 
+                if (poolSize >= 14) break; 
+            } 
+        }
+        
+        let maxDraftPool = available.slice(0, poolSize); 
+        let bestMatch = null; 
+        let minDiff = 999;
 
         for(let i=0; i<maxDraftPool.length-3; i++){
             for(let j=i+1; j<maxDraftPool.length-2; j++){
@@ -1876,10 +2158,19 @@
                     for(let l=k+1; l<maxDraftPool.length; l++){
                         let p1 = maxDraftPool[i].nama, p2 = maxDraftPool[j].nama, p3 = maxDraftPool[k].nama, p4 = maxDraftPool[l].nama;
                         let g1 = dapatkanGradingPemain(p1), g2 = dapatkanGradingPemain(p2), g3 = dapatkanGradingPemain(p3), g4 = dapatkanGradingPemain(p4);
-                        let diff1 = Math.abs((g1+g2) - (g3+g4)); let diff2 = Math.abs((g1+g3) - (g2+g4)); let diff3 = Math.abs((g1+g4) - (g2+g3));
+                        
+                        let diff1 = Math.abs((g1+g2) - (g3+g4)); 
+                        let diff2 = Math.abs((g1+g3) - (g2+g4)); 
+                        let diff3 = Math.abs((g1+g4) - (g2+g3));
+                        
                         let blowout1 = checkBlowoutHistory(p1, p2, p3, p4), blowout2 = checkBlowoutHistory(p1, p3, p2, p4), blowout3 = checkBlowoutHistory(p1, p4, p2, p3);
-                        let sumMain = (maxDraftPool[i].main || 0) + (maxDraftPool[j].main || 0) + (maxDraftPool[k].main || 0) + (maxDraftPool[l].main || 0); let penaltiMain = sumMain * 1.5;
-                        let score1 = diff1 + (blowout1 ? 15 : 0) + penaltiMain; let score2 = diff2 + (blowout2 ? 15 : 0) + penaltiMain; let score3 = diff3 + (blowout3 ? 15 : 0) + penaltiMain;
+                        let sumMain = (maxDraftPool[i].main || 0) + (maxDraftPool[j].main || 0) + (maxDraftPool[k].main || 0) + (maxDraftPool[l].main || 0); 
+                        let penaltiMain = sumMain * 1.5;
+                        
+                        let score1 = diff1 + (blowout1 ? 15 : 0) + penaltiMain; 
+                        let score2 = diff2 + (blowout2 ? 15 : 0) + penaltiMain; 
+                        let score3 = diff3 + (blowout3 ? 15 : 0) + penaltiMain;
+                        
                         if(score1 < minDiff) { minDiff = score1; bestMatch = [p1, p2, p3, p4]; }
                         if(score2 < minDiff) { minDiff = score2; bestMatch = [p1, p3, p2, p4]; }
                         if(score3 < minDiff) { minDiff = score3; bestMatch = [p1, p4, p2, p3]; }
@@ -1890,42 +2181,72 @@
 
         if(bestMatch) {
             if(!stateLapangan[courtNum]) stateLapangan[courtNum] = { skorA:0, skorB:0, berjalan:false, startTime:0, accumulatedTime:0, blowoutResolved:false };
-            stateLapangan[courtNum].ta1 = bestMatch[0]; stateLapangan[courtNum].ta2 = bestMatch[1]; stateLapangan[courtNum].tb1 = bestMatch[2]; stateLapangan[courtNum].tb2 = bestMatch[3];
-            stateLapangan[courtNum].blowoutResolved = false; simpanKeMemoriSilent(); renderPapanSkorLapangan(); showLiveToast(`Auto-Draft berhasil! ⚖️`);
+            stateLapangan[courtNum].ta1 = bestMatch[0]; 
+            stateLapangan[courtNum].ta2 = bestMatch[1]; 
+            stateLapangan[courtNum].tb1 = bestMatch[2]; 
+            stateLapangan[courtNum].tb2 = bestMatch[3];
+            stateLapangan[courtNum].blowoutResolved = false; 
+            simpanKeMemoriSilent(); 
+            renderPapanSkorLapangan(); 
+            showLiveToast(`Auto-Draft berhasil! ⚖️`);
         }
     }
 
     function eksekusiSwapTim(courtNum, ta1, ta2, tb1, tb2) {
         if (!stateLapangan[courtNum]) return;
-        stateLapangan[courtNum].ta1 = ta1; stateLapangan[courtNum].ta2 = ta2; stateLapangan[courtNum].tb1 = tb1; stateLapangan[courtNum].tb2 = tb2;
-        stateLapangan[courtNum].blowoutResolved = true; simpanKeMemoriSilent(); showLiveToast(`Swap tim diterapkan! 🤝`); renderUtama();
+        stateLapangan[courtNum].ta1 = ta1; 
+        stateLapangan[courtNum].ta2 = ta2; 
+        stateLapangan[courtNum].tb1 = tb1; 
+        stateLapangan[courtNum].tb2 = tb2;
+        stateLapangan[courtNum].blowoutResolved = true; 
+        simpanKeMemoriSilent(); 
+        showLiveToast(`Swap tim diterapkan! 🤝`); 
+        renderUtama();
     }
     
     function eksekusiSubstitusiPemain(courtNum, slot, namaMasuk) {
         if (!stateLapangan[courtNum]) return;
-        stateLapangan[courtNum][slot] = namaMasuk; stateLapangan[courtNum].blowoutResolved = true; simpanKeMemoriSilent(); showLiveToast(`${namaMasuk} dimasukkan! 📥`); renderUtama();
+        stateLapangan[courtNum][slot] = namaMasuk; 
+        stateLapangan[courtNum].blowoutResolved = true; 
+        simpanKeMemoriSilent(); 
+        showLiveToast(`${namaMasuk} dimasukkan! 📥`); 
+        renderUtama();
     }
 
     function buatOpsiPemain(listPemain, terpilih, tandingGlobal) {
         let h = `<option value="">-- Pilih Pemain --</option>`;
         listPemain.forEach(p => {
             if (tandingGlobal.includes(p.nama) && p.nama !== terpilih) return;
-            let sel = p.nama === terpilih ? 'selected' : ''; let teksTampil = p.nama;
-            if (p.nama !== terpilih) { let infoJam = p.jamDatang ? ` | ⏱️ ${p.jamDatang}` : ''; teksTampil += ` (Main: ${p.main||0}${infoJam})`; }
+            let sel = p.nama === terpilih ? 'selected' : ''; 
+            let teksTampil = p.nama;
+            if (p.nama !== terpilih) { 
+                let infoJam = p.jamDatang ? ` | ⏱️ ${p.jamDatang}` : ''; 
+                teksTampil += ` (Main: ${p.main||0}${infoJam})`; 
+            }
             h += `<option value="${p.nama}" ${sel}>${teksTampil}</option>`;
         });
         return h;
     }
 
     function renderPapanSkorLapangan() {
-        const kontainerLap = document.getElementById('kontainer-lapangan'); if(!kontainerLap) return;
+        const kontainerLap = document.getElementById('kontainer-lapangan'); 
+        if(!kontainerLap) return;
+        
         kontainerLap.innerHTML = '';
         let isMember = (userRole === 'member');
-        if(jumlahLapangan > 1) kontainerLap.classList.add('grid-layout'); else kontainerLap.classList.remove('grid-layout');
-        let daftarPemainHadir = dataPemain.filter(p => p.lunas); let tandingSekarang = [];
+        if (jumlahLapangan > 1) kontainerLap.classList.add('grid-layout'); 
+        else kontainerLap.classList.remove('grid-layout');
+        
+        let daftarPemainHadir = dataPemain.filter(p => p.lunas); 
+        let tandingSekarang = [];
         
         for (let j = 1; j <= jumlahLapangan; j++) {
-            if(stateLapangan[j]) { if(stateLapangan[j].ta1) tandingSekarang.push(stateLapangan[j].ta1); if(stateLapangan[j].ta2) tandingSekarang.push(stateLapangan[j].ta2); if(stateLapangan[j].tb1) tandingSekarang.push(stateLapangan[j].tb1); if(stateLapangan[j].tb2) tandingSekarang.push(stateLapangan[j].tb2); }
+            if(stateLapangan[j]) { 
+                if(stateLapangan[j].ta1) tandingSekarang.push(stateLapangan[j].ta1); 
+                if(stateLapangan[j].ta2) tandingSekarang.push(stateLapangan[j].ta2); 
+                if(stateLapangan[j].tb1) tandingSekarang.push(stateLapangan[j].tb1); 
+                if(stateLapangan[j].tb2) tandingSekarang.push(stateLapangan[j].tb2); 
+            }
         }
 
         for (let i = 1; i <= jumlahLapangan; i++) {
@@ -1933,7 +2254,8 @@
             let totalDetik = dapatkanDetikElapsedTime(i);
             let statusTeks = sLap.berjalan ? `Status: Bertanding (${Math.floor(totalDetik/60).toString().padStart(2,'0')}:${(totalDetik%60).toString().padStart(2,'0')})` : "Status: Belum Mulai";
             let currentTimerFormatted = `${Math.floor(totalDetik/60).toString().padStart(2,'0')}:${(totalDetik%60).toString().padStart(2,'0')}`;
-            let divCourt = document.createElement('div'); divCourt.className = 'score-board-container';
+            let divCourt = document.createElement('div'); 
+            divCourt.className = 'score-board-container';
             
             if (isMember) {
                 let ta1Display = sLap.ta1 ? `<div class="court-player-chip">${sLap.ta1}</div>` : `<div class="court-empty-slot">Kosong</div>`;
@@ -1952,11 +2274,22 @@
                 `;
             } else {
                 let filledCount = [sLap.ta1, sLap.ta2, sLap.tb1, sLap.tb2].filter(Boolean).length;
-                let btnActionText = "", btnActionOnClick = "", btnActionClass = ""; let activeSave = sLap.berjalan ? 'active' : '';
+                let btnActionText = "", btnActionOnClick = "", btnActionClass = ""; 
+                let activeSave = sLap.berjalan ? 'active' : '';
 
-                if (filledCount === 0) { btnActionText = "🎲 Auto Draft"; btnActionOnClick = `autoGenerateMatch(${i})`; btnActionClass = "auto"; } 
-                else if (filledCount > 0 && filledCount < 4) { btnActionText = "💡 Saran Draft"; btnActionOnClick = `suggestDraftPemain(${i})`; btnActionClass = "suggest"; } 
-                else { btnActionText = "🔄 Ulang Draft"; btnActionOnClick = `autoGenerateMatch(${i})`; btnActionClass = "auto"; }
+                if (filledCount === 0) { 
+                    btnActionText = "🎲 Auto Draft"; 
+                    btnActionOnClick = `autoGenerateMatch(${i})`; 
+                    btnActionClass = "auto"; 
+                } else if (filledCount > 0 && filledCount < 4) { 
+                    btnActionText = "💡 Saran Draft"; 
+                    btnActionOnClick = `suggestDraftPemain(${i})`; 
+                    btnActionClass = "suggest"; 
+                } else { 
+                    btnActionText = "🔄 Ulang Draft"; 
+                    btnActionOnClick = `autoGenerateMatch(${i})`; 
+                    btnActionClass = "auto"; 
+                }
                 
                 divCourt.innerHTML = `
                     <div class="court-title-bar"><div class="court-main-name">LAPANGAN ${i}</div><div class="court-status-sub" id="status-court-text-${i}">${statusTeks}</div></div>
@@ -1985,23 +2318,40 @@
                     </div>
                 `;
             }
-            kontainerLap.appendChild(divCourt); if(!isMember) { analisisKeseimbanganMatch(i); }
+            kontainerLap.appendChild(divCourt); 
+            if (!isMember) { analisisKeseimbanganMatch(i); }
         }
     }
 
     function hitungLiveNavbarStatistik() {
-        let hadir = dataPemain.filter(p => p.lunas).length; let countMatch = riwayatPertandingan.length; let totalDetikPertandingan = 0; let teksRataHarian = "00:00";
+        let hadir = dataPemain.filter(p => p.lunas).length; 
+        let countMatch = riwayatPertandingan.length; 
+        let totalDetikPertandingan = 0; 
+        let teksRataHarian = "00:00";
+        
         riwayatPertandingan.forEach(m => {
             let dur = String(m.durasi || "00:00").replace(/'/g, ''); 
-            if (dur.includes(":") && !dur.includes("T")) { let parts = dur.split(":"); totalDetikPertandingan += (parseInt(parts[0]) * 60) + parseInt(parts[1]); }
+            if (dur.includes(":") && !dur.includes("T")) { 
+                let parts = dur.split(":"); 
+                totalDetikPertandingan += (parseInt(parts[0]) * 60) + parseInt(parts[1]); 
+            }
         });
+        
         if (countMatch > 0 && totalDetikPertandingan > 0) {
             let avgDetikPerMatch = Math.floor(totalDetikPertandingan / countMatch);
-            let mRata = Math.floor(avgDetikPerMatch / 60).toString().padStart(2, '0'); let sRata = (avgDetikPerMatch % 60).toString().padStart(2, '0');
+            let mRata = Math.floor(avgDetikPerMatch / 60).toString().padStart(2, '0'); 
+            let sRata = (avgDetikPerMatch % 60).toString().padStart(2, '0');
             teksRataHarian = `${mRata}:${sRata}`;
         }
-        let elHadir = document.getElementById('live-total-pemain'); let elMatch = document.getElementById('live-total-match'); let elRata = document.getElementById('live-avg-durasi');
-        if(elHadir) elHadir.innerText = hadir.toString().padStart(2, '0'); if(elMatch) elMatch.innerText = countMatch.toString().padStart(2, '0'); if(elRata) elRata.innerText = teksRataHarian;
+        
+        let elHadir = document.getElementById('live-total-pemain'); 
+        let elMatch = document.getElementById('live-total-match'); 
+        let elRata = document.getElementById('live-avg-durasi');
+        
+        if (elHadir) elHadir.innerText = hadir.toString().padStart(2, '0'); 
+        if (elMatch) elMatch.innerText = countMatch.toString().padStart(2, '0'); 
+        if (elRata) elRata.innerText = teksRataHarian;
+        
         return { totalMatch: countMatch, rataWaktu: teksRataHarian };
     }
 
@@ -2010,17 +2360,25 @@
         riwayatPertandingan.forEach(m => {
             let pA = m.timA.split(" / ").map(x => x.trim()), pB = m.timB.split(" / ").map(x => x.trim());
             if (pA.includes(namaPemain) || pB.includes(namaPemain)) {
-                tanding++; let dur = String(m.durasi || "00:00").replace(/'/g, ''); 
-                if (dur.includes(":") && !dur.includes("T")) { let parts = dur.split(":"); totalDetik += (parseInt(parts[0]) * 60) + parseInt(parts[1]); }
+                tanding++; 
+                let dur = String(m.durasi || "00:00").replace(/'/g, ''); 
+                if (dur.includes(":") && !dur.includes("T")) { 
+                    let parts = dur.split(":"); 
+                    totalDetik += (parseInt(parts[0]) * 60) + parseInt(parts[1]); 
+                }
             }
         });
         if (tanding === 0) return "00:00";
-        let avgDetik = Math.floor(totalDetik / tanding); let m = Math.floor(avgDetik / 60).toString().padStart(2, '0'); let s = (avgDetik % 60).toString().padStart(2, '0');
+        let avgDetik = Math.floor(totalDetik / tanding); 
+        let m = Math.floor(avgDetik / 60).toString().padStart(2, '0'); 
+        let s = (avgDetik % 60).toString().padStart(2, '0');
         return `${m}:${s}`;
     }
 
     function renderUtama() {
-        const tbody = document.getElementById('tabel-klasemen'); if(!tbody) return;
+        const tbody = document.getElementById('tabel-klasemen'); 
+        if(!tbody) return;
+        
         tbody.innerHTML = '';
         let ligaSort = [...dataPemain].sort((a, b) => {
             if ((b.poin || 0) !== (a.poin || 0)) return (b.poin || 0) - (a.poin || 0);
@@ -2032,7 +2390,8 @@
         ligaSort.forEach((pemain, index) => {
             let formHtml = (pemain.form && pemain.form.length > 0) ? '<div class="form-container">' + pemain.form.slice(-5).map(f => `<span class="form-dot ${f==='M'?'win':'lose'}">${f}</span>`).join('') + '</div>' : '<span style="color:#cbd5e1; font-size:11px;">-</span>';
             let clockInfo = pemain.jamDatang ? `<span class="time-arrival">⏱️ ${pemain.jamDatang}</span>` : '';
-            let btnClass = pemain.lunas ? 'is-present' : ''; let labelHadir = pemain.lunas ? 'HADIR' : 'ABSEN';
+            let btnClass = pemain.lunas ? 'is-present' : ''; 
+            let labelHadir = pemain.lunas ? 'HADIR' : 'ABSEN';
             let rataWaktuHarian = hitungRataWaktuHarianFormat(pemain.nama);
             
             const tr = document.createElement('tr');
@@ -2052,7 +2411,12 @@
             tbody.appendChild(tr);
         });
 
-        renderPapanSkorLapangan(); renderRiwayatPertandinganLog(); renderHalamanKas(); renderHalamanAllKumulatif(); renderHalamanGrading(); hitungLiveNavbarStatistik();
+        renderPapanSkorLapangan(); 
+        renderRiwayatPertandinganLog(); 
+        renderHalamanKas(); 
+        renderHalamanAllKumulatif(); 
+        renderHalamanGrading(); 
+        hitungLiveNavbarStatistik();
     }
 
     function toggleAbsensi(nama) {
@@ -2060,27 +2424,51 @@
         if (pemain) {
             if (pemain.lunas) { 
                 let sedangBermain = false;
-                for (let key in stateLapangan) { let s = stateLapangan[key]; if (s && (s.ta1 === pemain.nama || s.ta2 === pemain.nama || s.tb1 === pemain.nama || s.tb2 === pemain.nama)) { sedangBermain = true; break; } }
-                if (sedangBermain) { bukaModalInputNotif("⚠️ Gagal Absen", `Pemain <b>${pemain.nama}</b> sedang bertanding aktif!`); return; }
+                for (let key in stateLapangan) { 
+                    let s = stateLapangan[key]; 
+                    if (s && (s.ta1 === pemain.nama || s.ta2 === pemain.nama || s.tb1 === pemain.nama || s.tb2 === pemain.nama)) { 
+                        sedangBermain = true; 
+                        break; 
+                    } 
+                }
+                if (sedangBermain) { 
+                    bukaModalInputNotif("⚠️ Gagal Absen", `Pemain <b>${pemain.nama}</b> sedang bertanding aktif!`); 
+                    return; 
+                }
             }
             pemain.lunas = !pemain.lunas;
-            if (pemain.lunas) { const sek = new Date(); pemain.jamDatang = `${sek.getHours().toString().padStart(2,'0')}:${sek.getMinutes().toString().padStart(2,'0')}`; showLiveToast(`${pemain.nama} hadir mabar! ⏱️`); } 
-            else { pemain.jamDatang = ''; showLiveToast(`${pemain.nama} dibatalkan hadir.`); }
-            simpanKeMemoriSilent(); renderUtama();
+            if (pemain.lunas) { 
+                const sek = new Date(); 
+                pemain.jamDatang = `${sek.getHours().toString().padStart(2,'0')}:${sek.getMinutes().toString().padStart(2,'0')}`; 
+                showLiveToast(`${pemain.nama} hadir mabar! ⏱️`); 
+            } else { 
+                pemain.jamDatang = ''; 
+                showLiveToast(`${pemain.nama} dibatalkan hadir.`); 
+            }
+            simpanKeMemoriSilent(); 
+            renderUtama();
         }
     }
 
     function updateStateInputLapangan(courtNum) {
-        if(!stateLapangan[courtNum]) stateLapangan[courtNum] = { ta1:"", ta2:"", tb1:"", tb2:"", skorA:0, skorB:0, berjalan:false, startTime:0, accumulatedTime:0, blowoutResolved:false };
-        stateLapangan[courtNum].ta1 = document.getElementById(`lap-${courtNum}-ta1`).value; stateLapangan[courtNum].ta2 = document.getElementById(`lap-${courtNum}-ta2`).value;
-        stateLapangan[courtNum].tb1 = document.getElementById(`lap-${courtNum}-tb1`).value; stateLapangan[courtNum].tb2 = document.getElementById(`lap-${courtNum}-tb2`).value;
-        stateLapangan[courtNum].blowoutResolved = false; simpanKeMemoriSilent(); renderPapanSkorLapangan();
+        if (!stateLapangan[courtNum]) {
+            stateLapangan[courtNum] = { ta1:"", ta2:"", tb1:"", tb2:"", skorA:0, skorB:0, berjalan:false, startTime:0, accumulatedTime:0, blowoutResolved:false };
+        }
+        stateLapangan[courtNum].ta1 = document.getElementById(`lap-${courtNum}-ta1`).value; 
+        stateLapangan[courtNum].ta2 = document.getElementById(`lap-${courtNum}-ta2`).value;
+        stateLapangan[courtNum].tb1 = document.getElementById(`lap-${courtNum}-tb1`).value; 
+        stateLapangan[courtNum].tb2 = document.getElementById(`lap-${courtNum}-tb2`).value;
+        stateLapangan[courtNum].blowoutResolved = false; 
+        simpanKeMemoriSilent(); 
+        renderPapanSkorLapangan();
     }
 
     function updateSkorStateLapangan(courtNum) {
-        if(!stateLapangan[courtNum]) return;
-        stateLapangan[courtNum].skorA = parseInt(document.getElementById(`lap-${courtNum}-skor-a`).value) || 0; stateLapangan[courtNum].skorB = parseInt(document.getElementById(`lap-${courtNum}-skor-b`).value) || 0;
-        simpanKeMemoriSilent(); analisisKeseimbanganMatch(courtNum); 
+        if (!stateLapangan[courtNum]) return;
+        stateLapangan[courtNum].skorA = parseInt(document.getElementById(`lap-${courtNum}-skor-a`).value) || 0; 
+        stateLapangan[courtNum].skorB = parseInt(document.getElementById(`lap-${courtNum}-skor-b`).value) || 0;
+        simpanKeMemoriSilent(); 
+        analisisKeseimbanganMatch(courtNum); 
     }
 
     function mulaiMatchTimer(courtNum) {
@@ -2088,14 +2476,24 @@
         if (stateLapangan[courtNum].berjalan) return;
         if (timers[courtNum] && timers[courtNum].interval) clearInterval(timers[courtNum].interval);
         
-        stateLapangan[courtNum].berjalan = true; stateLapangan[courtNum].startTime = Date.now(); simpanKeMemoriSilent();
-        let saveBtn = document.getElementById(`btn-save-lap-${courtNum}`); if(saveBtn) saveBtn.classList.add('active');
+        stateLapangan[courtNum].berjalan = true; 
+        stateLapangan[courtNum].startTime = Date.now(); 
+        simpanKeMemoriSilent();
+        
+        let saveBtn = document.getElementById(`btn-save-lap-${courtNum}`); 
+        if (saveBtn) saveBtn.classList.add('active');
         
         timers[courtNum] = {
             interval: setInterval(() => {
-                let totalDetik = dapatkanDetikElapsedTime(courtNum); let mForm = Math.floor(totalDetik/60).toString().padStart(2,'0'); let sForm = (totalDetik%60).toString().padStart(2,'0');
-                let nodeText = document.getElementById(`status-court-text-${courtNum}`); if(nodeText) nodeText.innerText = `Status: Bertanding (${mForm}:${sForm})`;
-                let nodeMemberTimer = document.getElementById(`member-court-timer-${courtNum}`); if(nodeMemberTimer) nodeMemberTimer.innerText = `${mForm}:${sForm}`;
+                let totalDetik = dapatkanDetikElapsedTime(courtNum); 
+                let mForm = Math.floor(totalDetik/60).toString().padStart(2,'0'); 
+                let sForm = (totalDetik%60).toString().padStart(2,'0');
+                
+                let nodeText = document.getElementById(`status-court-text-${courtNum}`); 
+                if (nodeText) nodeText.innerText = `Status: Bertanding (${mForm}:${sForm})`;
+                
+                let nodeMemberTimer = document.getElementById(`member-court-timer-${courtNum}`); 
+                if (nodeMemberTimer) nodeMemberTimer.innerText = `${mForm}:${sForm}`;
             }, 500)
         };
         analisisKeseimbanganMatch(courtNum);
@@ -2103,55 +2501,87 @@
 
     function simpanHasilOtomatis(courtNum) {
         let sLap = stateLapangan[courtNum];
-        if (!sLap || !sLap.berjalan) return; if (!sLap.ta1 || !sLap.tb1) return;
-        if(timers[courtNum] && timers[courtNum].interval) { clearInterval(timers[courtNum].interval); timers[courtNum].interval = null; }
+        if (!sLap || !sLap.berjalan) return; 
+        if (!sLap.ta1 || !sLap.tb1) return;
+        if (timers[courtNum] && timers[courtNum].interval) { 
+            clearInterval(timers[courtNum].interval); 
+            timers[courtNum].interval = null; 
+        }
         
         let totalDetik = dapatkanDetikElapsedTime(courtNum);
-        let mFinal = Math.floor(totalDetik / 60).toString().padStart(2, '0'); let sFinal = (totalDetik % 60).toString().padStart(2, '0');
+        let mFinal = Math.floor(totalDetik / 60).toString().padStart(2, '0'); 
+        let sFinal = (totalDetik % 60).toString().padStart(2, '0');
         
         riwayatPertandingan.unshift({
-            id: 'M-' + Date.now(), timA: [sLap.ta1, sLap.ta2].filter(Boolean).join(" / "), timB: [sLap.tb1, sLap.tb2].filter(Boolean).join(" / "),
-            skorA: sLap.skorA, skorB: sLap.skorB, durasi: `${mFinal}:${sFinal}`
+            id: 'M-' + Date.now(), 
+            timA: [sLap.ta1, sLap.ta2].filter(Boolean).join(" / "), 
+            timB: [sLap.tb1, sLap.tb2].filter(Boolean).join(" / "),
+            skorA: sLap.skorA, 
+            skorB: sLap.skorB, 
+            durasi: `${mFinal}:${sFinal}`
         });
 
         stateLapangan[courtNum] = { ta1:"", ta2:"", tb1:"", tb2:"", skorA:0, skorB:0, berjalan:false, startTime:0, accumulatedTime:0, blowoutResolved:false };
         timers[courtNum] = { interval: null }; 
-        kalkulasiUlangKlasemen(); showLiveToast("Match selesai! Rekomendasi grading pemain diperbarui ⚡");
+        kalkulasiUlangKlasemen(); 
+        showLiveToast("Match selesai! Rekomendasi grading pemain diperbarui ⚡");
     }
 
     function kalkulasiUlangKlasemen() {
-        dataPemain.forEach(p => { p.main = 0; p.menang = 0; p.kalah = 0; p.poin = 0; p.skorMenang = 0; p.skorKalah = 0; p.selisihSkor = 0; p.form = []; });
+        dataPemain.forEach(p => { 
+            p.main = 0; p.menang = 0; p.kalah = 0; p.poin = 0; p.skorMenang = 0; p.skorKalah = 0; p.selisihSkor = 0; p.form = []; 
+        });
+        
         for (let i = riwayatPertandingan.length - 1; i >= 0; i--) {
-            let m = riwayatPertandingan[i]; let pA = m.timA.split(" / ").map(x => x.trim()); let pB = m.timB.split(" / ").map(x => x.trim());
-            let sA = parseInt(m.skorA) || 0; let sB = parseInt(m.skorB) || 0; let pemenang = sA > sB ? 'A' : (sB > sA ? 'B' : 'SERI');
+            let m = riwayatPertandingan[i]; 
+            let pA = m.timA.split(" / ").map(x => x.trim()); 
+            let pB = m.timB.split(" / ").map(x => x.trim());
+            let sA = parseInt(m.skorA) || 0; 
+            let sB = parseInt(m.skorB) || 0; 
+            let pemenang = sA > sB ? 'A' : (sB > sA ? 'B' : 'SERI');
+            
             pA.forEach(n => {
                 let p = dataPemain.find(x => x.nama === n);
-                if(p) {
-                    p.main++; p.skorMenang += sA; p.skorKalah += sB;
-                    if(pemenang === 'A') { p.menang++; p.poin += 3; p.form.push('M'); } else if(pemenang === 'B') { p.kalah++; p.form.push('K'); }
+                if (p) {
+                    p.main++; 
+                    p.skorMenang += sA; 
+                    p.skorKalah += sB;
+                    if (pemenang === 'A') { p.menang++; p.poin += 3; p.form.push('M'); } 
+                    else if (pemenang === 'B') { p.kalah++; p.form.push('K'); }
                     p.selisihSkor = p.skorMenang - p.skorKalah;
                 }
             });
             pB.forEach(n => {
                 let p = dataPemain.find(x => x.nama === n);
-                if(p) {
-                    p.main++; p.skorMenang += sB; p.skorKalah += sA;
-                    if(pemenang === 'B') { p.menang++; p.poin += 3; p.form.push('M'); } else if(pemenang === 'A') { p.kalah++; p.form.push('K'); }
+                if (p) {
+                    p.main++; 
+                    p.skorMenang += sB; 
+                    p.skorKalah += sA;
+                    if (pemenang === 'B') { p.menang++; p.poin += 3; p.form.push('M'); } 
+                    else if (pemenang === 'A') { p.kalah++; p.form.push('K'); }
                     p.selisihSkor = p.skorMenang - p.skorKalah;
                 }
             });
         }
-        simpanKeMemoriSilent(); renderUtama();
+        simpanKeMemoriSilent(); 
+        renderUtama();
     }
 
     function renderRiwayatPertandinganLog() {
-        const rList = document.getElementById('log-riwayat'); if(!rList) return;
+        const rList = document.getElementById('log-riwayat'); 
+        if (!rList) return;
         rList.innerHTML = '';
-        if(riwayatPertandingan.length === 0) { rList.innerHTML = `<li style="font-size:12px; color:#888; text-align:center; padding:10px;">Belum ada riwayat tanding masuk hari ini.</li>`; return; }
+        
+        if (riwayatPertandingan.length === 0) { 
+            rList.innerHTML = `<li style="font-size:12px; color:#888; text-align:center; padding:10px;">Belum ada riwayat tanding masuk hari ini.</li>`; 
+            return; 
+        }
 
         riwayatPertandingan.forEach(m => {
-            let winA = m.skorA > m.skorB ? 'font-weight:900; color:#16a34a;' : ''; let winB = m.skorB > m.skorA ? 'font-weight:900; color:#16a34a;' : '';
-            const li = document.createElement('li'); li.className = 'history-item';
+            let winA = m.skorA > m.skorB ? 'font-weight:900; color:#16a34a;' : ''; 
+            let winB = m.skorB > m.skorA ? 'font-weight:900; color:#16a34a;' : '';
+            const li = document.createElement('li'); 
+            li.className = 'history-item';
             li.innerHTML = `
                 <div><div><span style="${winA}">${m.timA}</span> <b style="background:#e2e8f0; padding:2px 6px; border-radius:4px; margin:0 4px;">${m.skorA} : ${m.skorB}</b> <span style="${winB}">${m.timB}</span></div>
                 <div class="history-time">⏱️ Durasi Bermain: <b>${m.durasi || "00:00"} Menit</b></div></div>
@@ -2161,29 +2591,48 @@
         });
     }
 
-    function hapusMatchRiwayat(idMatch) { riwayatPertandingan = riwayatPertandingan.filter(m => m.id !== idMatch); kalkulasiUlangKlasemen(); }
+    function hapusMatchRiwayat(idMatch) { 
+        riwayatPertandingan = riwayatPertandingan.filter(m => m.id !== idMatch); 
+        kalkulasiUlangKlasemen(); 
+    }
     
     function bukaModalEditMatch(idMatch) {
-        let match = riwayatPertandingan.find(m => m.id === idMatch); if(!match) return;
-        document.getElementById('edit-match-id').value = match.id; document.getElementById('edit-match-tima').value = match.timA;
-        document.getElementById('edit-match-skora').value = match.skorA; document.getElementById('edit-match-timb').value = match.timB;
-        document.getElementById('edit-match-skorb').value = match.skorB; document.getElementById('edit-match-durasi').value = match.durasi || "00:00";
+        let match = riwayatPertandingan.find(m => m.id === idMatch); 
+        if (!match) return;
+        document.getElementById('edit-match-id').value = match.id; 
+        document.getElementById('edit-match-tima').value = match.timA;
+        document.getElementById('edit-match-skora').value = match.skorA; 
+        document.getElementById('edit-match-timb').value = match.timB;
+        document.getElementById('edit-match-skorb').value = match.skorB; 
+        document.getElementById('edit-match-durasi').value = match.durasi || "00:00";
         document.getElementById('modal-edit-match').style.display = 'flex';
     }
-    function tutupModalEditMatch() { document.getElementById('modal-edit-match').style.display = 'none'; }
+    
+    function tutupModalEditMatch() { 
+        document.getElementById('modal-edit-match').style.display = 'none'; 
+    }
+    
     function eksekusiSimpanEditMatch() {
-        let id = document.getElementById('edit-match-id').value; let match = riwayatPertandingan.find(m => m.id === id);
-        if(match) {
-            match.timA = document.getElementById('edit-match-tima').value.toUpperCase().trim(); match.skorA = parseInt(document.getElementById('edit-match-skora').value) || 0;
-            match.timB = document.getElementById('edit-match-timb').value.toUpperCase().trim(); match.skorB = parseInt(document.getElementById('edit-match-skorb').value) || 0;
-            match.durasi = document.getElementById('edit-match-durasi').value.trim(); tutupModalEditMatch(); kalkulasiUlangKlasemen();
+        let id = document.getElementById('edit-match-id').value; 
+        let match = riwayatPertandingan.find(m => m.id === id);
+        if (match) {
+            match.timA = document.getElementById('edit-match-tima').value.toUpperCase().trim(); 
+            match.skorA = parseInt(document.getElementById('edit-match-skora').value) || 0;
+            match.timB = document.getElementById('edit-match-timb').value.toUpperCase().trim(); 
+            match.skorB = parseInt(document.getElementById('edit-match-skorb').value) || 0;
+            match.durasi = document.getElementById('edit-match-durasi').value.trim(); 
+            tutupModalEditMatch(); 
+            kalkulasiUlangKlasemen();
         }
     }
 
     function renderHalamanKas() {
-        const listContainer = document.getElementById('rekap-kas-list'); if(!listContainer) return;
+        const listContainer = document.getElementById('rekap-kas-list'); 
+        if(!listContainer) return;
         listContainer.innerHTML = '';
-        let totalTunai = 0, totalTransfer = 0, totalBelum = 0, countTunai = 0, countQris = 0, countSponsor = 0, countBelum = 0;
+        
+        let totalTunai = 0, totalTransfer = 0, totalBelum = 0;
+        let countTunai = 0, countQris = 0, countSponsor = 0, countBelum = 0;
         let kasSort = [...dataPemain].sort((a, b) => a.nama.localeCompare(b.nama));
 
         kasSort.forEach(pemain => {
@@ -2192,16 +2641,22 @@
                 if (pemain.metode === "Tunai") { totalTunai += nominalUang; countTunai++; }
                 else if (pemain.metode === "QRIS") { totalTransfer += nominalUang; countQris++; }
                 else if (pemain.metode === "Sponsor") { countSponsor++; }
-            } else { totalBelum += nominalUang; countBelum++; }
+            } else { 
+                totalBelum += nominalUang; countBelum++; 
+            }
 
-            if(filterKasAktif === 'sudah' && !pemain.sudahBayar) return; if(filterKasAktif === 'belum' && pemain.sudahBayar) return;
-            if(filterKasAktif === 'tunai' && (!pemain.sudahBayar || pemain.metode !== 'Tunai')) return; if(filterKasAktif === 'tf' && (!pemain.sudahBayar || pemain.metode !== 'QRIS')) return;
+            if(filterKasAktif === 'sudah' && !pemain.sudahBayar) return; 
+            if(filterKasAktif === 'belum' && pemain.sudahBayar) return;
+            if(filterKasAktif === 'tunai' && (!pemain.sudahBayar || pemain.metode !== 'Tunai')) return; 
+            if(filterKasAktif === 'tf' && (!pemain.sudahBayar || pemain.metode !== 'QRIS')) return;
             if(filterKasAktif === 'sponsor' && (!pemain.sudahBayar || pemain.metode !== 'Sponsor')) return;
 
             let payIcon = pemain.metode === "QRIS" ? "📱" : (pemain.metode === "Sponsor" ? "🤝" : "💵");
-            let labelBayarBtn = pemain.sudahBayar ? (pemain.metode === "Sponsor" ? "🤝 SPONSOR" : "🟢 LUNAS") : "🔴 BELUM BAYAR"; let classBayarBtn = pemain.sudahBayar ? "lunas" : "belum";
+            let labelBayarBtn = pemain.sudahBayar ? (pemain.metode === "Sponsor" ? "🤝 SPONSOR" : "🟢 LUNAS") : "🔴 BELUM BAYAR"; 
+            let classBayarBtn = pemain.sudahBayar ? "lunas" : "belum";
 
-            const li = document.createElement('li'); li.className = `member-item ${pemain.sudahBayar ? 'is-paid-row' : ''}`;
+            const li = document.createElement('li'); 
+            li.className = `member-item ${pemain.sudahBayar ? 'is-paid-row' : ''}`;
             li.innerHTML = `
                 <div class="member-info-left"><div class="pay-avatar-icon">${payIcon}</div><div class="member-names-block"><div class="member-name-rekap">${pemain.sudahBayar ? '<span class="check-v">✓</span>' : ''} <span>${pemain.nama}</span><button class="btn-rekap-link edit" onclick="editPemain('${pemain.nama}')" title="Edit Iuran" style="margin-left: 6px;">✏️ Edit</button></div><div class="member-sub">Iuran: Rp ${nominalUang.toLocaleString('id-ID')}</div></div></div>
                 <div class="rekap-pay-controls">
@@ -2211,40 +2666,90 @@
             `;
             listContainer.appendChild(li);
         });
-        document.getElementById('total-tunai').innerText = "Rp " + totalTunai.toLocaleString('id-ID'); document.getElementById('total-transfer').innerText = "Rp " + totalTransfer.toLocaleString('id-ID');
-        document.getElementById('total-belum').innerText = "Rp " + totalBelum.toLocaleString('id-ID'); document.getElementById('total-keseluruhan').innerText = "Rp " + (totalTunai + totalTransfer).toLocaleString('id-ID');
-        document.getElementById('count-tunai').innerText = `(${countTunai} Orang)`; document.getElementById('count-transfer').innerText = `(${countQris} Orang)`; document.getElementById('count-belum').innerText = `(${countBelum} Orang)`;
-        document.getElementById('lbl-total-m').innerText = dataPemain.length; document.getElementById('lbl-hadir-m').innerText = dataPemain.filter(p => p.lunas).length;
-        document.getElementById('lbl-lunas-m').innerText = countTunai + countQris; document.getElementById('lbl-sponsor-m').innerText = countSponsor;
+        
+        document.getElementById('total-tunai').innerText = "Rp " + totalTunai.toLocaleString('id-ID'); 
+        document.getElementById('total-transfer').innerText = "Rp " + totalTransfer.toLocaleString('id-ID');
+        document.getElementById('total-belum').innerText = "Rp " + totalBelum.toLocaleString('id-ID'); 
+        document.getElementById('total-keseluruhan').innerText = "Rp " + (totalTunai + totalTransfer).toLocaleString('id-ID');
+        document.getElementById('count-tunai').innerText = `(${countTunai} Orang)`; 
+        document.getElementById('count-transfer').innerText = `(${countQris} Orang)`; 
+        document.getElementById('count-belum').innerText = `(${countBelum} Orang)`;
+        document.getElementById('lbl-total-m').innerText = dataPemain.length; 
+        document.getElementById('lbl-hadir-m').innerText = dataPemain.filter(p => p.lunas).length;
+        document.getElementById('lbl-lunas-m').innerText = countTunai + countQris; 
+        document.getElementById('lbl-sponsor-m').innerText = countSponsor;
     }
 
-    function toggleStatusBayar(nama) { const pemain = dataPemain.find(p => p.nama === nama); if(pemain) { pemain.sudahBayar = !pemain.sudahBayar; simpanKeMemoriSilent(); renderHalamanKas(); } }
-    function gantiMetode(nama, value) { const pemain = dataPemain.find(p => p.nama === nama); if(pemain) { pemain.metode = value; if (value === 'Sponsor') { pemain.nominal = 0; } simpanKeMemoriSilent(); renderHalamanKas(); } }
+    function toggleStatusBayar(nama) { 
+        const pemain = dataPemain.find(p => p.nama === nama); 
+        if(pemain) { 
+            pemain.sudahBayar = !pemain.sudahBayar; 
+            simpanKeMemoriSilent(); 
+            renderHalamanKas(); 
+        } 
+    }
+    
+    function gantiMetode(nama, value) { 
+        const pemain = dataPemain.find(p => p.nama === nama); 
+        if(pemain) { 
+            pemain.metode = value; 
+            if (value === 'Sponsor') { pemain.nominal = 0; } 
+            simpanKeMemoriSilent(); 
+            renderHalamanKas(); 
+        } 
+    }
     
     function editPemain(nama) {
-        const pemain = dataPemain.find(p => p.nama === nama); if(!pemain) return;
+        const pemain = dataPemain.find(p => p.nama === nama); 
+        if(!pemain) return;
         document.getElementById('edit-pemain-id').value = pemain.nama; 
-        document.getElementById('edit-pemain-nama').value = pemain.nama; document.getElementById('edit-pemain-nominal').value = pemain.nominal; document.getElementById('modal-edit-pemain').style.display = 'flex';
+        document.getElementById('edit-pemain-nama').value = pemain.nama; 
+        document.getElementById('edit-pemain-nominal').value = pemain.nominal; 
+        document.getElementById('modal-edit-pemain').style.display = 'flex';
     }
-    function tutupModalEditPemain() { document.getElementById('modal-edit-pemain').style.display = 'none'; }
+    
+    function tutupModalEditPemain() { 
+        document.getElementById('modal-edit-pemain').style.display = 'none'; 
+    }
+    
     function eksekusiSimpanEditPemain() {
-        let idNama = document.getElementById('edit-pemain-id').value; let pemain = dataPemain.find(p => p.nama === idNama);
-        if(pemain) { pemain.nama = document.getElementById('edit-pemain-nama').value.toUpperCase().trim(); pemain.nominal = parseInt(document.getElementById('edit-pemain-nominal').value) || 0; tutupModalEditPemain(); simpanKeMemoriSilent(); renderUtama(); }
+        let idNama = document.getElementById('edit-pemain-id').value; 
+        let pemain = dataPemain.find(p => p.nama === idNama);
+        if (pemain) { 
+            pemain.nama = document.getElementById('edit-pemain-nama').value.toUpperCase().trim(); 
+            pemain.nominal = parseInt(document.getElementById('edit-pemain-nominal').value) || 0; 
+            tutupModalEditPemain(); 
+            simpanKeMemoriSilent(); 
+            renderUtama(); 
+        }
     }
 
     function renderHalamanAllKumulatif() {
-        const tbodyAllMatch = document.getElementById('tabel-allmatch-kumulatif'); if(!tbodyAllMatch) return;
-        tbodyAllMatch.innerHTML = ''; let arrayAllMatch = Object.values(allMatchKlasemen);
-        if(arrayAllMatch.length === 0) { tbodyAllMatch.innerHTML = `<tr><td colspan="10" style="color:#888; padding:20px; font-size:12px;">Belum ada data kumulatif.</td></tr>`; } 
-        else {
+        const tbodyAllMatch = document.getElementById('tabel-allmatch-kumulatif'); 
+        if(!tbodyAllMatch) return;
+        tbodyAllMatch.innerHTML = ''; 
+        
+        let arrayAllMatch = Object.values(allMatchKlasemen);
+        if(arrayAllMatch.length === 0) { 
+            tbodyAllMatch.innerHTML = `<tr><td colspan="10" style="color:#888; padding:20px; font-size:12px;">Belum ada data kumulatif.</td></tr>`; 
+        } else {
             arrayAllMatch.sort((a, b) => {
-                let poinA = parseInt(a.poin) || 0; let poinB = parseInt(b.poin) || 0; if (poinB !== poinA) return poinB - poinA;
-                let spA = parseInt(a.selisihSkor) || 0; let spB = parseInt(b.selisihSkor) || 0; if (spB !== spA) return spB - spA;
-                let menangA = parseInt(a.menang) || 0; let menangB = parseInt(b.menang) || 0; return menangB - menangA;
+                let poinA = parseInt(a.poin) || 0; 
+                let poinB = parseInt(b.poin) || 0; 
+                if (poinB !== poinA) return poinB - poinA;
+                
+                let spA = parseInt(a.selisihSkor) || 0; 
+                let spB = parseInt(b.selisihSkor) || 0; 
+                if (spB !== spA) return spB - spA;
+                
+                let menangA = parseInt(a.menang) || 0; 
+                let menangB = parseInt(b.menang) || 0; 
+                return menangB - menangA;
             });
             
             arrayAllMatch.forEach((p, idx) => {
-                let spVal = parseInt(p.selisihSkor) || 0, tanda = spVal > 0 ? `+${spVal}` : spVal; let totalMP = parseInt(p.menang || 0) + parseInt(p.kalah || 0);
+                let spVal = parseInt(p.selisihSkor) || 0, tanda = spVal > 0 ? `+${spVal}` : spVal; 
+                let totalMP = parseInt(p.menang || 0) + parseInt(p.kalah || 0);
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><span class="pos-badge">${idx + 1}</span></td>
@@ -2258,9 +2763,15 @@
             });
         }
 
-        const tbodyHistoryHarian = document.getElementById('tabel-history-sesi-harian'); if(!tbodyHistoryHarian) return;
+        const tbodyHistoryHarian = document.getElementById('tabel-history-sesi-harian'); 
+        if(!tbodyHistoryHarian) return;
         tbodyHistoryHarian.innerHTML = '';
-        if(historySesiHarian.length === 0) { tbodyHistoryHarian.innerHTML = `<tr><td colspan="4" style="color:#888; padding:20px; font-size:12px;">Belum ada mabar diarsipkan.</td></tr>`; return; }
+        
+        if (historySesiHarian.length === 0) { 
+            tbodyHistoryHarian.innerHTML = `<tr><td colspan="4" style="color:#888; padding:20px; font-size:12px;">Belum ada mabar diarsipkan.</td></tr>`; 
+            return; 
+        }
+        
         historySesiHarian.forEach(sesi => {
             const trSesi = document.createElement('tr');
             trSesi.innerHTML = `<td style="font-weight:600; color:#334155;">📅 ${sesi.waktu}</td><td style="font-weight:700; color:#0284c7;">${sesi.totalMatch} Pertandingan</td><td style="font-weight:700; color:#16a34a;">${sesi.pemainHadir} Orang</td><td style="font-family:monospace; font-weight:700; color:#e27c3a;">⏱️ ${sesi.rataWaktu}</td>`;
@@ -2269,26 +2780,48 @@
     }
 
     function eksekusiResetHariIni() {
-        riwayatPertandingan = []; dataPemain = []; stateLapangan = {}; 
-        for(let k in timers) { if(timers[k] && timers[k].interval) clearInterval(timers[k].interval); }
-        timers = {}; simpanKeMemoriSilent(); tutupModalReset(); gantiHalaman('page-input'); showLiveToast("Data hari ini berhasil dibersihkan! 🧹"); renderUtama();
+        riwayatPertandingan = []; 
+        dataPemain = []; 
+        stateLapangan = {}; 
+        for(let k in timers) { 
+            if(timers[k] && timers[k].interval) clearInterval(timers[k].interval); 
+        }
+        timers = {}; 
+        simpanKeMemoriSilent(); 
+        tutupModalReset(); 
+        gantiHalaman('page-input'); 
+        showLiveToast("Data hari ini berhasil dibersihkan! 🧹"); 
+        renderUtama();
     }
 
-    // PEMBARUAN LOGIKA: Tombol Reset Grading menghapus keseluruhan nama, skor harian dan kualitas level secara permanen
     function eksekusiResetGradingOnly() {
         databaseGrading = {}; 
-        simpanKeMemoriSilent(); tutupModalReset(); showLiveToast("Database grading dikosongkan secara total! 🧹⭐"); renderUtama();
+        simpanKeMemoriSilent(); 
+        tutupModalReset(); 
+        showLiveToast("Database grading dikosongkan secara total! 🧹⭐"); 
+        renderUtama();
     }
 
     function eksekusiResetKumulatif() {
-        allMatchKlasemen = {}; historySesiHarian = [];
-        simpanKeMemoriSilent(); tutupModalReset(); showLiveToast("Data Klasemen Kumulatif berhasil dihapus! 🔴 Database grading tetap aman!"); renderUtama();
+        allMatchKlasemen = {}; 
+        historySesiHarian = [];
+        simpanKeMemoriSilent(); 
+        tutupModalReset(); 
+        showLiveToast("Data Klasemen Kumulatif berhasil dihapus! 🔴 Database grading tetap aman!"); 
+        renderUtama();
     }
 
     function eksekusiSelesaiHariIni() {
-        let statistikHarian = hitungLiveNavbarStatistik(); let jumlahPemainHadir = dataPemain.filter(p => p.lunas).length; let totalKasMasuk = 0;
-        dataPemain.forEach(p => { if (p.sudahBayar && (p.metode === "Tunai" || p.metode === "QRIS")) totalKasMasuk += p.nominal; });
-        let waktuSekarang = new Date(); let stringWaktu = `${waktuSekarang.getDate().toString().padStart(2,'0')}/${(waktuSekarang.getMonth()+1).toString().padStart(2,'0')}/${waktuSekarang.getFullYear()} ${waktuSekarang.getHours().toString().padStart(2,'0')}:${waktuSekarang.getMinutes().toString().padStart(2,'0')}`;
+        let statistikHarian = hitungLiveNavbarStatistik(); 
+        let jumlahPemainHadir = dataPemain.filter(p => p.lunas).length; 
+        let totalKasMasuk = 0;
+        
+        dataPemain.forEach(p => { 
+            if (p.sudahBayar && (p.metode === "Tunai" || p.metode === "QRIS")) totalKasMasuk += p.nominal; 
+        });
+        
+        let waktuSekarang = new Date(); 
+        let stringWaktu = `${waktuSekarang.getDate().toString().padStart(2,'0')}/${(waktuSekarang.getMonth()+1).toString().padStart(2,'0')}/${waktuSekarang.getFullYear()} ${waktuSekarang.getHours().toString().padStart(2,'0')}:${waktuSekarang.getMinutes().toString().padStart(2,'0')}`;
         historySesiHarian.unshift({ waktu: stringWaktu, totalMatch: statistikHarian.totalMatch, pemainHadir: jumlahPemainHadir, rataWaktu: statistikHarian.rataWaktu, kasMasuk: totalKasMasuk });
 
         // Akumulasi kehadiran kumulatif
@@ -2302,9 +2835,12 @@
         // Akumulasi match stats kumulatif
         Object.keys(allMatchKlasemen).forEach(n => {
             let p = dataPemain.find(x => x.nama === n);
-            allMatchKlasemen[n].main = (allMatchKlasemen[n].main || 0) + (p ? p.main : 0); allMatchKlasemen[n].menang = (allMatchKlasemen[n].menang || 0) + (p ? p.menang : 0);
-            allMatchKlasemen[n].kalah = (allMatchKlasemen[n].kalah || 0) + (p ? p.kalah : 0); allMatchKlasemen[n].skorMenang = (allMatchKlasemen[n].skorMenang || 0) + (p ? p.skorMenang : 0);
-            allMatchKlasemen[n].skorKalah = (allMatchKlasemen[n].skorKalah || 0) + (p ? p.skorKalah : 0); allMatchKlasemen[n].poin = (allMatchKlasemen[n].poin || 0) + (p ? p.poin : 0);
+            allMatchKlasemen[n].main = (allMatchKlasemen[n].main || 0) + (p ? p.main : 0); 
+            allMatchKlasemen[n].menang = (allMatchKlasemen[n].menang || 0) + (p ? p.menang : 0);
+            allMatchKlasemen[n].kalah = (allMatchKlasemen[n].kalah || 0) + (p ? p.kalah : 0); 
+            allMatchKlasemen[n].skorMenang = (allMatchKlasemen[n].skorMenang || 0) + (p ? p.skorMenang : 0);
+            allMatchKlasemen[n].skorKalah = (allMatchKlasemen[n].skorKalah || 0) + (p ? p.skorKalah : 0); 
+            allMatchKlasemen[n].poin = (allMatchKlasemen[n].poin || 0) + (p ? p.poin : 0);
             allMatchKlasemen[n].selisihSkor = allMatchKlasemen[n].skorMenang - allMatchKlasemen[n].skorKalah;
         });
 
@@ -2319,14 +2855,28 @@
 
         riwayatPertandingan.forEach(m => {
             let pTimA = m.timA.split(" / ").map(x => x.trim()), pTimB = m.timB.split(" / ").map(x => x.trim()), detikMatch = 0;
-            let dur = String(m.durasi || "00:00").replace(/'/g, ''); if (dur.includes(":") && !dur.includes("T")) { let parts = dur.split(":"); detikMatch = (parseInt(parts[0]) * 60) + parseInt(parts[1]); }
+            let dur = String(m.durasi || "00:00").replace(/'/g, ''); 
+            if (dur.includes(":") && !dur.includes("T")) { 
+                let parts = dur.split(":"); 
+                detikMatch = (parseInt(parts[0]) * 60) + parseInt(parts[1]); 
+            }
             let semuaPemainMatch = [...pTimA, ...pTimB];
-            semuaPemainMatch.forEach(namaP => { if (namaP && allMatchKlasemen[namaP]) allMatchKlasemen[namaP].totalDurasiDetik = (allMatchKlasemen[namaP].totalDurasiDetik || 0) + detikMatch; });
+            semuaPemainMatch.forEach(namaP => { 
+                if (namaP && allMatchKlasemen[namaP]) allMatchKlasemen[namaP].totalDurasiDetik = (allMatchKlasemen[namaP].totalDurasiDetik || 0) + detikMatch; 
+            });
         });
 
-        riwayatPertandingan = []; dataPemain = []; stateLapangan = {}; 
-        for(let k in timers) { if(timers[k].interval) clearInterval(timers[k].interval); }
-        timers = {}; jalankanUlangTimerAktif(); simpanKeMemoriSilent(); tutupModalSelesai(); gantiHalaman('page-allmatch'); 
+        riwayatPertandingan = []; 
+        dataPemain = []; 
+        stateLapangan = {}; 
+        for (let k in timers) { 
+            if(timers[k].interval) clearInterval(timers[k].interval); 
+        }
+        timers = {}; 
+        jalankanUlangTimerAktif(); 
+        simpanKeMemoriSilent(); 
+        tutupModalSelesai(); 
+        gantiHalaman('page-allmatch'); 
     }
 
     function hitungRataMenitHarian(namaPemain) {
@@ -2334,15 +2884,25 @@
         riwayatPertandingan.forEach(m => {
             let pA = m.timA.split(" / ").map(x => x.trim()), pB = m.timB.split(" / ").map(x => x.trim());
             if (pA.includes(namaPemain) || pB.includes(namaPemain)) {
-                tanding++; let dur = String(m.durasi || "00:00").replace(/'/g, ''); 
-                if (dur.includes(":") && !dur.includes("T")) { let parts = dur.split(":"); totalDetik += (parseInt(parts[0]) * 60) + parseInt(parts[1]); }
+                tanding++; 
+                let dur = String(m.durasi || "00:00").replace(/'/g, ''); 
+                if (dur.includes(":") && !dur.includes("T")) { 
+                    let parts = dur.split(":"); 
+                    totalDetik += (parseInt(parts[0]) * 60) + parseInt(parts[1]); 
+                }
             }
         });
-        if (tanding === 0) return 0; return Math.round((totalDetik / tanding) / 60);
+        if (tanding === 0) return 0; 
+        return Math.round((totalDetik / tanding) / 60);
     }
 
     function getCellRef(col, row) {
-        let colRef = ""; while (col >= 0) { colRef = String.fromCharCode((col % 26) + 65) + colRef; col = Math.floor(col / 26) - 1; } return colRef + (row + 1);
+        let colRef = ""; 
+        while (col >= 0) { 
+            colRef = String.fromCharCode((col % 26) + 65) + colRef; 
+            col = Math.floor(col / 26) - 1; 
+        } 
+        return colRef + (row + 1);
     }
 
     function exportHariIniExcel() {
@@ -2351,7 +2911,8 @@
         let infoRow = ["Tanggal Sesi: " + todayStr, "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
         let emptyRow = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
         let headers = ["No", "Nama Pemain", "Status Kehadiran", "Jam Datang", "Main (MP)", "Menang (M)", "Kalah (K)", "Poin Menang (PM)", "Poin Kalah (PK)", "Selisih (SP)", "Poin Liga", "Rata2 Menit Bermain", "Status Bayar", "Metode Bayar", "Nominal Bayar"];
-        let rows = [titleRow, infoRow, emptyRow, headers]; let totalKas = 0;
+        let rows = [titleRow, infoRow, emptyRow, headers]; 
+        let totalKas = 0;
 
         let dataSorted = [...dataPemain].sort((a, b) => {
             if ((b.poin || 0) !== (a.poin || 0)) return (b.poin || 0) - (a.poin || 0);
@@ -2360,14 +2921,14 @@
         });
 
         dataSorted.forEach((p, idx) => {
-            let rataMenit = hitungRataMenitHarian(p.nama); if (p.sudahBayar && p.metode !== 'Sponsor') { totalKas += p.nominal; }
+            let rataMenit = hitungRataMenitHarian(p.nama); 
+            if (p.sudahBayar && p.metode !== 'Sponsor') { totalKas += p.nominal; }
             let spTanda = (p.selisihSkor > 0 ? '+' : '') + (p.selisihSkor || 0);
             rows.push([idx + 1, p.nama, p.lunas ? "HADIR" : "TIDAK HADIR", p.jamDatang || "-", p.main || 0, p.menang || 0, p.kalah || 0, p.skorMenang || 0, p.skorKalah || 0, spTanda, p.poin || 0, rataMenit + " Menit", p.sudahBayar ? "Sudah Bayar" : "Belum Bayar", p.sudahBayar ? p.metode : "-", p.nominal]);
         });
         
         rows.push(["", "", "", "", "", "", "", "", "", "", "", "", "", "TOTAL KAS MASUK", totalKas]);
         
-        // Menambahkan Jarak dan Header Riwayat Pertandingan di Bagian Bawah Klasemen
         rows.push(["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]);
         
         let matchTitleIdx = rows.length;
@@ -2386,9 +2947,9 @@
         }
         let endMatchDataIdx = rows.length;
 
-        let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(rows);
+        let wb = XLSX.utils.book_new(); 
+        let ws = XLSX.utils.aoa_to_sheet(rows);
         
-        // Penggabungan Kolom (Merges) yang Diperluas
         ws['!merges'] = [ 
             { s: { r: 0, c: 0 }, e: { r: 0, c: 14 } }, 
             { s: { r: 1, c: 0 }, e: { r: 1, c: 14 } },
@@ -2403,9 +2964,9 @@
         let totalRows = rows.length, totalCols = 15;
         for (let r = 0; r < totalRows; r++) {
             for (let c = 0; c < totalCols; c++) {
-                let cellRef = getCellRef(c, r); if (!ws[cellRef]) continue;
+                let cellRef = getCellRef(c, r); 
+                if (!ws[cellRef]) continue;
                 
-                // Aturan Desain Sel Default
                 ws[cellRef].s = { 
                     font: { name: "Arial", sz: 10 }, 
                     alignment: { vertical: "center" }, 
@@ -2426,19 +2987,50 @@
                 } else if (r === 3) {
                     ws[cellRef].s = { font: { name: "Arial", sz: 10, bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "334155" } }, alignment: { horizontal: "center", vertical: "center" }, border: { top: { style: "medium", color: { rgb: "000000" } }, bottom: { style: "medium", color: { rgb: "000000" } } } };
                 } else if (r > 3 && r < matchTitleIdx - 2) {
-                    let bgColor = (r % 2 === 0) ? "F8FAFC" : "FFFFFF"; ws[cellRef].s.fill = { fgColor: { rgb: bgColor } };
+                    let bgColor = (r % 2 === 0) ? "F8FAFC" : "FFFFFF"; 
+                    ws[cellRef].s.fill = { fgColor: { rgb: bgColor } };
+                    
                     if (c === 0) ws[cellRef].s.alignment.horizontal = "center"; 
                     else if (c === 1) { ws[cellRef].s.alignment.horizontal = "left"; ws[cellRef].s.font.bold = true; } 
-                    else if (c === 2) { ws[cellRef].s.alignment.horizontal = "center"; let isHadir = ws[cellRef].v === "HADIR"; ws[cellRef].s.font.bold = true; ws[cellRef].s.font.color = { rgb: isHadir ? "16A34A" : "DC2626" }; ws[cellRef].s.fill = { fgColor: { rgb: isHadir ? "DCFCE7" : "FEE2E2" } }; } 
+                    else if (c === 2) { 
+                        ws[cellRef].s.alignment.horizontal = "center"; 
+                        let isHadir = ws[cellRef].v === "HADIR"; 
+                        ws[cellRef].s.font.bold = true; 
+                        ws[cellRef].s.font.color = { rgb: isHadir ? "16A34A" : "DC2626" }; 
+                        ws[cellRef].s.fill = { fgColor: { rgb: isHadir ? "DCFCE7" : "FEE2E2" } }; 
+                    } 
                     else if (c === 3 || c === 4 || c === 5 || c === 6 || c === 7 || c === 8 || c === 11) ws[cellRef].s.alignment.horizontal = "center";
-                    else if (c === 9) { ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true; let textSP = String(ws[cellRef].v); if (textSP.startsWith("+")) ws[cellRef].s.font.color = { rgb: "16A34A" }; else if (textSP.startsWith("-")) ws[cellRef].s.font.color = { rgb: "DC2626" }; }
-                    else if (c === 10) { ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true; ws[cellRef].s.font.color = { rgb: "2563EB" }; }
-                    else if (c === 12) { ws[cellRef].s.alignment.horizontal = "center"; let isLunas = ws[cellRef].v === "Sudah Bayar"; ws[cellRef].s.font.bold = true; ws[cellRef].s.font.color = { rgb: isLunas ? "16A34A" : "D97706" }; ws[cellRef].s.fill = { fgColor: { rgb: isLunas ? "DCFCE7" : "FEF3C7" } }; } 
+                    else if (c === 9) { 
+                        ws[cellRef].s.alignment.horizontal = "center"; 
+                        ws[cellRef].s.font.bold = true; 
+                        let textSP = String(ws[cellRef].v); 
+                        if (textSP.startsWith("+")) ws[cellRef].s.font.color = { rgb: "16A34A" }; 
+                        else if (textSP.startsWith("-")) ws[cellRef].s.font.color = { rgb: "DC2626" }; 
+                    }
+                    else if (c === 10) { 
+                        ws[cellRef].s.alignment.horizontal = "center"; 
+                        ws[cellRef].s.font.bold = true; 
+                        ws[cellRef].s.font.color = { rgb: "2563EB" }; 
+                    }
+                    else if (c === 12) { 
+                        ws[cellRef].s.alignment.horizontal = "center"; 
+                        let isLunas = ws[cellRef].v === "Sudah Bayar"; 
+                        ws[cellRef].s.font.bold = true; 
+                        ws[cellRef].s.font.color = { rgb: isLunas ? "16A34A" : "D97706" }; 
+                        ws[cellRef].s.fill = { fgColor: { rgb: isLunas ? "DCFCE7" : "FEF3C7" } }; 
+                    } 
                     else if (c === 13) ws[cellRef].s.alignment.horizontal = "center"; 
-                    else if (c === 14) { ws[cellRef].s.alignment.horizontal = "right"; ws[cellRef].t = 'n'; ws[cellRef].z = '"Rp "#,##0'; }
+                    else if (c === 14) { 
+                        ws[cellRef].s.alignment.horizontal = "right"; 
+                        ws[cellRef].t = 'n'; 
+                        ws[cellRef].z = '"Rp "#,##0'; 
+                    }
                 } else if (r === matchTitleIdx - 2) {
                     ws[cellRef].s = { font: { name: "Arial", sz: 11, bold: true, color: { rgb: "1E40AF" } }, fill: { fgColor: { rgb: "EFF6FF" } }, alignment: { vertical: "center" }, border: { top: { style: "double", color: { rgb: "1E40AF" } }, bottom: { style: "double", color: { rgb: "1E40AF" } } } };
-                    if (c === 13 || c === 14) { ws[cellRef].s.alignment.horizontal = "right"; if (c === 14) { ws[cellRef].t = 'n'; ws[cellRef].z = '"Rp "#,##0'; } }
+                    if (c === 13 || c === 14) { 
+                        ws[cellRef].s.alignment.horizontal = "right"; 
+                        if (c === 14) { ws[cellRef].t = 'n'; ws[cellRef].z = '"Rp "#,##0'; } 
+                    }
                 } else if (r === matchTitleIdx - 1) {
                     ws[cellRef].s = { border: {} };
                 } else if (r === matchTitleIdx) {
@@ -2446,7 +3038,8 @@
                 } else if (r === matchHeaderIdx) {
                     ws[cellRef].s = { font: { name: "Arial", sz: 10, bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "1E293B" } }, alignment: { horizontal: "center", vertical: "center" } };
                 } else if (r >= startMatchDataIdx && r < endMatchDataIdx) {
-                    let bgColor = (r % 2 === 0) ? "F8FAFC" : "FFFFFF"; ws[cellRef].s.fill = { fgColor: { rgb: bgColor } };
+                    let bgColor = (r % 2 === 0) ? "F8FAFC" : "FFFFFF"; 
+                    ws[cellRef].s.fill = { fgColor: { rgb: bgColor } };
                     if (c === 0 || c === 3 || c === 6) {
                         ws[cellRef].s.alignment.horizontal = "center";
                     } else if (c === 1) {
@@ -2467,8 +3060,11 @@
                 }
             }
         }
+        
         ws['!cols'] = [ { wch: 6 }, { wch: 25 }, { wch: 18 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 10 }, { wch: 22 }, { wch: 16 }, { wch: 16 }, { wch: 18 } ];
-        XLSX.utils.book_append_sheet(wb, ws, "Rekap Hari Ini"); XLSX.writeFile(wb, "TaheSquad_Rekap_Harian.xlsx"); tutupModalExport();
+        XLSX.utils.book_append_sheet(wb, ws, "Rekap Hari Ini"); 
+        XLSX.writeFile(wb, "TaheSquad_Rekap_Harian.xlsx"); 
+        tutupModalExport();
     }
 
     function exportAllKumulatifExcel() {
@@ -2481,61 +3077,113 @@
         let rows = [titleRow, infoRow, emptyRow, headers];
 
         arrayAllMatch.sort((a, b) => {
-            let poinA = parseInt(a.poin) || 0; let poinB = parseInt(b.poin) || 0; if (poinB !== poinA) return poinB - poinA;
-            let spA = parseInt(a.selisihSkor) || 0; let spB = parseInt(b.selisihSkor) || 0; if (spB !== spA) return spB - spA;
-            let menangA = parseInt(a.menang) || 0; let menangB = parseInt(b.menang) || 0; return menangB - menangA;
+            let poinA = parseInt(a.poin) || 0; 
+            let poinB = parseInt(b.poin) || 0; 
+            if (poinB !== poinA) return poinB - poinA;
+            
+            let spA = parseInt(a.selisihSkor) || 0; 
+            let spB = parseInt(b.selisihSkor) || 0; 
+            if (spB !== spA) return spB - spA;
+            
+            let menangA = parseInt(a.menang) || 0; 
+            let menangB = parseInt(b.menang) || 0; 
+            return menangB - menangA;
         });
 
         arrayAllMatch.forEach((p, idx) => {
-            let spVal = parseInt(p.selisihSkor) || 0; let tanda = spVal > 0 ? `+${spVal}` : spVal; let totalMP = parseInt(p.menang || 0) + parseInt(p.kalah || 0);
-            let gradingVal = dapatkanGradingPemain(p.nama); let gradingKat = configGrading[configGrading.length-1] ? configGrading[configGrading.length-1].nama : "UNKNOWN";
-            for(let i=0; i<configGrading.length; i++){ if(gradingVal >= configGrading[i].min && gradingVal <= configGrading[i].max){ gradingKat = configGrading[i].nama; break; } }
+            let spVal = parseInt(p.selisihSkor) || 0; 
+            let tanda = spVal > 0 ? `+${spVal}` : spVal; 
+            let totalMP = parseInt(p.menang || 0) + parseInt(p.kalah || 0);
+            
+            let gradingVal = dapatkanGradingPemain(p.nama); 
+            let gradingKat = configGrading[configGrading.length-1] ? configGrading[configGrading.length-1].nama : "UNKNOWN";
+            for (let i = 0; i < configGrading.length; i++) { 
+                if (gradingVal >= configGrading[i].min && gradingVal <= configGrading[i].max) { 
+                    gradingKat = configGrading[i].nama; 
+                    break; 
+                } 
+            }
+            
             rows.push([idx + 1, p.nama, (p.kehadiran || 0) + " Sesi", totalMP, p.menang || 0, p.kalah || 0, p.skorMenang || 0, p.skorKalah || 0, tanda, p.poin || 0, gradingVal, gradingKat]);
         });
 
-        let endKlasemenIndex = rows.length; let historyTitleIndex = endKlasemenIndex + 2; let historyHeaderIndex = historyTitleIndex + 1;
+        let endKlasemenIndex = rows.length; 
+        let historyTitleIndex = endKlasemenIndex + 2; 
+        let historyHeaderIndex = historyTitleIndex + 1;
+        
         rows.push(["", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", ""]);
         rows.push(["ARSIP RIWAYAT SESI HARIAN (HISTORY)", "", "", "", "", "", "", "", "", "", "", ""]);
         rows.push(["Waktu Arsip", "Total Pertandingan", "Jumlah Pemain Hadir", "Rata-rata Waktu Main", "", "", "", "", "", "", "", ""]);
-        if (historySesiHarian.length === 0) { rows.push(["Belum ada riwayat sesi harian yang diarsipkan.", "", "", "", "", "", "", "", "", "", "", ""]); } 
-        else { historySesiHarian.forEach(sesi => { rows.push([sesi.waktu, sesi.totalMatch + " Pertandingan", sesi.pemainHadir + " Orang", sesi.rataWaktu, "", "", "", "", "", "", "", ""]); }); }
+        
+        if (historySesiHarian.length === 0) { 
+            rows.push(["Belum ada riwayat sesi harian yang diarsipkan.", "", "", "", "", "", "", "", "", "", "", ""]); 
+        } else { 
+            historySesiHarian.forEach(sesi => { 
+                rows.push([sesi.waktu, sesi.totalMatch + " Pertandingan", sesi.pemainHadir + " Orang", sesi.rataWaktu, "", "", "", "", "", "", "", ""]); 
+            }); 
+        }
 
-        let endHistoryIndex = rows.length; let gradingTitleIndex = endHistoryIndex + 2; let gradingHeaderIndex = gradingTitleIndex + 1;
+        let endHistoryIndex = rows.length; 
+        let gradingTitleIndex = endHistoryIndex + 2; 
+        let gradingHeaderIndex = gradingTitleIndex + 1;
+        
         rows.push(["", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", ""]);
         rows.push(["DATABASE KUALITAS GRADING PEMAIN", "", "", "", "", "", "", "", "", "", "", ""]);
         rows.push(["No", "Nama Pemain", "Nilai Grade", "Kategori Level", "", "", "", "", "", "", "", ""]);
         
         let arrayGrading = Object.values(databaseGrading).sort((a,b) => (b.grading || 0) - (a.grading || 0));
-        if(arrayGrading.length === 0) { rows.push(["Belum ada data grading.", "", "", "", "", "", "", "", "", "", "", ""]); } 
-        else {
+        
+        if (arrayGrading.length === 0) { 
+            rows.push(["Belum ada data grading.", "", "", "", "", "", "", "", "", "", "", ""]); 
+        } else {
             arrayGrading.forEach((p, idx) => {
-                let gradingVal = p.grading !== undefined ? p.grading : 5.0; let gradingKat = configGrading[configGrading.length-1] ? configGrading[configGrading.length-1].nama : "UNKNOWN";
-                for(let i=0; i<configGrading.length; i++){ if(gradingVal >= configGrading[i].min && gradingVal <= configGrading[i].max){ gradingKat = configGrading[i].nama; break; } }
+                let gradingVal = p.grading !== undefined ? p.grading : 5.0; 
+                let gradingKat = configGrading[configGrading.length-1] ? configGrading[configGrading.length-1].nama : "UNKNOWN";
+                for (let i = 0; i < configGrading.length; i++) { 
+                    if (gradingVal >= configGrading[i].min && gradingVal <= configGrading[i].max) { 
+                        gradingKat = configGrading[i].nama; break; 
+                    } 
+                }
                 rows.push([idx + 1, p.nama, gradingVal, gradingKat, "", "", "", "", "", "", "", ""]);
             });
         }
 
-        let totalRows = rows.length, totalCols = 12; let wb = XLSX.utils.book_new(); let ws = XLSX.utils.aoa_to_sheet(rows);
+        let totalRows = rows.length, totalCols = 12; 
+        let wb = XLSX.utils.book_new(); 
+        let ws = XLSX.utils.aoa_to_sheet(rows);
 
         ws['!merges'] = [
-            { s: { r: 0, c: 0 }, e: { r: 0, c: 11 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 11 } }, 
-            { s: { r: historyTitleIndex, c: 0 }, e: { r: historyTitleIndex, c: 11 } }, { s: { r: gradingTitleIndex, c: 0 }, e: { r: gradingTitleIndex, c: 11 } }
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 11 } }, 
+            { s: { r: 1, c: 0 }, e: { r: 1, c: 11 } }, 
+            { s: { r: historyTitleIndex, c: 0 }, e: { r: historyTitleIndex, c: 11 } }, 
+            { s: { r: gradingTitleIndex, c: 0 }, e: { r: gradingTitleIndex, c: 11 } }
         ];
-        for (let r = historyHeaderIndex; r < endHistoryIndex; r++) { ws['!merges'].push({ s: { r: r, c: 3 }, e: { r: r, c: 11 } }); }
-        for (let r = gradingHeaderIndex; r < rows.length; r++) { ws['!merges'].push({ s: { r: r, c: 3 }, e: { r: r, c: 11 } }); }
+        
+        for (let r = historyHeaderIndex; r < endHistoryIndex; r++) { 
+            ws['!merges'].push({ s: { r: r, c: 3 }, e: { r: r, c: 11 } }); 
+        }
+        for (let r = gradingHeaderIndex; r < rows.length; r++) { 
+            ws['!merges'].push({ s: { r: r, c: 3 }, e: { r: r, c: 11 } }); 
+        }
 
         for (let r = 0; r < totalRows; r++) {
             for (let c = 0; c < totalCols; c++) {
-                let cellRef = getCellRef(c, r); if (!ws[cellRef]) continue;
+                let cellRef = getCellRef(c, r); 
+                if (!ws[cellRef]) continue;
+                
                 ws[cellRef].s = { font: { name: "Arial", sz: 10 }, alignment: { vertical: "center" }, border: { top: { style: "thin", color: { rgb: "E2E8F0" } }, bottom: { style: "thin", color: { rgb: "E2E8F0" } }, left: { style: "thin", color: { rgb: "E2E8F0" } }, right: { style: "thin", color: { rgb: "E2E8F0" } } } };
+                
                 if (r === 0) ws[cellRef].s = { font: { name: "Arial", sz: 14, bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "0F3460" } }, alignment: { horizontal: "center", vertical: "center" } };
                 else if (r === 1) ws[cellRef].s = { font: { name: "Arial", sz: 10, italic: true, color: { rgb: "475569" } }, fill: { fgColor: { rgb: "F1F5F9" } }, alignment: { horizontal: "center", vertical: "center" } };
                 else if (r === 2) ws[cellRef].s = { border: {} };
                 else if (r === 3) ws[cellRef].s = { font: { name: "Arial", sz: 10, bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "1E293B" } }, alignment: { horizontal: "center", vertical: "center" }, border: { top: { style: "medium", color: { rgb: "000000" } }, bottom: { style: "medium", color: { rgb: "000000" } } } };
                 else if (r > 3 && r < endKlasemenIndex) { 
-                    let bgColor = (r % 2 === 0) ? "F8FAFC" : "FFFFFF"; ws[cellRef].s.fill = { fgColor: { rgb: bgColor } };
+                    let bgColor = (r % 2 === 0) ? "F8FAFC" : "FFFFFF"; 
+                    ws[cellRef].s.fill = { fgColor: { rgb: bgColor } };
+                    
                     if (c === 0) { 
-                        ws[cellRef].s.alignment.horizontal = "center"; let rankVal = ws[cellRef].v;
+                        ws[cellRef].s.alignment.horizontal = "center"; 
+                        let rankVal = ws[cellRef].v;
                         if (rankVal === 1) { ws[cellRef].s.fill = { fgColor: { rgb: "FEF08A" } }; ws[cellRef].s.font.bold = true; } 
                         else if (rankVal === 2) { ws[cellRef].s.fill = { fgColor: { rgb: "E2E8F0" } }; ws[cellRef].s.font.bold = true; } 
                         else if (rankVal === 3) { ws[cellRef].s.fill = { fgColor: { rgb: "FFEDD5" } }; ws[cellRef].s.font.bold = true; }
@@ -2544,12 +3192,16 @@
                     else if (c >= 2 && c <= 7) ws[cellRef].s.alignment.horizontal = "center";
                     else if (c === 8) { 
                         ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true;
-                        let textSP = String(ws[cellRef].v); if (textSP.startsWith("+")) ws[cellRef].s.font.color = { rgb: "16A34A" }; else if (textSP.startsWith("-")) ws[cellRef].s.font.color = { rgb: "DC2626" };
+                        let textSP = String(ws[cellRef].v); 
+                        if (textSP.startsWith("+")) ws[cellRef].s.font.color = { rgb: "16A34A" }; 
+                        else if (textSP.startsWith("-")) ws[cellRef].s.font.color = { rgb: "DC2626" };
                     } 
                     else if (c === 9) { ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true; ws[cellRef].s.font.color = { rgb: "2563EB" }; } 
                     else if (c === 10) { ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true; } 
                     else if (c === 11) {
-                        ws[cellRef].s.alignment.horizontal = "center"; ws[cellRef].s.font.bold = true; let katVal = ws[cellRef].v;
+                        ws[cellRef].s.alignment.horizontal = "center"; 
+                        ws[cellRef].s.font.bold = true; 
+                        let katVal = ws[cellRef].v;
                         if (configGrading[0] && katVal === configGrading[0].nama) { ws[cellRef].s.fill = { fgColor: { rgb: "FEE2E2" } }; ws[cellRef].s.font.color = { rgb: "EF4444" }; } 
                         else if (configGrading[1] && katVal === configGrading[1].nama) { ws[cellRef].s.fill = { fgColor: { rgb: "EFF6FF" } }; ws[cellRef].s.font.color = { rgb: "3B82F6" }; } 
                         else if (configGrading[2] && katVal === configGrading[2].nama) { ws[cellRef].s.fill = { fgColor: { rgb: "FCFDF4" } }; ws[cellRef].s.font.color = { rgb: "16A34A" }; }
@@ -2560,22 +3212,33 @@
                 }
             }
         }
+        
         ws['!cols'] = [ { wch: 18 }, { wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 8 }, { wch: 18 }, { wch: 22 }, { wch: 16 }, { wch: 20 } ];
-        XLSX.utils.book_append_sheet(wb, ws, "Data Kumulatif"); XLSX.writeFile(wb, "TaheSquad_All_Kumulatif.xlsx"); tutupModalExport();
+        XLSX.utils.book_append_sheet(wb, ws, "Data Kumulatif"); 
+        XLSX.writeFile(wb, "TaheSquad_All_Kumulatif.xlsx"); 
+        tutupModalExport();
     }
 
-    function triggerImportExcel() { document.getElementById('import-database-excel').click(); }
+    function triggerImportExcel() { 
+        document.getElementById('import-database-excel').click(); 
+    }
     
     function prosesImportExcel(e) {
-        const file = e.target.files[0]; if (!file) return; 
+        const file = e.target.files[0]; 
+        if (!file) return; 
+        
         document.getElementById('loading-image-process').style.display = 'flex';
         document.getElementById('loading-image-text').innerText = "Membaca Berkas Excel...";
         const reader = new FileReader();
+        
         reader.onload = function(event) {
             try {
-                const data = new Uint8Array(event.target.result); const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheetName = workbook.SheetNames[0]; const worksheet = workbook.Sheets[firstSheetName];
+                const data = new Uint8Array(event.target.result); 
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0]; 
+                const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+                
                 if (!jsonData || jsonData.length === 0) throw new Error("Berkas Excel kosong atau tidak terbaca!");
 
                 let headerIdx = -1;
@@ -2583,7 +3246,10 @@
                     const row = jsonData[i]; 
                     if (!row || !Array.isArray(row)) continue;
                     let rowStr = row.join(" ").toLowerCase();
-                    if (rowStr.includes('nama') && (rowStr.includes('mp') || rowStr.includes('menang') || rowStr.includes('poin'))) { headerIdx = i; break; }
+                    if (rowStr.includes('nama') && (rowStr.includes('mp') || rowStr.includes('menang') || rowStr.includes('poin'))) { 
+                        headerIdx = i; 
+                        break; 
+                    }
                 }
 
                 if (headerIdx === -1) throw new Error("Format salah! Pastikan ada kolom 'Nama Pemain' dan 'Poin'.");
@@ -2599,7 +3265,9 @@
                 const totalPoinColIdx = headers.findIndex(h => h.includes('total poin') || h.includes('poin kumulatif') || h === 'poin');
 
                 if (nameColIdx === -1) throw new Error("Kolom Nama Pemain tidak terdeteksi!");
-                let importedCount = 0; let updatedCount = 0;
+                
+                let importedCount = 0; 
+                let updatedCount = 0;
 
                 for (let i = headerIdx + 1; i < jsonData.length; i++) {
                     const row = jsonData[i]; 
@@ -2608,49 +3276,89 @@
                     let secondCell = String(row[1] || '').toUpperCase();
                     if (firstCell.includes('ARSIP RIWAYAT') || firstCell.includes('DATABASE KUALITAS') || secondCell.includes('ARSIP RIWAYAT')) break;
 
-                    const rawName = row[nameColIdx]; if (!rawName) continue;
+                    const rawName = row[nameColIdx]; 
+                    if (!rawName) continue;
                     let nama = String(rawName).trim().replace(/\s*\(\d+\s*sesi\)/i, '').trim().toUpperCase();
                     if (!nama || nama === 'TOTAL KAS MASUK' || nama === 'NAMA PEMAIN' || nama === 'PEMAIN') continue;
 
-                    let kehadiran = 0; if (kehadiranColIdx !== -1 && row[kehadiranColIdx] !== undefined) kehadiran = parseInt(String(row[kehadiranColIdx]).replace(/[^0-9]/g, '')) || 0;
-                    let menang = 0; if (mColIdx !== -1 && row[mColIdx] !== undefined) menang = parseInt(row[mColIdx]) || 0;
-                    let kalah = 0; if (kColIdx !== -1 && row[kColIdx] !== undefined) kalah = parseInt(row[kColIdx]) || 0;
+                    let kehadiran = 0; 
+                    if (kehadiranColIdx !== -1 && row[kehadiranColIdx] !== undefined) kehadiran = parseInt(String(row[kehadiranColIdx]).replace(/[^0-9]/g, '')) || 0;
+                    
+                    let menang = 0; 
+                    if (mColIdx !== -1 && row[mColIdx] !== undefined) menang = parseInt(row[mColIdx]) || 0;
+                    
+                    let kalah = 0; 
+                    if (kColIdx !== -1 && row[kColIdx] !== undefined) kalah = parseInt(row[kColIdx]) || 0;
                     let totalMP = menang + kalah; 
-                    let skorMenang = 0; if (pmColIdx !== -1 && row[pmColIdx] !== undefined) skorMenang = parseInt(row[pmColIdx]) || 0;
-                    let skorKalah = 0; if (pkColIdx !== -1 && row[pkColIdx] !== undefined) skorKalah = parseInt(row[pkColIdx]) || 0;
+                    
+                    let skorMenang = 0; 
+                    if (pmColIdx !== -1 && row[pmColIdx] !== undefined) skorMenang = parseInt(row[pmColIdx]) || 0;
+                    
+                    let skorKalah = 0; 
+                    if (pkColIdx !== -1 && row[pkColIdx] !== undefined) skorKalah = parseInt(row[pkColIdx]) || 0;
+                    
                     let selisihSkor = skorMenang - skorKalah;
-                    if (spColIdx !== -1 && row[spColIdx] !== undefined) { let spVal = String(row[spColIdx]).replace('+', ''); selisihSkor = parseInt(spVal) || selisihSkor; }
-                    let poin = 0; if (totalPoinColIdx !== -1 && row[totalPoinColIdx] !== undefined) poin = parseInt(row[totalPoinColIdx]) || 0;
+                    if (spColIdx !== -1 && row[spColIdx] !== undefined) { 
+                        let spVal = String(row[spColIdx]).replace('+', ''); 
+                        selisihSkor = parseInt(spVal) || selisihSkor; 
+                    }
+                    
+                    let poin = 0; 
+                    if (totalPoinColIdx !== -1 && row[totalPoinColIdx] !== undefined) poin = parseInt(row[totalPoinColIdx]) || 0;
                     
                     if (allMatchKlasemen[nama]) { updatedCount++; } else { importedCount++; }
 
-                    allMatchKlasemen[nama] = { nama: nama, kehadiran: kehadiran, main: totalMP, menang: menang, kalah: kalah, skorMenang: skorMenang, skorKalah: skorKalah, selisihSkor: selisihSkor, poin: poin };
+                    allMatchKlasemen[nama] = { 
+                        nama: nama, 
+                        kehadiran: kehadiran, 
+                        main: totalMP, 
+                        menang: menang, 
+                        kalah: kalah, 
+                        skorMenang: skorMenang, 
+                        skorKalah: skorKalah, 
+                        selisihSkor: selisihSkor, 
+                        poin: poin 
+                    };
                     
                     if(!databaseGrading[nama]) {
                         databaseGrading[nama] = { nama: nama, mainMatch: totalMP, grading: 5.0 };
                     }
                 }
-                simpanKeMemoriSilent(); renderUtama();
+                
+                simpanKeMemoriSilent(); 
+                renderUtama();
                 document.getElementById('loading-image-process').style.display = 'none';
                 bukaModalInputNotif("📥 Hasil Impor Database Kumulatif", `Selesai memproses file Excel!<br><br>✅ Pemain Baru: <b>${importedCount}</b><br>🔄 Diperbarui: <b>${updatedCount}</b>`);
-            } catch (error) { console.error(error); document.getElementById('loading-image-process').style.display = 'none'; showLiveToast(error.message || "Terjadi kesalahan saat membaca file Excel! ❌"); }
+            } catch (error) { 
+                console.error(error); 
+                document.getElementById('loading-image-process').style.display = 'none'; 
+                showLiveToast(error.message || "Terjadi kesalahan saat membaca file Excel! ❌"); 
+            }
             document.getElementById('import-database-excel').value = ''; 
         };
         reader.readAsArrayBuffer(file);
     }
 
-    function triggerImportGradingExcel() { document.getElementById('import-grading-excel').click(); }
+    function triggerImportGradingExcel() { 
+        document.getElementById('import-grading-excel').click(); 
+    }
     
     function prosesImportGradingExcel(e) {
-        const file = e.target.files[0]; if (!file) return; 
+        const file = e.target.files[0]; 
+        if (!file) return; 
+        
         document.getElementById('loading-image-process').style.display = 'flex';
         document.getElementById('loading-image-text').innerText = "Membaca Berkas Excel...";
         const reader = new FileReader();
+        
         reader.onload = function(event) {
             try {
-                const data = new Uint8Array(event.target.result); const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheetName = workbook.SheetNames[0]; const worksheet = workbook.Sheets[firstSheetName];
+                const data = new Uint8Array(event.target.result); 
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0]; 
+                const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                
                 if (!jsonData || jsonData.length === 0) throw new Error("Berkas Excel kosong!");
 
                 let headerIdx = -1;
@@ -2658,7 +3366,10 @@
                     const row = jsonData[i]; 
                     if (!row || !Array.isArray(row)) continue;
                     let rowStr = row.join(" ").toLowerCase();
-                    if (rowStr.includes('nama') && (rowStr.includes('grade') || rowStr.includes('grading'))) { headerIdx = i; break; }
+                    if (rowStr.includes('nama') && (rowStr.includes('grade') || rowStr.includes('grading'))) { 
+                        headerIdx = i; 
+                        break; 
+                    }
                 }
 
                 if (headerIdx === -1) throw new Error("Format Excel tidak dikenal! Harus ada kolom Nama dan Grading.");
@@ -2676,20 +3387,35 @@
                     let firstCell = String(row[0] || '').toUpperCase();
                     if (firstCell.includes('ARSIP RIWAYAT') || firstCell.includes('DATABASE KUALITAS')) continue;
 
-                    const rawName = row[nameColIdx]; if (!rawName) continue;
+                    const rawName = row[nameColIdx]; 
+                    if (!rawName) continue;
                     let nama = String(rawName).trim().replace(/\s*\(\d+\s*sesi\)/i, '').trim().toUpperCase();
                     if (!nama || nama === 'TOTAL KAS MASUK' || nama === 'NAMA PEMAIN' || nama === 'PEMAIN') continue;
 
                     let gradingVal = 5.0;
-                    if (row[gradingColIdx] !== undefined) { let rawGrading = String(row[gradingColIdx]).replace(',', '.'); gradingVal = parseFloat(rawGrading) || 5.0; }
+                    if (row[gradingColIdx] !== undefined) { 
+                        let rawGrading = String(row[gradingColIdx]).replace(',', '.'); 
+                        gradingVal = parseFloat(rawGrading) || 5.0; 
+                    }
 
-                    if (databaseGrading[nama]) { databaseGrading[nama].grading = gradingVal; updatedCount++; } 
-                    else { databaseGrading[nama] = { nama: nama, mainMatch: 0, grading: gradingVal }; addedCount++; }
+                    if (databaseGrading[nama]) { 
+                        databaseGrading[nama].grading = gradingVal; 
+                        updatedCount++; 
+                    } else { 
+                        databaseGrading[nama] = { nama: nama, mainMatch: 0, grading: gradingVal }; 
+                        addedCount++; 
+                    }
                 }
-                simpanKeMemoriSilent(); renderUtama();
+                
+                simpanKeMemoriSilent(); 
+                renderUtama();
                 document.getElementById('loading-image-process').style.display = 'none';
                 bukaModalInputNotif("📥 Hasil Impor Grading Database", `Selesai memperbarui database grading!<br><br>✅ Pemain Baru: <b>${addedCount}</b><br>🔄 Diperbarui: <b>${updatedCount}</b>`);
-            } catch (error) { console.error(error); document.getElementById('loading-image-process').style.display = 'none'; showLiveToast(error.message || "Terjadi kesalahan saat membaca berkas Excel! ❌"); }
+            } catch (error) { 
+                console.error(error); 
+                document.getElementById('loading-image-process').style.display = 'none'; 
+                showLiveToast(error.message || "Terjadi kesalahan saat membaca berkas Excel! ❌"); 
+            }
             document.getElementById('import-grading-excel').value = ''; 
         };
         reader.readAsArrayBuffer(file);
@@ -2702,7 +3428,10 @@
         const tbody1 = document.getElementById('poster-tbody-1');
         const tbody2 = document.getElementById('poster-tbody-2');
         
-        if(!tbody1 || !tbody2) { showLiveToast("Error: HTML Poster E-Sport tidak ditemukan!"); return; }
+        if(!tbody1 || !tbody2) { 
+            showLiveToast("Error: HTML Poster E-Sport tidak ditemukan!"); 
+            return; 
+        }
 
         let data = (jenis === 'hari-ini') ? [...dataPemain] : Object.values(allMatchKlasemen);
         data = data.filter(p => p && p.nama && String(p.nama).trim() !== '');
@@ -2714,27 +3443,38 @@
         }
 
         data.sort((a, b) => {
-            let pA = parseInt(a.poin) || 0; let pB = parseInt(b.poin) || 0; if (pB !== pA) return pB - pA;
-            let spA = parseInt(a.selisihSkor) || 0; let spB = parseInt(b.selisihSkor) || 0; if (spB !== spA) return spB - spA;
-            let mA = parseInt(a.menang) || 0; let mB = parseInt(b.menang) || 0; return mB - mA;
+            let pA = parseInt(a.poin) || 0; 
+            let pB = parseInt(b.poin) || 0; 
+            if (pB !== pA) return pB - pA;
+            
+            let spA = parseInt(a.selisihSkor) || 0; 
+            let spB = parseInt(b.selisihSkor) || 0; 
+            if (spB !== spA) return spB - spA;
+            
+            let mA = parseInt(a.menang) || 0; 
+            let mB = parseInt(b.menang) || 0; 
+            return mB - mA;
         });
         
         poster.style.display = 'block';
-        let d = new Date(); let monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        let d = new Date(); 
+        let monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         let bulanThn = `${monthNames[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
         
         titleSession.innerText = (jenis === 'hari-ini') ? `SESI MABAR HARI INI` : `SESI ${bulanThn}`;
         dateBadge.innerText = `Updated: ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
         
-        for(let i=1; i<=3; i++) {
+        for (let i = 1; i <= 3; i++) {
             let p = data[i-1];
-            if(p) {
+            if (p) {
                 document.getElementById(`pod-name-${i}`).innerText = p.nama;
                 document.getElementById(`pod-pts-${i}`).innerText = `${p.poin||0} Poin`;
-                let spVal = parseInt(p.selisihSkor) || 0; document.getElementById(`pod-sp-${i}`).innerText = `SP ${spVal > 0 ? '+'+spVal : spVal}`;
+                let spVal = parseInt(p.selisihSkor) || 0; 
+                document.getElementById(`pod-sp-${i}`).innerText = `SP ${spVal > 0 ? '+'+spVal : spVal}`;
             } else {
                 document.getElementById(`pod-name-${i}`).innerText = "-";
-                document.getElementById(`pod-pts-${i}`).innerText = "0 Poin"; document.getElementById(`pod-sp-${i}`).innerText = "SP 0";
+                document.getElementById(`pod-pts-${i}`).innerText = "0 Poin"; 
+                document.getElementById(`pod-sp-${i}`).innerText = "SP 0";
             }
         }
 
@@ -2745,7 +3485,8 @@
         let maxHadir = data.length > 0 ? Math.max(...data.map(p => parseInt(p.kehadiran)||1)) : 1;
         document.getElementById('stat-hadir').innerText = `${maxHadir} Sesi`;
 
-        tbody1.innerHTML = ''; tbody2.innerHTML = '';
+        tbody1.innerHTML = ''; 
+        tbody2.innerHTML = '';
         let midPoint = Math.ceil(data.length / 2);
 
         data.forEach((p, idx) => {
@@ -2769,8 +3510,10 @@
                 <td class="pt-poin">${p.poin||0}</td>
             `;
             
-            let row = document.createElement('tr'); row.innerHTML = rowHtml;
-            if (idx < midPoint) tbody1.appendChild(row); else tbody2.appendChild(row);
+            let row = document.createElement('tr'); 
+            row.innerHTML = rowHtml;
+            if (idx < midPoint) tbody1.appendChild(row); 
+            else tbody2.appendChild(row);
         });
 
         document.getElementById('loading-image-process').style.display = 'flex';
@@ -2782,10 +3525,13 @@
                 link.download = `TahesSmash_${jenis}_${new Date().getTime()}.jpg`;
                 link.href = canvas.toDataURL("image/jpeg", 0.9);
                 link.click();
-                poster.style.display = 'none'; document.getElementById('loading-image-process').style.display = 'none';
+                poster.style.display = 'none'; 
+                document.getElementById('loading-image-process').style.display = 'none';
                 tutupModalExportGambar();
             }).catch(err => {
-                console.error(err); poster.style.display = 'none'; document.getElementById('loading-image-process').style.display = 'none';
+                console.error(err); 
+                poster.style.display = 'none'; 
+                document.getElementById('loading-image-process').style.display = 'none';
                 showLiveToast("Gagal memproses gambar!");
             });
         }, 500);
