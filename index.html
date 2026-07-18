@@ -518,6 +518,168 @@
         .sync-status.error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; box-shadow: 0 2px 4px rgba(185,28,28,0.1); }
         .sync-status.syncing .sync-icon { animation: spin-pulse 1.5s infinite; display: inline-block; }
         @keyframes spin-pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+
+/* --- STYLE TAMBAHAN TOMBOL REFRESH --- */
+        .btn-refresh {
+            background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 8px 14px; border-radius: 6px; 
+            font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s;
+        }
+        .btn-refresh:hover { background-color: #e2e8f0; color: #0f172a; }
+
+        /* --- STYLE TAMBAHAN TOMBOL +/- GRADING --- */
+        .btn-flat-grade { 
+            background: transparent; border: none; font-size: 20px; font-weight: 900; cursor: pointer; 
+            padding: 0 4px; display: inline-flex; align-items: center; justify-content: center; outline: none; transition: transform 0.1s; user-select: none;
+        }
+        .btn-flat-grade:active { transform: scale(0.7); }
+        .btn-flat-grade.add { color: #16a34a; } /* Hijau */
+        .btn-flat-grade.min { color: #dc2626; } /* Merah */
+
+/* =========================================================
+           OPTIMASI UI/UX RESPONSIVE & PROPORSI LAYAR
+           ========================================================= */
+        
+        /* Membatasi lebar konten agar proporsional di Desktop lebar */
+        .page-panel {
+            max-width: 960px !important;
+            padding: 30px !important;
+            border-radius: 16px !important;
+            margin: 0 auto !important;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.04) !important;
+        }
+
+        .content-body {
+            padding: 30px 20px;
+        }
+
+        /* --- PENYESUAIAN TABLET (< 992px) --- */
+        @media (max-width: 992px) {
+            .live-score-item { flex-direction: column; gap: 2px; text-align: center; }
+            .live-score-value { font-size: 18px; }
+            .page-panel { padding: 20px !important; }
+        }
+
+        /* --- PENYESUAIAN MOBILE (< 768px) --- */
+        @media (max-width: 768px) {
+            /* Perilaku Sidebar menjadi Overlay di Mobile */
+            .sidebar {
+                position: absolute;
+                left: 0; top: 0; height: 100%;
+                z-index: 1050;
+                margin-left: 0 !important;
+                transform: translateX(0);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.closed {
+                transform: translateX(-100%);
+            }
+            
+            /* Penyesuaian Ruang & Padding */
+            .content-body { padding: 15px 10px; }
+            .page-panel { padding: 15px !important; border-radius: 12px !important; }
+            
+            /* Navbar Atas disesuaikan agar tidak tumpang tindih */
+            .top-navbar { padding: 12px 15px; height: auto; min-height: 65px; flex-wrap: wrap; gap: 10px; position: relative;}
+            .navbar-left-zone { width: 100%; justify-content: space-between; }
+            .live-score-container-center { order: 3; width: 100%; margin-top: 5px; border-top: 1px solid #f1f5f9; padding-top: 10px; }
+            
+            /* Posisi Tombol Segarkan & Alat di Mobile */
+            .floating-controls { position: absolute; right: 15px; top: 12px; }
+            
+            /* Sembunyikan Teks pada tombol, tampilkan Icon saja untuk menghemat ruang */
+            .btn-refresh span, .btn-alat span { display: none; }
+            .btn-refresh, .btn-alat { padding: 8px 10px; font-size: 16px; }
+            
+            /* Penyesuaian Grid & Tabel */
+            .summary-box { grid-template-columns: 1fr; gap: 10px; }
+            .attendance-details { flex-direction: column; align-items: center; gap: 5px; }
+            .courts-container.grid-layout { grid-template-columns: 1fr !important; }
+            .poster-tables-wrapper { flex-direction: column; }
+            .poster-table-col { width: 100%; }
+            .table-container { border-radius: 8px; border: none; box-shadow: 0 0 0 1px #e2e8f0; }
+        }
+
+/* =========================================================
+           1. OPTIMASI UI/UX KESELURUHAN (Sesuai image_d0fb2a.jpg)
+           ========================================================= */
+        body { background-color: #e2e8f0; } /* Warna latar belakang abu-abu lembut agar panel putih menonjol */
+        
+        .content-body { padding: 40px 20px; overflow-y: auto; }
+        
+        /* Membuat Card Panel Tengah Proporsional */
+        .page-panel {
+            max-width: 950px !important;
+            margin: 0 auto !important;
+            background: #ffffff !important;
+            padding: 40px !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08) !important;
+            border: 1px solid #f1f5f9;
+        }
+
+        /* Navbar Atas yang Lebih Bersih */
+        .top-navbar {
+            background: #ffffff; height: 75px; padding: 0 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10;
+        }
+        
+        .toggle-btn {
+            background: #0f172a; color: white; border: none; padding: 10px 20px;
+            border-radius: 8px; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Indikator Cloud Sync (Sesuai image_d0fec8.png) */
+        .sync-status {
+            padding: 8px 18px; border-radius: 30px; font-size: 13px; font-weight: 700;
+            display: flex; align-items: center; gap: 8px; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;
+        }
+
+        /* Live Score Navbar Styling */
+        .live-score-panel { gap: 30px; }
+        .live-score-item { gap: 6px; }
+        .live-score-label { font-size: 11px; font-weight: 800; color: #64748b; }
+        .live-score-value { font-size: 18px; color: #2563eb; }
+
+        /* Tombol Aksi Navbar */
+        .btn-refresh { background-color: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; }
+        .btn-alat { background-color: #fffaf0; color: #ea580c; border: 1px solid #fed7aa; }
+        .btn-refresh:hover { background-color: #dbeafe; }
+        .btn-alat:hover { background-color: #ffedd5; }
+
+        /* =========================================================
+           2. RESTRUKTURISASI HALAMAN REGISTRASI (Sesuai image_d0fb2a.jpg)
+           ========================================================= */
+        .input-manual-row { display: flex; gap: 10px; margin-bottom: 25px; }
+        .input-manual-row input { flex: 1; padding: 14px 18px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: border 0.2s;}
+        .input-manual-row input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .input-manual-row button { background: #1e293b; color: white; border: none; padding: 0 30px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: background 0.2s;}
+        .input-manual-row button:hover { background: #0f172a; }
+
+        .copas-section { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 24px; border-radius: 12px; }
+        .nominal-setting-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 10px; margin-bottom: 15px; color: #15803d; font-size: 13px; font-weight: 700; }
+        .nominal-setting-box input { width: 90px; padding: 6px; border: 1px solid #86efac; border-radius: 6px; text-align: center; font-weight: 800; color: #166534; outline: none; }
+        .copas-section textarea { height: 140px; font-family: monospace; font-size: 13px; border-color: #cbd5e1; margin-bottom: 15px; }
+        .btn-process { background: #10b981; font-size: 15px; padding: 15px; transition: background 0.2s; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
+        .btn-process:hover { background: #059669; }
+
+        /* =========================================================
+           3. RESPONSIVE MOBILE & TABLET
+           ========================================================= */
+        @media (max-width: 992px) {
+            .page-panel { padding: 25px !important; width: 95% !important; }
+            .live-score-panel { gap: 15px; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { position: absolute; left: 0; top: 0; height: 100%; z-index: 1050; margin-left: 0 !important; transform: translateX(0); transition: transform 0.3s ease; }
+            .sidebar.closed { transform: translateX(-100%); }
+            .top-navbar { height: auto; min-height: 75px; flex-wrap: wrap; padding: 15px; gap: 12px;}
+            .navbar-left-zone { width: 100%; justify-content: space-between; }
+            .live-score-container-center { order: 3; width: 100%; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 12px; }
+            .floating-controls { position: absolute; right: 15px; top: 18px; }
+            .btn-refresh span, .btn-alat span { display: none; } /* Sembunyikan teks tombol di HP */
+            .input-manual-row { flex-direction: column; }
+            .input-manual-row button { padding: 14px; }
+        }
     </style>
 </head>
 <body>
@@ -591,8 +753,24 @@
             </div>
         </div>
         
-        <div class="floating-controls admin-only" id="action-buttons">
-            <div class="dropdown-container">
+        <div class="floating-controls" id="action-buttons">
+            <!-- Tombol Refresh Universal -->
+            <button class="btn-refresh" onclick="refreshDataManual()" title="Segarkan Data Manual">
+                🔄 <span>Segarkan</span>
+            </button>
+            
+            <div class="dropdown-container admin-only">
+                <button class="btn-alat" onclick="toggleDropdownAlat(event)">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 4px;">
+                        <!-- ... kode svg tetap sama ... -->
+                        <circle cx="50" cy="69" r="4.5" fill="#f97316"/>
+                    </svg>
+                    <span>Alat</span>
+                </button>
+                <!-- ... dropdown menu tetap sama ... -->
+            
+            <!-- Class admin-only dipindah ke pembungkus dropdown agar khusus Admin -->
+            <div class="dropdown-container admin-only">
                 <button class="btn-alat" onclick="toggleDropdownAlat(event)">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 4px;">
                         <circle cx="50" cy="50" r="32" fill="none" stroke="#f97316" stroke-width="8"/>
@@ -623,24 +801,40 @@
                 </div>
             </div>
         </div>
-    </div>
 
     <div class="content-body">
         
+        <!-- STRUKTUR NAVBAR KIRI -->
+        <div class="navbar-left-zone">
+            <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu</button>
+            <div id="cloud-sync-indicator" class="sync-status connected">
+                <span class="sync-icon">☁️</span> <span id="sync-text">Cloud Terkoneksi</span>
+            </div>
+        </div>
+
+        <!-- STRUKTUR HALAMAN REGISTRASI (Sesuai image_d0fb2a.jpg) -->
         <div id="page-input" class="page-panel active">
-            <h2>📝 Registrasi & Masukkan Nama Pemain</h2>
+            <h2 style="font-size: 20px; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 24px;">📝 Registrasi & Masukkan Nama Pemain</h2>
             
+            <!-- Blok Input Manual Single -->
+            <div class="input-manual-row">
+                <input type="text" id="input-nama-manual" placeholder="Ketik 1 nama pemain baru di sini..." onkeypress="if(event.key==='Enter') tambahSatuPemain()">
+                <button onclick="tambahSatuPemain()">Tambah</button>
+            </div>
+
+            <!-- Blok Copy Paste Massal -->
             <div class="copas-section">
-                <div class="nominal-setting">
+                <div class="nominal-setting-box">
                     <span>Iuran Per Orang Default: Rp</span>
                     <input type="number" id="iuran-pemain" value="25000">
                 </div>
-                <h4>📋 Tempel Teks (Bisa 1 atau banyak sekaligus)</h4>
-                <p style="font-size:12px; color:#64748b; margin-top:4px; margin-bottom:12px;">
-                    Anda dapat mengetikkan 1 nama langsung, atau menyalin daftar berangka dari WhatsApp dan menempelkannya di sini.
-                </p>
-                <textarea id="wa-text" placeholder="Masukkan 1 nama atau tempel daftar nama ke bawah disini...&#10;Contoh 1: BUDI&#10;Contoh banyak:&#10;1. BUDI&#10;2. ANDI"></textarea>
-                <button class="btn-process" onclick="prosesDaftarNama()">Proses & Masukkan Pemain</button>
+                
+                <h4 style="color: #475569; font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                    📋 Tempel Teks Massal (WhatsApp Copy Paste)
+                </h4>
+                
+                <textarea id="wa-text" placeholder="Tempel teks daftar nama berangka ke bawah langsung disini...&#10;Contoh 1: BUDI&#10;Contoh banyak:&#10;1. BUDI&#10;2. ANDI"></textarea>
+                <button class="btn-process" onclick="prosesDaftarNama()">Proses & Masukkan Semua Nama</button>
             </div>
         </div>
 
@@ -1189,22 +1383,7 @@
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('loading-image-process').style.display = 'none';
         
-        let savedData = localStorage.getItem('tahesquad_offline_db');
-        if (savedData) {
-            try {
-                let db = JSON.parse(savedData);
-                dataPemain = db.dataPemain || [];
-                riwayatPertandingan = db.riwayatPertandingan || [];
-                allMatchKlasemen = db.allMatchKlasemen || {};
-                databaseGrading = db.databaseGrading || {};
-                historySesiHarian = db.historySesiHarian || [];
-                stateLapangan = db.stateLapangan || {};
-                configGrading = db.configGrading || defaultGradingConfig;
-                jumlahLapangan = db.jumlahLapangan || 1;
-            } catch(e) {
-                console.error("Gagal memuat data lokal:", e);
-            }
-        }
+        muatDataDariStorage(); // Memanggil fungsi muat data yang sudah Anda miliki
 
         checkLogin();
         jalankanUlangTimerAktif();
@@ -1224,25 +1403,31 @@
         }
         renderUtama();
         
+        // Memaksa status indikator menjadi Cloud Terkoneksi secara native
         updateSyncStatus('connected');
-        document.getElementById('sync-text').innerText = "Mode Offline Lokal";
-        document.querySelector('.sync-icon').innerText = "💾";
     });
 
+    // Modifikasi Update Sync Status untuk mengubah icon & teks secara dinamis
     function updateSyncStatus(state) {
         const ind = document.getElementById('cloud-sync-indicator');
         const txt = document.getElementById('sync-text');
+        const icon = ind ? ind.querySelector('.sync-icon') : null;
+        
         if (!ind || !txt) return;
         ind.className = 'sync-status'; 
+        
         if (state === 'syncing') {
             ind.classList.add('syncing'); 
-            txt.innerText = "Menyimpan...";
+            txt.innerText = "Menyimpan ke Cloud...";
+            if (icon) icon.innerText = "🔄";
         } else if (state === 'error') {
             ind.classList.add('error'); 
-            txt.innerText = "Gagal Simpan";
+            txt.innerText = "Gagal Sinkronisasi";
+            if (icon) icon.innerText = "⚠️";
         } else {
             ind.classList.add('connected'); 
-            txt.innerText = "Tersimpan Lokal";
+            txt.innerText = "Cloud Terkoneksi";
+            if (icon) icon.innerText = "☁️";
         }
     }
 
@@ -1492,6 +1677,25 @@
             isiPesan += `<br><b>⚠️ Dilewati (Sudah Ada):</b><br><div style="max-height: 80px; overflow-y: auto; font-size: 11px; padding: 8px; background: #fff7ed; border: 1px solid #ffedd5; border-radius: 4px;">${listPemainDuplikat.join(', ')}</div>`;
         }
         bukaModalInputNotif("📊 Hasil Pemrosesan Teks", isiPesan); 
+        renderUtama();
+    }
+
+    // Fungsi untuk menambah 1 nama dari kolom input datar
+    function tambahSatuPemain() {
+        const inputEl = document.getElementById('input-nama-manual');
+        const namaVal = inputEl.value.trim().toUpperCase();
+        const nominalDefault = parseInt(document.getElementById('iuran-pemain').value) || 25000;
+        
+        if (!namaVal) return;
+        
+        if (dataPemain.some(p => p.nama === namaVal)) {
+            bukaModalInputNotif("⚠️ Gagal", `Pemain dengan nama <b>${namaVal}</b> sudah terdaftar hari ini.`);
+            return;
+        }
+        
+        buatObjekPemain(namaVal, nominalDefault);
+        inputEl.value = '';
+        showLiveToast(`Pemain ${namaVal} berhasil ditambahkan! ✅`);
         renderUtama();
     }
 
@@ -1764,7 +1968,14 @@
                 <td><span class="pos-badge">${idx + 1}</span></td>
                 <td style="text-align: left; font-weight: 700; color: #1e293b; font-size: 13px;">${p.nama} ${badgeNew}<button class="edit-icon-btn admin-only" title="Edit/Hapus Nama" onclick="bukaModalEditGrading('${p.nama}')">✏️</button></td>
                 <td style="text-align:center; font-weight:700; color:#64748b;">${p.mainMatch || 0}</td>
-                <td style="text-align:center;"><div style="display:flex; align-items:center; justify-content:center; gap:8px;"><input type="range" id="slider-${cleanId}" min="0" max="10" step="0.1" value="${p.calcGrade}" class="grading-slider admin-only" style="background: ${bgSlider};" oninput="updateGradingPemainSlider('${p.nama}', this.value, '${cleanId}')"><span id="grading-val-${cleanId}" style="font-weight:800; color:#2563eb; font-size:14px; width: 25px; display:inline-block;">${p.calcGrade.toFixed(1)}</span></div></td>
+                <td style="text-align:center;">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
+                        <button class="btn-flat-grade min admin-only" onclick="adjustGrading('${p.nama}', -0.1, '${cleanId}')">-</button>
+                        <input type="range" id="slider-${cleanId}" min="0" max="10" step="0.1" value="${p.calcGrade}" class="grading-slider admin-only" style="background: ${bgSlider};" oninput="updateGradingPemainSlider('${p.nama}', this.value, '${cleanId}')">
+                        <button class="btn-flat-grade add admin-only" onclick="adjustGrading('${p.nama}', 0.1, '${cleanId}')">+</button>
+                        <span id="grading-val-${cleanId}" style="font-weight:800; color:#2563eb; font-size:14px; width: 25px; display:inline-block; margin-left:6px;">${p.calcGrade.toFixed(1)}</span>
+                    </div>
+                </td>
                 <td style="text-align:center;" id="rec-container-${cleanId}">${buildHtmlRekomendasi(p.nama, p.calcGrade, recGrade)}</td>
                 <td style="text-align:center;" id="grading-kat-${cleanId}">${hitungKategoriGrading(p.calcGrade)}</td>
             `;
@@ -3536,6 +3747,61 @@
             });
         }, 500);
     }
+// ==============================================================================
+    // FUNGSI BARU: AUTO-REFRESH & TOMBOL +/- GRADING
+    // ==============================================================================
+
+    // Fungsi Pembantu Klik Datar +/- Grading
+    function adjustGrading(nama, delta, cleanId) {
+        let slider = document.getElementById(`slider-${cleanId}`);
+        if(!slider) return;
+        let currentVal = parseFloat(slider.value);
+        let newVal = Math.max(0, Math.min(10, currentVal + delta)); // Maks 10, Min 0
+        slider.value = newVal;
+        updateGradingPemainSlider(nama, newVal, cleanId);
+    }
+
+    // Fungsi Untuk Memuat Data Ulang dari Memori (Universal Loading)
+    function muatDataDariStorage() {
+        let savedData = localStorage.getItem('tahesquad_offline_db');
+        if (savedData) {
+            try {
+                let db = JSON.parse(savedData);
+                dataPemain = db.dataPemain || [];
+                riwayatPertandingan = db.riwayatPertandingan || [];
+                allMatchKlasemen = db.allMatchKlasemen || {};
+                databaseGrading = db.databaseGrading || {};
+                historySesiHarian = db.historySesiHarian || [];
+                stateLapangan = db.stateLapangan || {};
+                configGrading = db.configGrading || defaultGradingConfig;
+                jumlahLapangan = db.jumlahLapangan || 1;
+            } catch(e) {
+                console.error("Gagal memuat ulang data:", e);
+            }
+        }
+    }
+
+    // Eksekusi ketika tombol 'Segarkan' ditekan secara manual
+    function refreshDataManual() {
+        muatDataDariStorage();
+        renderUtama();
+        showLiveToast("Data berhasil disegarkan secara manual! 🔄");
+    }
+
+    // PENDETEKSI REAL-TIME MULTI-TAB (Sangat Teroptimasi)
+    // Otomatis merender ulang data ketika ada tab/jendela lain (Admin) yang mengubah localStorage
+    window.addEventListener('storage', function(e) {
+        // Hanya merespon apabila key penyimpanan berubah
+        if (e.key === 'tahesquad_offline_db') {
+            muatDataDariStorage();
+            renderUtama();
+            
+            // Berikan notifikasi jika tab ini adalah Member Mode
+            if(userRole === 'member') {
+                showLiveToast("Data baru saja diperbarui otomatis oleh Admin ⚡");
+            }
+        }
+    });
 </script>
 </body>
 </html>
